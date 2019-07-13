@@ -18,7 +18,7 @@ data class TableReserved(
 
     override fun occurredAt(): Instant = occurredAt
 
-    override fun aggregateUuid(): String = clientId.value
+    override fun aggregateUuid(): String = tableId.value
 
     companion object {
         const val TYPE = "table.tableReserved"
