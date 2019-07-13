@@ -34,7 +34,6 @@ class EventSourcedTableRepositoryTest extends Specification {
             def foundTable = repository.find(tableId)
         then:
             foundTable == table
-            foundTable.changes == table.changes
     }
 
     def 'should contains table wich participation of client which reserved table'() {
