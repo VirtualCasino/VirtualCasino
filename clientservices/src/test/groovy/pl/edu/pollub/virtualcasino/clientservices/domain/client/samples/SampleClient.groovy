@@ -2,7 +2,7 @@ package pl.edu.pollub.virtualcasino.clientservices.domain.client.samples
 
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.Client
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableFactory
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.fakes.FakedTableRepository
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableRepository
 
@@ -14,13 +14,11 @@ class SampleClient {
         def properties = [
                 id: sampleClientId(),
                 changes: [],
-                tableFactory: new TableFactory(),
                 tableRepository: new FakedTableRepository()
         ] + customProperties
         return new Client(
                 properties.id as ClientId,
                 properties.changes as List,
-                properties.tableFactory as TableFactory,
                 properties.tableRepository as TableRepository
         )
     }
@@ -30,5 +28,12 @@ class SampleClient {
                 value: randomUUID().toString()
         ] + customProperties
         return new ClientId(properties.value as String)
+    }
+
+    static Tokens sampleTokens(customProperties = [:]) {
+        def properties = [
+                count: 0
+        ] + customProperties
+        return new Tokens(properties.count as Integer)
     }
 }

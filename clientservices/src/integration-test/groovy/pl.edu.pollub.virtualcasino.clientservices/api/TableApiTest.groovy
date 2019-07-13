@@ -12,8 +12,8 @@ import spock.lang.Specification
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClient
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClientId
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleReserveTable.sampleReserveTable
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleParticipation
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReserveTable.sampleReserveTable
 
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = [CasinoServicesBoundedContext.class])
 class TableApiTest extends Specification {
@@ -46,6 +46,8 @@ class TableApiTest extends Specification {
         then:
             tableRepository.containsWithParticipation(expectedParticipation)
     }
+
+    //TODO dopisać przypadki testowe
 
     //TODO dopisać testy przypadków negatywnych (Exception handler)
 

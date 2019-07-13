@@ -11,7 +11,7 @@ import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.S
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleParticipation
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTable
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTableId
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTableReserved.sampleTableReserved
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.events.SampleTableReserved.sampleTableReserved
 
 @SpringBootTest(classes = [CasinoServicesBoundedContext.class])
 class EventSourcedTableRepositoryTest extends Specification {
