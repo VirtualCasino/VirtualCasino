@@ -32,7 +32,7 @@ class TableApiTest extends Specification {
         tableRepository.clear()
     }
 
-    def 'should reserve table'() {
+    def 'should add table with client participation'() {
         given:
             def clientId = sampleClientId()
             def client = sampleClient(id: clientId)
@@ -42,12 +42,9 @@ class TableApiTest extends Specification {
         and:
             def reserveTable = sampleReserveTable(clientId: clientId)
         when:
-            def tableUri = http.postForLocation(URI.create("/tables"), reserveTable)
+            http.postForLocation(URI.create("/tables"), reserveTable)
         then:
-            def tableId = toTableId(tableUri)
-            def table = tableRepository.find(tableId)
-            table != null
-            table.hasParticipation(expectedParticipation)
+            tableRepository.containsWithParticipation(expectedParticipation)
     }
 
     //TODO dopisać testy przypadków negatywnych (Exception handler)
