@@ -10,12 +10,12 @@ import java.net.URI
 
 @RestController
 @RequestMapping("/tables")
-class TableApi(private val facade: TableFacade) {
+class TableApi(private val commandHandler: TableCommandHandler) {
 
     @PostMapping
     fun reserveTable(@RequestBody command: ReserveTable): ResponseEntity<Any> {
-        val createdTableId = facade.handle(command)
-        return ResponseEntity.created(URI.create("/tables/${createdTableId.value}")).build()
+        commandHandler.handle(command)
+        return ResponseEntity.created(URI.create("/clients/${command.clientId}/tables")).build()
     }
 
 }
