@@ -13,7 +13,7 @@ class TableTest extends Specification {
     @Subject
     def table
 
-    def "should has participation of client that open to table"() {
+    def "should has participation of client that reserved table"() {
         given:
             table = sampleTable()
             def clientId = sampleClientId()
