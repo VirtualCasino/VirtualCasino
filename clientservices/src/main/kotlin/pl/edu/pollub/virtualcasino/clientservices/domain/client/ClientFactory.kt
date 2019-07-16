@@ -10,9 +10,8 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableRepository
 class ClientFactory(val context: ApplicationContext) {
 
     fun create(aggregateId: ClientId = ClientId(), events: List<DomainEvent> = emptyList()): Client {
-        val tableFactory = context.getBean(TableFactory::class.java)
         val tableRepository = context.getBean(TableRepository::class.java)
-        return Client(aggregateId, events.toMutableList(), tableFactory, tableRepository)
+        return Client(aggregateId, events.toMutableList(), tableRepository)
     }
 
 }

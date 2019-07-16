@@ -30,7 +30,6 @@ class EventSourcedClientRepositoryTest extends Specification {
             def foundClient = repository.find(clientId)
         then:
             foundClient == client
-            foundClient.changes == client.changes
     }
 
 }

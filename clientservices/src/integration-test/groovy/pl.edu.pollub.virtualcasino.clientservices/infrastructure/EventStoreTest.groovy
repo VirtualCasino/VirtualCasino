@@ -8,7 +8,7 @@ import pl.edu.pollub.virtualcasino.clientservices.infrastructure.eventstore.Even
 import spock.lang.Specification
 import spock.lang.Subject
 
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleEventDescriptor.sampleEventDescriptor
+import static pl.edu.pollub.virtualcasino.clientservices.infrastructure.samples.SampleEventDescriptor.sampleEventDescriptor
 
 @SpringBootTest(classes = [CasinoServicesBoundedContext.class])
 class EventStoreTest extends Specification {
