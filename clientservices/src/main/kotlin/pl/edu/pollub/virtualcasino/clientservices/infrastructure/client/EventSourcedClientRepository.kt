@@ -28,7 +28,9 @@ class EventSourcedClientRepository(
                 ?.events
                 ?.map { eventSerializer.deserialize(it) }
                 ?: return null
-        return clientFactory.create(aggregateId, events)
+        val client = clientFactory.create(aggregateId, events)
+        client.markChangesAsCommitted()
+        return client
     }
 
     override fun clear() {

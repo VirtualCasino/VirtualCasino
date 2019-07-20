@@ -12,7 +12,7 @@ class EventSourcedTableRepository(val eventStore: EventStore,
 ): TableRepository {
 
 
-    val participantsOfTables = mutableListOf<ParticipantsOfTable>()
+    private val participantsOfTables = mutableListOf<ParticipantsOfTable>()
 
     override fun add(aggregate: Table): Boolean {
         val pendingEvents = aggregate.getUncommittedChanges()
@@ -28,7 +28,9 @@ class EventSourcedTableRepository(val eventStore: EventStore,
         val events = eventStore.getEventsOfAggregate(id.value)
                 ?.events
                 ?.map { eventSerializer.deserialize(it) } ?: return null
-        return tableFactory.create(id, events)
+        val table = tableFactory.create(id, events)
+        table.markChangesAsCommitted()
+        return table
     }
 
     override fun clear() {

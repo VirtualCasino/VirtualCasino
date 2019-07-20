@@ -13,11 +13,10 @@ class Client(val id: ClientId = ClientId(),
              private val tableRepository: TableRepository
 ) {
 
-    var tokens = Tokens()
+    private var tokens = Tokens()
 
     init {
         changes.fold(this) { _, event -> patternMatch(event) }
-        markChangesAsCommitted()
     }
 
     fun handle(command: IncreaseTokensCount) {

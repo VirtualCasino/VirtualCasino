@@ -5,6 +5,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.Clien
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientNotExist
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.fakes.FakedClientRepository
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.ClientAlreadyParticipated
+import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateCantBeZero
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateTooHigh
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.TableAlreadyReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.TableFull
@@ -117,6 +118,22 @@ class TableTest extends Specification {
         then:
             def e = thrown(ClientBusy)
             e.clientId == clientId
+    }
+
+    def "should throw InitialBidingRateCantBeZero when client try to reserve poker table with initial biding rate equal to zero"() {
+        given:
+            def tableId = sampleTableId()
+            table = sampleTable(id: tableId, clientRepository: clientRepository)
+        and:
+            def clientId = sampleClientId()
+            clientRepository.add(sampleClient(id: clientId))
+            def reserveTable = sampleReserveTable(clientId: clientId, gameType: POKER, initialBidingRate: sampleTokens(count: 0))
+        when:
+            table.handle(reserveTable)
+        then:
+            def e = thrown(InitialBidingRateCantBeZero)
+            e.clientId == clientId
+            e.tableId == tableId
     }
 
     def "should has participation of client that joined to reserved table"() {
@@ -259,7 +276,7 @@ class TableTest extends Specification {
             POKER    | 10
     }
 
-    def "should throw InitialBidingRateTooHigh when client try to reserve poker table with initial biding rate higher then their tokens count"() {
+    def "should throw InitialBidingRateTooHigh when client try reserve poker table with initial biding rate higher then their tokens count"() {
         given:
             def clientId = sampleClientId()
             def tokensCountIncreased = sampleTokensCountIncreased(tokens: sampleTokens(count: 50))
@@ -278,7 +295,7 @@ class TableTest extends Specification {
             e.initialBidingRate == reserveTable.initialBidingRate
     }
 
-    def "should throw InitialBidingRateTooHigh when client try to join poker table with initial biding rate higher then their tokens count"() {
+    def "should throw InitialBidingRateTooHigh when client try join poker table with initial biding rate higher then their tokens count"() {
         given:
             def clientId = sampleClientId()
             def tokensCountIncreased = sampleTokensCountIncreased(tokens: sampleTokens(count: 50))

@@ -6,7 +6,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.DomainEvent
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientRepository
 
 @Component
-class TableFactory(val context: ApplicationContext) {
+class TableFactory(private val context: ApplicationContext) {
 
     fun create(aggregateId: TableId = TableId(), events: List<DomainEvent> = emptyList()): Table {
         val tableRequirementsFactory = context.getBean(TableRequirementsFactory::class.java)
