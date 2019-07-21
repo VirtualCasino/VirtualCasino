@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices.api
+package pl.edu.pollub.virtualcasino.clientservices.api.table
 
 import org.springframework.stereotype.Service
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableFactory

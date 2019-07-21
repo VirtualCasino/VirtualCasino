@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices.api
+package pl.edu.pollub.virtualcasino.clientservices.api.table
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping

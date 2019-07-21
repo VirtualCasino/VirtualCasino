@@ -34,7 +34,7 @@ class Table(val id: TableId = TableId(),
     fun handle(command: ReserveTable) {
         if(isReserved()) throw TableAlreadyReserved(command.clientId, id, participation.first().clientId)
         val client = clientRepository.find(command.clientId) ?: throw ClientNotExist(command.clientId)
-        if(client.isBusy()) throw ClientBusy(command.clientId)
+        if(client.doesParticipateToAnyTable()) throw ClientBusy(command.clientId)
         if(command.gameType == POKER) validatePokerInitialBiddingRate(command, client)
         val event = TableReserved(tableId = id, clientId = command.clientId, gameType = command.gameType, initialBidingRate = command.initialBidingRate)
         `when`(event)
@@ -45,7 +45,7 @@ class Table(val id: TableId = TableId(),
         if(!isReserved()) throw TableNotReserved(command.clientId, id)
         if(hasParticipation(Participation(command.clientId))) throw ClientAlreadyParticipated(command.clientId, id)
         val client = clientRepository.find(command.clientId) ?: throw ClientNotExist(command.clientId)
-        if(client.isBusy()) throw ClientBusy(command.clientId)
+        if(client.doesParticipateToAnyTable()) throw ClientBusy(command.clientId)
         requirements.check(client)
         val event = JoinedTable(tableId = id, clientId = command.clientId)
         `when`(event)
@@ -59,7 +59,7 @@ class Table(val id: TableId = TableId(),
     private fun isReserved() = !participation.isEmpty()
 
     private fun validatePokerInitialBiddingRate(command: ReserveTable, client: Client) {
-        if (command.initialBidingRate <= Tokens(0)) throw InitialBidingRateMustBePositive(command.clientId, id, command.initialBidingRate)
+        if (command.initialBidingRate <= Tokens()) throw InitialBidingRateMustBePositive(command.clientId, id, command.initialBidingRate)
         if (client.tokens() < command.initialBidingRate) throw InitialBidingRateTooHigh(command.clientId, id, client.tokens(), command.initialBidingRate)
     }
 
