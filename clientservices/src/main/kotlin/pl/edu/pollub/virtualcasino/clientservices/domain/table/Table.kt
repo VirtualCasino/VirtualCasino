@@ -59,7 +59,7 @@ class Table(val id: TableId = TableId(),
     private fun isReserved() = !participation.isEmpty()
 
     private fun validatePokerInitialBiddingRate(command: ReserveTable, client: Client) {
-        if (command.initialBidingRate == Tokens(0)) throw InitialBidingRateCantBeZero(command.clientId, id)
+        if (command.initialBidingRate <= Tokens(0)) throw InitialBidingRateMustBePositive(command.clientId, id, command.initialBidingRate)
         if (client.tokens() < command.initialBidingRate) throw InitialBidingRateTooHigh(command.clientId, id, client.tokens(), command.initialBidingRate)
     }
 

@@ -5,7 +5,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.Clien
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientNotExist
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.fakes.FakedClientRepository
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.ClientAlreadyParticipated
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateCantBeZero
+import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateMustBePositive
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateTooHigh
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.TableAlreadyReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.TableFull
@@ -120,20 +120,26 @@ class TableTest extends Specification {
             e.clientId == clientId
     }
 
-    def "should throw InitialBidingRateCantBeZero when client try to reserve poker table with initial biding rate equal to zero"() {
+    @Unroll
+    def "should throw InitialBidingRateMustBePositive when client try to reserve poker table with initial biding rate equal to #bidingRate"() {
         given:
             def tableId = sampleTableId()
             table = sampleTable(id: tableId, clientRepository: clientRepository)
         and:
             def clientId = sampleClientId()
             clientRepository.add(sampleClient(id: clientId))
-            def reserveTable = sampleReserveTable(clientId: clientId, gameType: POKER, initialBidingRate: sampleTokens(count: 0))
+        and:
+            def initialBidingRate = sampleTokens(count: bidingRate)
+            def reserveTable = sampleReserveTable(clientId: clientId, gameType: POKER, initialBidingRate: initialBidingRate)
         when:
             table.handle(reserveTable)
         then:
-            def e = thrown(InitialBidingRateCantBeZero)
+            def e = thrown(InitialBidingRateMustBePositive)
             e.clientId == clientId
             e.tableId == tableId
+            e.initialBidingRate == initialBidingRate
+        where:
+            bidingRate << [0, -50]
     }
 
     def "should has participation of client that joined to reserved table"() {
