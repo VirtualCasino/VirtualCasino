@@ -15,10 +15,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClient
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.events.SampleTokensBought.sampleTokensBought
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.GameType.POKER
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleJoinTable.sampleJoinTable
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReserveTable.sampleReserveTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReservingTable.sampleReservePokerTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReservingTable.sampleReserveRouletteTable
 
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = [CasinoServicesBoundedContext.class])
 class ClientServicesApiTest extends Specification {
@@ -59,12 +59,12 @@ class ClientServicesApiTest extends Specification {
     }
 
     TableId reserveTable(ClientId clientThatReservedTableId) {
-        def tableUri = http.postForLocation(URI.create("/tables"), sampleReserveTable(clientId: clientThatReservedTableId))
+        def tableUri = http.postForLocation(URI.create("/tables"), sampleReserveRouletteTable(clientId: clientThatReservedTableId))
         return uriToId(tableUri)
     }
 
     TableId reservePokerTable(ClientId clientThatReservedTableId, Tokens initialBidingRate) {
-        def reserveTable = sampleReserveTable(clientId: clientThatReservedTableId, gameType: POKER, initialBidingRate: initialBidingRate)
+        def reserveTable = sampleReservePokerTable(clientId: clientThatReservedTableId, initialBidingRate: initialBidingRate)
         def tableUri = http.postForLocation(URI.create("/tables"), reserveTable)
         return uriToId(tableUri)
     }

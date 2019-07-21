@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
 @SpringBootApplication
-class CasinoServicesBoundedContext {
+open class CasinoServicesBoundedContext {
 
     companion object {
         @JvmStatic

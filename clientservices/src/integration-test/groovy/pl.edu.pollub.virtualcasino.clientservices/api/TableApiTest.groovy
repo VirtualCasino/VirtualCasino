@@ -7,7 +7,7 @@ import static org.springframework.http.HttpStatus.*
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleTokens
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleParticipation
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleJoinTable.sampleJoinTable
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReserveTable.sampleReserveTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReservingTable.sampleReserveRouletteTable
 
 class TableApiTest extends ClientServicesApiTest {
 
@@ -43,7 +43,7 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             reserveTable(clientThatReservedTableId)
         and:
-            def reserveTable = sampleReserveTable(clientId: clientThatReservedTableId)
+            def reserveTable = sampleReserveRouletteTable(clientId: clientThatReservedTableId)
         when:
             def response = http.postForEntity(URI.create("/tables"), reserveTable, ExceptionView.class)
         then:
