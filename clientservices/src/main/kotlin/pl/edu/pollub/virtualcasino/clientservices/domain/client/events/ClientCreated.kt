@@ -6,7 +6,7 @@ import java.time.Instant
 import java.util.UUID.randomUUID
 
 data class ClientCreated(
-        val id: UserCreatedId = UserCreatedId(),
+        val id: ClientCreatedId = ClientCreatedId(),
         val clientId: ClientId,
         val occurredAt: Instant = Instant.now()
 ): DomainEvent {
@@ -24,4 +24,4 @@ data class ClientCreated(
 
 
 
-data class UserCreatedId(val value: String = randomUUID().toString())
+data class ClientCreatedId(val value: String = randomUUID().toString())
