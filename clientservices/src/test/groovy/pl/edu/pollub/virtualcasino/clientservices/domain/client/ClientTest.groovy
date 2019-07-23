@@ -34,6 +34,17 @@ class ClientTest extends Specification {
             client.tokens == sampleTokens(count: 100)
     }
 
+    def "should create client"() {
+        given:
+            client = sampleClient()
+        and:
+
+        when:
+
+        then:
+
+    }
+
     //TODO: testy corner cases dla ilości tokenów
 
 }
