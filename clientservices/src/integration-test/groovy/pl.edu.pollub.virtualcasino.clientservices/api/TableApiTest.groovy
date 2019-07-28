@@ -1,48 +1,15 @@
 package pl.edu.pollub.virtualcasino.clientservices.api
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import pl.edu.pollub.virtualcasino.clientservices.CasinoServicesBoundedContext
-import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
-import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientRepository
-import pl.edu.pollub.virtualcasino.clientservices.domain.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientBusy
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableId
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableRepository
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.GameType
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateTooHigh
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.TableFull
-import spock.lang.Specification
-
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static org.springframework.http.HttpStatus.*
-import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClient
-import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleTokens
-import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.events.SampleTokensCountIncreased.sampleTokensCountIncreased
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.GameType.*
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleParticipation
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleJoinTable.sampleJoinTable
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReserveTable.sampleReserveTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReservingTable.sampleReserveRouletteTable
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = [CasinoServicesBoundedContext.class])
-class TableApiTest extends Specification {
-
-    @Autowired
-    TableRepository tableRepository
-
-    @Autowired
-    ClientRepository clientRepository
-
-    @Autowired
-    TestRestTemplate http
-
-    def cleanup() {
-        clientRepository.clear()
-        tableRepository.clear()
-    }
+class TableApiTest extends ClientServicesApiTest {
 
     def "should reserve table"() {
         given:
@@ -76,9 +43,9 @@ class TableApiTest extends Specification {
         and:
             reserveTable(clientThatReservedTableId)
         and:
-            def reserveTable = sampleReserveTable(clientId: clientThatReservedTableId)
+            def reserveTable = sampleReserveRouletteTable(clientId: clientThatReservedTableId)
         when:
-            def response = http.postForEntity(URI.create("/tables"), reserveTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/casino-services/tables"), reserveTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -98,7 +65,7 @@ class TableApiTest extends Specification {
         and:
             def joinOtherTable = sampleJoinTable(clientId: clientThatReservedTableId, tableId: otherReservedTableId)
         when:
-            def response = http.postForEntity(URI.create("/tables/participation"), joinOtherTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinOtherTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -122,7 +89,7 @@ class TableApiTest extends Specification {
         and:
             def joinToOtherTable = sampleJoinTable(tableId: otherTableId, clientId: clientThatJoinedTableId)
         when:
-            def response = http.postForEntity(URI.create("/tables/participation"), joinToOtherTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToOtherTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -143,7 +110,7 @@ class TableApiTest extends Specification {
         and:
             def joinToTable = sampleJoinTable(tableId: tableWithToHighBidingRateId, clientId: clientThatWantJoinTableId)
         when:
-            def response = http.postForEntity(URI.create("/tables/participation"), joinToTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -168,7 +135,7 @@ class TableApiTest extends Specification {
         and:
             def joinToTable = sampleJoinTable(tableId: reservedTableId, clientId: clientThatWantJoinTableId)
         when:
-            def response = http.postForEntity(URI.create("/tables/participation"), joinToTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -178,42 +145,5 @@ class TableApiTest extends Specification {
                     "tableId": reservedTableId.value,
                     "maxParticipantsCount": "10"
             ]
-    }
-
-    TableId uriToId(URI tableUri) {
-        def tableUriSegments = tableUri.toString().split("/")
-        def tableIdValue = tableUriSegments[tableUriSegments.length - 1]
-        return sampleTableId(value: tableIdValue)
-    }
-
-    ClientId prepareClient() {
-        def clientThatReservedTableId = sampleClientId()
-        def clientThatReservedTable = sampleClient(id: clientThatReservedTableId)
-        clientRepository.add(clientThatReservedTable)
-        return clientThatReservedTableId
-    }
-
-    ClientId prepareClientWithTokens(Tokens tokens) {
-        def clientThatReservedTableId = sampleClientId()
-        def clientThatReservedTable = sampleClient(id: clientThatReservedTableId,
-                changes: [sampleTokensCountIncreased(clientId: clientThatReservedTableId, tokens: tokens)])
-        clientRepository.add(clientThatReservedTable)
-        return clientThatReservedTableId
-    }
-
-    TableId reserveTable(ClientId clientThatReservedTableId) {
-        def tableUri = http.postForLocation(URI.create("/tables"), sampleReserveTable(clientId: clientThatReservedTableId))
-        return uriToId(tableUri)
-    }
-
-    TableId reservePokerTable(ClientId clientThatReservedTableId, Tokens initialBidingRate) {
-        def reserveTable = sampleReserveTable(clientId: clientThatReservedTableId, gameType: POKER, initialBidingRate: initialBidingRate)
-        def tableUri = http.postForLocation(URI.create("/tables"), reserveTable)
-        return uriToId(tableUri)
-    }
-
-    TableId joinTable(TableId tableId, ClientId clientThatJoinedToTableId) {
-        def tableUri = http.postForLocation(URI.create("/tables/participation"), sampleJoinTable(tableId: tableId, clientId: clientThatJoinedToTableId))
-        return uriToId(tableUri)
     }
 }

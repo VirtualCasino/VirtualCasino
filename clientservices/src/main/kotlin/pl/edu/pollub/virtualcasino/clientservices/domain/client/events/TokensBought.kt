@@ -6,8 +6,8 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.client.Tokens
 import java.time.Instant
 import java.util.UUID.randomUUID
 
-data class TokensCountIncreased(
-        val id: TokensCountIncreasedId = TokensCountIncreasedId(),
+data class TokensBought(
+        val id: TokensBoughtId = TokensBoughtId(),
         val clientId: ClientId,
         val tokens: Tokens,
         val occurredAt: Instant = Instant.now()
@@ -20,8 +20,8 @@ data class TokensCountIncreased(
     override fun aggregateUuid(): String = clientId.value
 
     companion object {
-        const val TYPE = "client.tokensCountIncreased"
+        const val TYPE = "client.tokensBought"
     }
 }
 
-data class TokensCountIncreasedId(val value: String = randomUUID().toString())
+data class TokensBoughtId(val value: String = randomUUID().toString())

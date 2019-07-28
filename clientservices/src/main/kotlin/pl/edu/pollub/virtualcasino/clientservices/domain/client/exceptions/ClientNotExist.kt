@@ -10,6 +10,6 @@ class ClientNotExist(val clientId: ClientId): DomainObjectNotExist("Client with 
     override fun params(): Map<String, String> = mapOf(Pair("clientId", clientId.value))
 
     companion object {
-        const val CODE = "client.notExist"
+        const val CODE = "client.clientNotExist"
     }
 }

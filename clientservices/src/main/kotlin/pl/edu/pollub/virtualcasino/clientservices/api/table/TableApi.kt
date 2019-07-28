@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices.api
+package pl.edu.pollub.virtualcasino.clientservices.api.table
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -10,7 +10,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.ReserveT
 import java.net.URI
 
 @RestController
-@RequestMapping("/tables")
+@RequestMapping("/casino-services/tables")
 class TableApi(private val commandHandler: TableCommandHandler) {
 
     @PostMapping

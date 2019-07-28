@@ -16,7 +16,7 @@ class TableFull(val clientId: ClientId, val tableId: TableId, val maxParticipant
     )
 
     companion object {
-        const val CODE = "table.full"
+        const val CODE = "table.tableFull"
     }
 
 }

@@ -1,11 +1,7 @@
 package pl.edu.pollub.virtualcasino.clientservices.domain.table
 
-import org.springframework.stereotype.Component
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.Client
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.Tokens
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.GameType.POKER
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.GameType.ROULETTE
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.TableReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateTooHigh
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.TableFull
 
@@ -46,18 +42,6 @@ class PokerTableRequirements(private val tableId: TableId, private val participa
 
     companion object {
         const val MAX_POKER_PARTICIPANTS_COUNT = 10
-    }
-
-}
-
-@Component
-class TableRequirementsFactory {
-
-    fun create(event: TableReserved, participation: List<Participation>): TableRequirements {
-        return when(event.gameType) {
-            ROULETTE -> RouletteTableRequirements(event.tableId, participation)
-            POKER -> PokerTableRequirements(event.tableId, participation, event.initialBidingRate)
-        }
     }
 
 }

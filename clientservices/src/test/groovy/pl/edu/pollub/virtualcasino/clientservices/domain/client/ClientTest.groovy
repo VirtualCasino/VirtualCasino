@@ -1,12 +1,20 @@
 package pl.edu.pollub.virtualcasino.clientservices.domain.client
 
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientBusy
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.TokensCountMustBePositive
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.fakes.FakedTableRepository
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Unroll
 
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClient
+import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleTokens
-import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.comands.SampleIncreaseTokensCount.sampleIncreaseTokensCount
+import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.comands.SampleBuyTokens.sampleBuyTokens
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTableId
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.events.SampleJoinedToTable.sampleJoinedTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
 
 class ClientTest extends Specification {
 
@@ -19,17 +27,72 @@ class ClientTest extends Specification {
         tableRepository.clear()
     }
 
-    def "should increase client tokens count"() {
+    def "should buy tokens"() {
         given:
             client = sampleClient()
         and:
-            def increaseTokensCount = sampleIncreaseTokensCount(tokens: sampleTokens(count: 100))
+            def buyTokens = sampleBuyTokens(tokens: sampleTokens(count: 100))
         when:
-            client.handle(increaseTokensCount)
+            client.handle(buyTokens)
         then:
             client.tokens == sampleTokens(count: 100)
     }
 
-    //TODO: tests for corner cases for increases of tokens
+    @Unroll
+    def "should throw TokensCountMustBePositive when client try to buy tokens count: #invalidTokensCount"() {
+        given:
+            def clientId = sampleClientId()
+            client = sampleClient(id: clientId)
+        and:
+            def tokens = sampleTokens(count: invalidTokensCount)
+            def buyTokens = sampleBuyTokens(tokens: tokens)
+        when:
+            client.handle(buyTokens)
+        then:
+            def e = thrown(TokensCountMustBePositive)
+            e.clientId == clientId
+            e.tokens == tokens
+        where:
+            invalidTokensCount << [0, -50]
+    }
+
+    def "should throw ClientBusy when client reserved table and try to buy tokens"() {
+        given:
+            def clientId = sampleClientId()
+            client = sampleClient(id: clientId, tableRepository: tableRepository)
+        and:
+            def tableId = sampleTableId()
+            def tableReserved = sampleRouletteTableReserved(tableId: tableId, clientId: clientId)
+            def table = sampleTable(id: tableId, changes: [tableReserved])
+            tableRepository.add(table)
+        and:
+            def buyTokens = sampleBuyTokens(tokens: sampleTokens(count: 100))
+        when:
+            client.handle(buyTokens)
+        then:
+            def e = thrown(ClientBusy)
+            e.clientId == clientId
+    }
+
+    def "should throw ClientBusy when client joined table and try to buy tokens"() {
+        given:
+            def clientId = sampleClientId()
+            client = sampleClient(id: clientId, tableRepository: tableRepository)
+        and:
+            def tableId = sampleTableId()
+            def otherClientId = sampleClientId()
+            def table = sampleTable(id: tableId, changes: [
+                    sampleRouletteTableReserved(tableId: tableId, clientId: otherClientId),
+                    sampleJoinedTable(tableId: tableId, clientId: clientId)
+            ])
+            tableRepository.add(table)
+        and:
+            def buyTokens = sampleBuyTokens(tokens: sampleTokens(count: 100))
+        when:
+            client.handle(buyTokens)
+        then:
+            def e = thrown(ClientBusy)
+            e.clientId == clientId
+    }
 
 }

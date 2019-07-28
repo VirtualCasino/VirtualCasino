@@ -10,6 +10,6 @@ class TableNotExist(val tableId: TableId): DomainObjectNotExist("Table with id: 
     override fun params(): Map<String, String> = mapOf(Pair("clientId", tableId.value))
 
     companion object {
-        const val CODE = "table.notExist"
+        const val CODE = "table.tableNotExist"
     }
 }
