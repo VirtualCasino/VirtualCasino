@@ -27,7 +27,7 @@ class EventSerializer {
                 body = eventBody,
                 occurredAt = event.occurredAt(),
                 type = event.type(),
-                aggregateId = event.aggregateUuid()
+                aggregateId = event.aggregateId()
         )
     }.getOrThrow()
 

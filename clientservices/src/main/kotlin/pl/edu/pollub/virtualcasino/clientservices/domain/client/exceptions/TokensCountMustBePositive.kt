@@ -10,7 +10,7 @@ class TokensCountMustBePositive(val clientId: ClientId, val tokens: Tokens):
     override fun code(): String = CODE
 
     override fun params(): Map<String, String> = mapOf(
-            Pair("clientId", clientId.value),
+            Pair("clientId", clientId.value.toString()),
             Pair("tokens", tokens.count.toString())
     )
 

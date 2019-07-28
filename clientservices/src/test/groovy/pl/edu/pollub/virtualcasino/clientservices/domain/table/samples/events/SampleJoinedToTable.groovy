@@ -31,9 +31,9 @@ class SampleJoinedToTable {
 
     static JoinedTableId sampleJoinedTableId(customProperties = [:]) {
         def properties = [
-                value: randomUUID().toString()
+                value: randomUUID()
         ] + customProperties
-        return new JoinedTableId(properties.value as String)
+        return new JoinedTableId(properties.value as UUID)
     }
 
 }

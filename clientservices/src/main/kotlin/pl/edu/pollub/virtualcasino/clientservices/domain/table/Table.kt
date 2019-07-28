@@ -16,6 +16,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.PokerTable
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.RouletteTableReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.*
 import java.lang.RuntimeException
+import java.util.*
 import java.util.UUID.randomUUID
 
 class Table(val id: TableId = TableId(),
@@ -134,6 +135,6 @@ class Table(val id: TableId = TableId(),
 
 }
 
-data class TableId(val value: String = randomUUID().toString())
+data class TableId(val value: UUID = randomUUID())
 
 data class Participation(val clientId: ClientId)

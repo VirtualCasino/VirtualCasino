@@ -10,9 +10,9 @@ class TableAlreadyReserved(val clientId: ClientId, val tableId: TableId, val res
     override fun code(): String = CODE
 
     override fun params(): Map<String, String> = mapOf(
-            Pair("clientId", clientId.value),
-            Pair("tableId", tableId.value),
-            Pair("reservedBy", reservedBy.value)
+            Pair("clientId", clientId.value.toString()),
+            Pair("tableId", tableId.value.toString()),
+            Pair("reservedBy", reservedBy.value.toString())
     )
 
     companion object {

@@ -36,7 +36,7 @@ class ClientServicesApiTest extends BaseIntegrationTest {
     TableId uriToId(URI tableUri) {
         def tableUriSegments = tableUri.toString().split("/")
         def tableIdValue = tableUriSegments[tableUriSegments.length - 1]
-        return sampleTableId(value: tableIdValue)
+        return sampleTableId(value: UUID.fromString(tableIdValue))
     }
 
     ClientId prepareClient() {

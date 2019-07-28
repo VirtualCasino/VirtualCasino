@@ -4,24 +4,25 @@ import pl.edu.pollub.virtualcasino.clientservices.infrastructure.eventstore.Even
 
 import java.time.Instant
 
+import static java.util.UUID.randomUUID
 import static pl.edu.pollub.virtualcasino.clientservices.samples.SamplePointInTime.samplePointInTime
 
 class SampleEventDescriptor {
 
     static EventDescriptor sampleEventDescriptor(customProperties = [:]) {
         def properties = [
-                id: "id",
+                id: randomUUID(),
                 body: "body",
                 occurredAt: samplePointInTime(),
                 type: "type",
-                aggregateId: "aggregateId"
+                aggregateId: randomUUID()
         ] + customProperties
         return new EventDescriptor(
-                properties.id as String,
+                properties.id as UUID,
                 properties.body as String,
                 properties.occurredAt as Instant,
                 properties.type as String,
-                properties.aggregateId as String
+                properties.aggregateId as UUID
         )
     }
 

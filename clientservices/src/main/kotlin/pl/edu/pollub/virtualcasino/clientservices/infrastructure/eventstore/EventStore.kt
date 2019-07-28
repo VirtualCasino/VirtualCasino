@@ -6,18 +6,19 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class EventStore(@Qualifier("casinoServicesWriteTemplate") val mongo: MongoTemplate) {
 
-    fun saveEvents(aggregateId: String, events: List<EventDescriptor>) {
+    fun saveEvents(aggregateId: UUID, events: List<EventDescriptor>) {
         val eventStream = getEventsOfAggregate(aggregateId) ?: EventStream(aggregateId = aggregateId)
         eventStream.add(events)
         mongo.save(eventStream)
         mongo.insertAll(events)
     }
 
-    fun getEventsOfAggregate(aggregateId: String): EventStream? {
+    fun getEventsOfAggregate(aggregateId: UUID): EventStream? {
         val query = Query()
         query.addCriteria(Criteria.where("aggregateId").isEqualTo(aggregateId))
         return mongo.findOne(query, EventStream::class.java)

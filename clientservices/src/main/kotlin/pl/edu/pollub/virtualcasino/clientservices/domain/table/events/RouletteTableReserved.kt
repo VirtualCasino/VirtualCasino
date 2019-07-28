@@ -18,11 +18,11 @@ data class RouletteTableReserved(
 
     override fun occurredAt(): Instant = occurredAt
 
-    override fun aggregateUuid(): String = tableId.value
+    override fun aggregateId(): UUID = tableId.value
 
     companion object {
         const val TYPE = "table.rouletteTableReserved"
     }
 }
 
-data class RouletteTableReservedId(val value: String = UUID.randomUUID().toString())
+data class RouletteTableReservedId(val value: UUID = UUID.randomUUID())

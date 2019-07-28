@@ -5,6 +5,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableId
 import java.time.Instant
+import java.util.*
 import java.util.UUID.randomUUID
 
 data class PokerTableReserved(
@@ -20,11 +21,11 @@ data class PokerTableReserved(
 
     override fun occurredAt(): Instant = occurredAt
 
-    override fun aggregateUuid(): String = tableId.value
+    override fun aggregateId(): UUID = tableId.value
 
     companion object {
         const val TYPE = "table.pokerTableReserved"
     }
 }
 
-data class PokerTableReservedId(val value: String = randomUUID().toString())
+data class PokerTableReservedId(val value: UUID = randomUUID())

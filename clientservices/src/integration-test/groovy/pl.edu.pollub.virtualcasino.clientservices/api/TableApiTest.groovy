@@ -50,7 +50,7 @@ class TableApiTest extends ClientServicesApiTest {
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatReservedTableId.value]
+            exceptionView.params == ["clientId": clientThatReservedTableId.value.toString()]
     }
 
     def "should not join client to table when client already reserved other table"() {
@@ -70,7 +70,7 @@ class TableApiTest extends ClientServicesApiTest {
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatReservedTableId.value]
+            exceptionView.params == ["clientId": clientThatReservedTableId.value.toString()]
     }
 
     def "should not join client to reserved table when client already joined to other table"() {
@@ -94,7 +94,7 @@ class TableApiTest extends ClientServicesApiTest {
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatJoinedTableId.value]
+            exceptionView.params == ["clientId": clientThatJoinedTableId.value.toString()]
     }
 
     def "should not join client to reserved poker table when client doesn't have enough tokens to start biding"() {
@@ -116,8 +116,8 @@ class TableApiTest extends ClientServicesApiTest {
             def exceptionView = response.body
             exceptionView.code == InitialBidingRateTooHigh.CODE
             exceptionView.params == [
-                    "clientId": clientThatWantJoinTableId.value,
-                    "tableId": tableWithToHighBidingRateId.value,
+                    "clientId": clientThatWantJoinTableId.value.toString(),
+                    "tableId": tableWithToHighBidingRateId.value.toString(),
                     "tokens": clientThatWantJoinTableTokens.count.toString(),
                     "initialBidingRate": initialBidingRate.count.toString()
             ]
@@ -129,7 +129,7 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def reservedTableId = reserveTable(clientThatReservedTableId)
         and:
-            (0..9).forEach{ joinTable(reservedTableId, prepareClient()) }
+            (0..8).forEach{ joinTable(reservedTableId, prepareClient()) }
         and:
             def clientThatWantJoinTableId = prepareClient()
         and:
@@ -141,8 +141,8 @@ class TableApiTest extends ClientServicesApiTest {
             def exceptionView = response.body
             exceptionView.code == TableFull.CODE
             exceptionView.params == [
-                    "clientId": clientThatWantJoinTableId.value,
-                    "tableId": reservedTableId.value,
+                    "clientId": clientThatWantJoinTableId.value.toString(),
+                    "tableId": reservedTableId.value.toString(),
                     "maxParticipantsCount": "10"
             ]
     }

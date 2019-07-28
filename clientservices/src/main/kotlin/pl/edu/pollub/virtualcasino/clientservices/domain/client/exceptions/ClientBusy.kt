@@ -7,7 +7,7 @@ class ClientBusy(val clientId: ClientId): DomainObjectInvalidUsed("Client with i
 
     override fun code(): String = CODE
 
-    override fun params(): Map<String, String> = mapOf(Pair("clientId", clientId.value))
+    override fun params(): Map<String, String> = mapOf(Pair("clientId", clientId.value.toString()))
 
     companion object {
         const val CODE = "client.clientBusy"

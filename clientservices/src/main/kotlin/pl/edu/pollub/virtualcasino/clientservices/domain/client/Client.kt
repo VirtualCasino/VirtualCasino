@@ -8,6 +8,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.Token
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.Participation
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableRepository
 import java.lang.RuntimeException
+import java.util.*
 import java.util.UUID.randomUUID
 
 class Client(val id: ClientId = ClientId(),
@@ -64,7 +65,7 @@ class Client(val id: ClientId = ClientId(),
 
 }
 
-data class ClientId(val value: String = randomUUID().toString())
+data class ClientId(val value: UUID = randomUUID())
 
 data class Tokens(val count: Int = 0) {
 

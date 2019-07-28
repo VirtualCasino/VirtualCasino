@@ -40,6 +40,6 @@ class ClientApiTest extends ClientServicesApiTest {
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatJoinedTableId.value]
+            exceptionView.params == ["clientId": clientThatJoinedTableId.value.toString()]
     }
 }

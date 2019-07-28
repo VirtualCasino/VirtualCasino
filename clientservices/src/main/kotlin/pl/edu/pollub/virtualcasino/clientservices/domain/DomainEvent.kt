@@ -7,6 +7,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.JoinedTabl
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.PokerTableReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.RouletteTableReserved
 import java.time.Instant
+import java.util.*
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
@@ -18,5 +19,5 @@ import java.time.Instant
 interface DomainEvent {
     fun type(): String
     fun occurredAt(): Instant
-    fun aggregateUuid(): String
+    fun aggregateId(): UUID
 }

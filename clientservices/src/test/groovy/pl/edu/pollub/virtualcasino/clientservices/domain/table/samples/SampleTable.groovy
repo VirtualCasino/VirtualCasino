@@ -27,9 +27,9 @@ class SampleTable {
 
     static TableId sampleTableId(customProperties = [:]) {
         def properties = [
-                value: randomUUID().toString()
+                value: randomUUID()
         ] + customProperties
-        return new TableId(properties.value as String)
+        return new TableId(properties.value as UUID)
     }
 
     static Participation sampleParticipation(customProperties = [:]) {

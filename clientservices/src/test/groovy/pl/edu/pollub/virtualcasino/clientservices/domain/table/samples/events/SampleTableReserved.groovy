@@ -35,9 +35,9 @@ class SampleTableReserved {
 
     static RouletteTableReservedId sampleRouletteTableReservedId(customProperties = [:]) {
         def properties = [
-                value: randomUUID().toString()
+                value: randomUUID()
         ] + customProperties
-        return new RouletteTableReservedId(properties.value as String)
+        return new RouletteTableReservedId(properties.value as UUID)
     }
 
     static PokerTableReserved samplePokerTableReserved(customProperties = [:]) {
@@ -59,9 +59,9 @@ class SampleTableReserved {
 
     static PokerTableReservedId samplePokerTableReservedId(customProperties = [:]) {
         def properties = [
-                value: randomUUID().toString()
+                value: randomUUID()
         ] + customProperties
-        return new PokerTableReservedId(properties.value as String)
+        return new PokerTableReservedId(properties.value as UUID)
     }
 
 }

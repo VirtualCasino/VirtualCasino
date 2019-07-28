@@ -11,8 +11,8 @@ class InitialBidingRateMustBePositive(val clientId: ClientId, val tableId: Table
     override fun code(): String = CODE
 
     override fun params(): Map<String, String> = mapOf(
-            Pair("clientId", clientId.value),
-            Pair("tableId", tableId.value),
+            Pair("clientId", clientId.value.toString()),
+            Pair("tableId", tableId.value.toString()),
             Pair("initialBidingRate", initialBidingRate.count.toString())
     )
 

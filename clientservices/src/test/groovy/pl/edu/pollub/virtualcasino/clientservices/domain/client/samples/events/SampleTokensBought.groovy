@@ -31,9 +31,9 @@ class SampleTokensBought {
 
     static TokensBoughtId sampleTokensBoughtId(customProperties = [:]) {
         def properties = [
-                value: randomUUID().toString()
+                value: randomUUID()
         ] + customProperties
-        return new TokensBoughtId(properties.value as String)
+        return new TokensBoughtId(properties.value as UUID)
     }
 
 }

@@ -25,9 +25,9 @@ class SampleClient {
 
     static ClientId sampleClientId(customProperties = [:]) {
         def properties = [
-                value: randomUUID().toString()
+                value: randomUUID()
         ] + customProperties
-        return new ClientId(properties.value as String)
+        return new ClientId(properties.value as UUID)
     }
 
     static Tokens sampleTokens(customProperties = [:]) {
