@@ -1,8 +1,8 @@
 package pl.edu.pollub.virtualcasino.clientservices.domain
 
-import java.lang.Exception
+import java.lang.RuntimeException
 
-abstract class DomainException(message: String): Exception(message) {
+abstract class DomainException(message: String): RuntimeException(message) {
 
     abstract fun code(): String
 

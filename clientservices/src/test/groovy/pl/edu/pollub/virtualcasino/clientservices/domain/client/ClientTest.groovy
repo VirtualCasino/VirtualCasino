@@ -14,7 +14,7 @@ import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.c
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTable
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.events.SampleJoinedToTable.sampleJoinedTable
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.events.SampleTableReserved.sampleTableReserved
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
 
 class ClientTest extends Specification {
 
@@ -62,7 +62,7 @@ class ClientTest extends Specification {
             client = sampleClient(id: clientId, tableRepository: tableRepository)
         and:
             def tableId = sampleTableId()
-            def tableReserved = sampleTableReserved(tableId: tableId, clientId: clientId)
+            def tableReserved = sampleRouletteTableReserved(tableId: tableId, clientId: clientId)
             def table = sampleTable(id: tableId, changes: [tableReserved])
             tableRepository.add(table)
         and:
@@ -82,7 +82,7 @@ class ClientTest extends Specification {
             def tableId = sampleTableId()
             def otherClientId = sampleClientId()
             def table = sampleTable(id: tableId, changes: [
-                    sampleTableReserved(tableId: tableId, clientId: otherClientId),
+                    sampleRouletteTableReserved(tableId: tableId, clientId: otherClientId),
                     sampleJoinedTable(tableId: tableId, clientId: clientId)
             ])
             tableRepository.add(table)

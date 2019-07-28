@@ -1,27 +1,23 @@
 package pl.edu.pollub.virtualcasino.clientservices.api
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import pl.edu.pollub.virtualcasino.clientservices.CasinoServicesBoundedContext
+import pl.edu.pollub.virtualcasino.clientservices.BaseIntegrationTest
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientRepository
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableId
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableRepository
-import spock.lang.Specification
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClient
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.SampleClient.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.events.SampleTokensBought.sampleTokensBought
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.GameType.POKER
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleJoinTable.sampleJoinTable
-import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReserveTable.sampleReserveTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReservingTable.sampleReservePokerTable
+import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.comands.SampleReservingTable.sampleReserveRouletteTable
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = [CasinoServicesBoundedContext.class])
-class ClientServicesApiTest extends Specification {
+class ClientServicesApiTest extends BaseIntegrationTest {
 
     @Autowired
     TableRepository tableRepository
@@ -59,18 +55,18 @@ class ClientServicesApiTest extends Specification {
     }
 
     TableId reserveTable(ClientId clientThatReservedTableId) {
-        def tableUri = http.postForLocation(URI.create("/tables"), sampleReserveTable(clientId: clientThatReservedTableId))
+        def tableUri = http.postForLocation(URI.create("/casino-services/tables"), sampleReserveRouletteTable(clientId: clientThatReservedTableId))
         return uriToId(tableUri)
     }
 
     TableId reservePokerTable(ClientId clientThatReservedTableId, Tokens initialBidingRate) {
-        def reserveTable = sampleReserveTable(clientId: clientThatReservedTableId, gameType: POKER, initialBidingRate: initialBidingRate)
-        def tableUri = http.postForLocation(URI.create("/tables"), reserveTable)
+        def reserveTable = sampleReservePokerTable(clientId: clientThatReservedTableId, initialBidingRate: initialBidingRate)
+        def tableUri = http.postForLocation(URI.create("/casino-services/tables"), reserveTable)
         return uriToId(tableUri)
     }
 
     TableId joinTable(TableId tableId, ClientId clientThatJoinedToTableId) {
-        def tableUri = http.postForLocation(URI.create("/tables/participation"), sampleJoinTable(tableId: tableId, clientId: clientThatJoinedToTableId))
+        def tableUri = http.postForLocation(URI.create("/casino-services/tables/participation"), sampleJoinTable(tableId: tableId, clientId: clientThatJoinedToTableId))
         return uriToId(tableUri)
     }
 }
