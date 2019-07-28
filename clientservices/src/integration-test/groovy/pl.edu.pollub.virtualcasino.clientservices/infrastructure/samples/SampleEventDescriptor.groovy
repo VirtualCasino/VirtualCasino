@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices.domain.table.samples
+package pl.edu.pollub.virtualcasino.clientservices.infrastructure.samples
 
 import pl.edu.pollub.virtualcasino.clientservices.infrastructure.eventstore.EventDescriptor
 

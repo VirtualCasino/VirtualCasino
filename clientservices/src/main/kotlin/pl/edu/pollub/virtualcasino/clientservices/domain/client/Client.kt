@@ -1,27 +1,47 @@
 package pl.edu.pollub.virtualcasino.clientservices.domain.client
 
 import pl.edu.pollub.virtualcasino.clientservices.domain.DomainEvent
-import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientIsBusy
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.commands.BuyTokens
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.events.TokensBought
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientBusy
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.TokensCountMustBePositive
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.Participation
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableFactory
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableRepository
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.ReserveTable
+import java.lang.RuntimeException
 import java.util.UUID.randomUUID
 
 class Client(val id: ClientId = ClientId(),
              private val changes: MutableList<DomainEvent> = mutableListOf(),
-             private val tableFactory: TableFactory,
              private val tableRepository: TableRepository
 ) {
 
-    fun handle(command: ReserveTable) {
-        if(this.isBusy()) throw ClientIsBusy(id)
-        val table = tableFactory.create()
-        table.handle(command)
-        tableRepository.add(table)
+    private var tokens = Tokens()
+
+    init {
+        changes.fold(this) { _, event -> patternMatch(event) }
     }
 
-    private fun isBusy(): Boolean = tableRepository.containsWithParticipation(Participation(id))
+    fun handle(command: BuyTokens) {
+        if(command.tokens <= Tokens()) throw TokensCountMustBePositive(id, command.tokens)
+        if(doesParticipateToAnyTable()) throw ClientBusy(id)
+        val event = TokensBought(clientId = command.clientId, tokens = command.tokens)
+        `when`(event)
+        changes.add(event)
+    }
+
+    fun tokens(): Tokens = tokens
+
+    fun doesParticipateToAnyTable(): Boolean = tableRepository.containsWithParticipation(Participation(id))
+
+    private fun `when`(event: TokensBought): Client {
+        tokens = tokens.changeCount(event.tokens)
+        return this
+    }
+
+    private fun patternMatch(event: DomainEvent): Client = when(event) {
+        is TokensBought -> `when`(event)
+        else -> throw RuntimeException("event: $event is not acceptable for Client")
+    }
 
     fun getUncommittedChanges(): List<DomainEvent> = changes
 
@@ -45,3 +65,11 @@ class Client(val id: ClientId = ClientId(),
 }
 
 data class ClientId(val value: String = randomUUID().toString())
+
+data class Tokens(val count: Int = 0) {
+
+    fun changeCount(tokens: Tokens = Tokens()): Tokens = Tokens(this.count + tokens.count)
+
+    operator fun compareTo(other: Tokens): Int = count - other.count
+
+}

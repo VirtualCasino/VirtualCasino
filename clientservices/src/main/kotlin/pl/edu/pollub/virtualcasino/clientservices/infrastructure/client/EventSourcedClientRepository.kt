@@ -1,6 +1,8 @@
 package pl.edu.pollub.virtualcasino.clientservices.infrastructure.client
 
 import org.springframework.stereotype.Component
+import org.springframework.transaction.support.TransactionSynchronizationAdapter
+import org.springframework.transaction.support.TransactionSynchronizationManager.*
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.Client
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientFactory
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
@@ -16,10 +18,8 @@ class EventSourcedClientRepository(
 ): ClientRepository {
     
     override fun add(aggregate: Client): Boolean {
-        val pendingEvents = aggregate.getUncommittedChanges()
-        val serializedPendingEvents = pendingEvents.map { eventSerializer.serialize(it) }
-        eventStore.saveEvents(aggregate.id.value, serializedPendingEvents)
-        aggregate.markChangesAsCommitted()
+        flushChanges(aggregate)
+        dirtyChecking(aggregate)
         return true
     }
 
@@ -28,11 +28,35 @@ class EventSourcedClientRepository(
                 ?.events
                 ?.map { eventSerializer.deserialize(it) }
                 ?: return null
-        return clientFactory.create(aggregateId, events)
+        val client = clientFactory.create(aggregateId, events)
+        client.markChangesAsCommitted()
+        dirtyChecking(client)
+        return client
     }
 
     override fun clear() {
         eventStore.clear()
     }
 
+    private fun dirtyChecking(aggregate: Client) {
+        if(isSynchronizationActive())
+        registerSynchronization(
+                object : TransactionSynchronizationAdapter() {
+
+                    override fun beforeCommit(readOnly: Boolean) {
+                        if (aggregate.getUncommittedChanges().isNotEmpty()) {
+                            flushChanges(aggregate)
+                        }
+                    }
+
+                }
+        )
+    }
+
+    private fun flushChanges(aggregate: Client) {
+        val pendingEvents = aggregate.getUncommittedChanges()
+        val serializedPendingEvents = pendingEvents.map { eventSerializer.serialize(it) }
+        eventStore.saveEvents(aggregate.id.value, serializedPendingEvents)
+        aggregate.markChangesAsCommitted()
+    }
 }

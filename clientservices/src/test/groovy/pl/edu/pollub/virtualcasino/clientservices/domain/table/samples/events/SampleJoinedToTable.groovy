@@ -1,9 +1,9 @@
-package pl.edu.pollub.virtualcasino.clientservices.domain.table.samples
+package pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.events
 
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableId
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.TableReserved
-import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.TableReservedId
+import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.JoinedTable
+import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.JoinedTableId
 
 import java.time.Instant
 
@@ -12,28 +12,28 @@ import static pl.edu.pollub.virtualcasino.clientservices.domain.client.samples.S
 import static pl.edu.pollub.virtualcasino.clientservices.domain.table.samples.SampleTable.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.samples.SamplePointInTime.samplePointInTime
 
-class SampleTableReserved {
+class SampleJoinedToTable {
 
-    static TableReserved sampleTableReserved(customProperties = [:]) {
+    static JoinedTable sampleJoinedTable(customProperties = [:]) {
         def properties = [
-                id: sampleTableReservedId(),
+                id: sampleJoinedTableId(),
                 tableId: sampleTableId(),
                 clientId: sampleClientId(),
-                occuredAt: samplePointInTime()
+                occurredAt: samplePointInTime()
         ] + customProperties
-        return new TableReserved(
-                properties.id as TableReservedId,
+        return new JoinedTable(
+                properties.id as JoinedTableId,
                 properties.tableId as TableId,
                 properties.clientId as ClientId,
-                properties.occuredAt as Instant
+                properties.occurredAt as Instant
         )
     }
 
-    static TableReservedId sampleTableReservedId(customProperties = [:]) {
+    static JoinedTableId sampleJoinedTableId(customProperties = [:]) {
         def properties = [
                 value: randomUUID().toString()
         ] + customProperties
-        return new TableReservedId(properties.value as String)
+        return new JoinedTableId(properties.value as String)
     }
 
 }

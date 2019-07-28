@@ -4,10 +4,10 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.DomainEvent
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.TableId
 import java.time.Instant
-import java.util.UUID.randomUUID
+import java.util.*
 
-data class TableReserved(
-        val id: TableReservedId = TableReservedId(),
+data class RouletteTableReserved(
+        val id: RouletteTableReservedId = RouletteTableReservedId(),
         val tableId: TableId,
         val clientId: ClientId,
         val occurredAt: Instant = Instant.now()
@@ -21,8 +21,8 @@ data class TableReserved(
     override fun aggregateUuid(): String = tableId.value
 
     companion object {
-        const val TYPE = "table.tableReserved"
+        const val TYPE = "table.rouletteTableReserved"
     }
 }
 
-data class TableReservedId(val value: String = randomUUID().toString())
+data class RouletteTableReservedId(val value: String = UUID.randomUUID().toString())
