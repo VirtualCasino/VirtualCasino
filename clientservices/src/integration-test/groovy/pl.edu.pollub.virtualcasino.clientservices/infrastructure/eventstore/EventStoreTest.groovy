@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices.infrastructure
+package pl.edu.pollub.virtualcasino.clientservices.infrastructure.eventstore
 
 import org.springframework.beans.factory.annotation.Autowired
 import pl.edu.pollub.virtualcasino.clientservices.BaseIntegrationTest

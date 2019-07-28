@@ -12,5 +12,10 @@ data class EventDescriptor(
         val body: String,
         val occurredAt: Instant = Instant.now(),
         val type: String,
-        val aggregateId: UUID
-)
+        val aggregateId: UUID,
+        val sent: Boolean = false
+) {
+
+    fun sent() = copy(sent = true)
+
+}

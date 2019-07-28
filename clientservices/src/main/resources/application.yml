@@ -8,3 +8,21 @@ mongodb:
     host: 127.0.0.1
     port: 27017
     database: casino-services-write-db
+
+#Event publishing
+events-publishing:
+  frequency: 1000
+  limit: 100
+
+spring.cloud.stream:
+  kafka.binder.autoAddPartitions: true
+  bindings:
+    output:
+      destination: casino-services
+      content-type: application/json
+      producer:
+        partitionKeyExpression: headers['uuid']
+        partitionCount: 2
+    input:
+      destination: commands
+      content-type: application/json

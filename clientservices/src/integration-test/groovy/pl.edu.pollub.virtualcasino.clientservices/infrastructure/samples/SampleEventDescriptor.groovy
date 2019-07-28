@@ -15,14 +15,16 @@ class SampleEventDescriptor {
                 body: "body",
                 occurredAt: samplePointInTime(),
                 type: "type",
-                aggregateId: randomUUID()
+                aggregateId: randomUUID(),
+                sent: false
         ] + customProperties
         return new EventDescriptor(
                 properties.id as UUID,
                 properties.body as String,
                 properties.occurredAt as Instant,
                 properties.type as String,
-                properties.aggregateId as UUID
+                properties.aggregateId as UUID,
+                properties.sent as Boolean
         )
     }
 
