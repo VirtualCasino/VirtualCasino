@@ -10,7 +10,7 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.table.commands.ReserveT
 import java.net.URI
 
 @RestController
-@RequestMapping("/tables")
+@RequestMapping("/casino-services/tables")
 class TableApi(private val commandHandler: TableCommandHandler) {
 
     @PostMapping
