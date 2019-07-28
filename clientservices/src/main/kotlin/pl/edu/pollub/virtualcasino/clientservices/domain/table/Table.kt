@@ -15,7 +15,6 @@ import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.JoinedTabl
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.PokerTableReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.RouletteTableReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.*
-import pl.edu.pollub.virtualcasino.clientservices.infrastructure.table.ParticipantsOfTable
 import java.lang.RuntimeException
 import java.util.UUID.randomUUID
 
@@ -66,7 +65,7 @@ class Table(val id: TableId = TableId(),
 
     fun hasParticipation(participation: Participation): Boolean = this.participation.contains(participation)
 
-    fun participantsOfTable(): ParticipantsOfTable = ParticipantsOfTable(id, participation)
+    fun participation(): List<Participation> = participation
 
     private fun validateReservation(command: ReserveTable, client: Client) {
         val clientId = command.clientId()

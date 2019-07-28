@@ -17,7 +17,7 @@ class ClientApiTest extends ClientServicesApiTest {
             def tokens = sampleTokens(count: 100)
             def buyTokens = sampleBuyTokens(clientId: clientThatWantBuyTokensId, tokens: tokens)
         when:
-            http.put(URI.create("/clients/tokens"), buyTokens)
+            http.put(URI.create("/casino-services/clients/tokens"), buyTokens)
         then:
             def foundClient = clientRepository.find(clientThatWantBuyTokensId)
             foundClient.tokens() == tokens
@@ -33,7 +33,7 @@ class ClientApiTest extends ClientServicesApiTest {
         and:
             def tokens = sampleTokens(count: 100)
             def buyTokens = sampleBuyTokens(clientId: clientThatJoinedTableId, tokens: tokens)
-            def request = new RequestEntity<BuyTokens>(buyTokens, PUT, URI.create("/clients/tokens"))
+            def request = new RequestEntity<BuyTokens>(buyTokens, PUT, URI.create("/casino-services/clients/tokens"))
         when:
             def response = http.exchange(request, ExceptionView.class)
         then:
