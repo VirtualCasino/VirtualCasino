@@ -1,0 +1,10 @@
+#Database
+spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+
+mongodb:
+  casino-services-write-db:
+    host: 127.0.0.1
+    port: 27017
+    database: casino-services-write-db
