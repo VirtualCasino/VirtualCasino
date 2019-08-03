@@ -11,15 +11,28 @@ import de.flapdoodle.embed.mongo.config.Net
 import org.bson.Document
 import de.flapdoodle.embed.mongo.distribution.Versions
 import de.flapdoodle.embed.process.distribution.GenericVersion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.cloud.stream.messaging.Source
+import org.springframework.cloud.stream.test.binder.MessageCollector
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.data.mongodb.MongoTransactionManager
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.messaging.Message
 import org.springframework.test.context.ActiveProfiles
+import pl.edu.pollub.virtualcasino.clientservices.domain.DomainEvent
+import pl.edu.pollub.virtualcasino.clientservices.infrastructure.eventstore.EventSerializer
 import pl.edu.pollub.virtualcasino.clientservices.infrastructure.mongo.MongoConfigurationProperties
+import pl.edu.pollub.virtualcasino.clientservices.infrastructure.publisher.EventPublisher
 import spock.lang.Specification
+import spock.lang.Subject
+import spock.util.concurrent.PollingConditions
+
+import java.util.concurrent.BlockingQueue
 
 import static de.flapdoodle.embed.mongo.distribution.Feature.*
 import static de.flapdoodle.embed.process.runtime.Network.localhostIsIPv6
@@ -29,6 +42,43 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles("integration-test")
 class BaseIntegrationTest extends Specification {
 
+    @Autowired
+    TestRestTemplate http
+
+    @Subject
+    @Autowired
+    EventPublisher eventPublisher
+
+    @Autowired
+    Source source
+
+    @Autowired
+    MessageCollector messageCollector
+
+    @Autowired
+    EventSerializer serializer
+
+
+    @Autowired
+    @Qualifier("casinoServicesWriteTemplate")
+    MongoTemplate mongo
+
+    PollingConditions conditions
+
+    BlockingQueue<Message<?>> channel
+
+    def setup() {
+        conditions = new PollingConditions(timeout: 12, initialDelay: 0, factor: 1)
+        channel = messageCollector.forChannel(source.output())
+    }
+
+    def <T extends DomainEvent> T getEvent(Class<T> eventClass) {
+        Message<String> received = channel.poll()
+        if(received == null) return null
+        def event = serializer.deserialize(received.getPayload())
+        if(event.getClass() != eventClass) return null
+        return eventClass.cast(event)
+    }
 }
 
 @Configuration

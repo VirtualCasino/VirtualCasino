@@ -38,7 +38,6 @@ class MongoDbConfig {
         return MongoTransactionManager(casinoServicesWriteDbTemplateFactory)
     }
 
-
 }
 
 @Configuration

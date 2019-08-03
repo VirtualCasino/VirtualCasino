@@ -1,6 +1,8 @@
 package pl.edu.pollub.virtualcasino.clientservices.api
 
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientBusy
+import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.JoinedTable
+import pl.edu.pollub.virtualcasino.clientservices.domain.table.events.RouletteTableReserved
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.InitialBidingRateTooHigh
 import pl.edu.pollub.virtualcasino.clientservices.domain.table.exceptions.TableFull
 import static org.springframework.http.HttpStatus.*
@@ -17,9 +19,16 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def expectedParticipation = sampleParticipation(clientId: clientId)
         when:
-            reserveTable(clientId)
+            def tableId = reserveTable(clientId)
         then:
             tableRepository.containsWithParticipation(expectedParticipation)
+        and:
+            conditions.eventually {
+                def event = getEvent(RouletteTableReserved.class)
+                event != null
+                event.clientId == clientId
+                event.tableId == tableId
+            }
     }
 
     def "should join client to reserved table"() {
@@ -35,6 +44,13 @@ class TableApiTest extends ClientServicesApiTest {
             joinTable(reservedTableId, clientThatWantJoinTableId)
         then:
             tableRepository.containsWithParticipation(expectedParticipation)
+        and:
+            conditions.eventually {
+                def event = getEvent(JoinedTable.class)
+                event != null
+                event.clientId == clientThatWantJoinTableId
+                event.tableId == reservedTableId
+            }
     }
 
     def "should not reserve table multiple times by the same client"() {

@@ -31,8 +31,10 @@ class EventSerializer {
         )
     }.getOrThrow()
 
-    fun deserialize(eventDescriptor: EventDescriptor): DomainEvent = runCatching {
-        objectMapper.readValue(eventDescriptor.body, DomainEvent::class.java)
+    fun deserialize(eventDescriptor: EventDescriptor): DomainEvent = deserialize(eventDescriptor.body)
+
+    fun deserialize(eventBody: String): DomainEvent = runCatching {
+        objectMapper.readValue(eventBody, DomainEvent::class.java)
     }.getOrThrow()
 
 }

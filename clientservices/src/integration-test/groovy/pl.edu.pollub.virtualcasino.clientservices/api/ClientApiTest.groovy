@@ -2,6 +2,7 @@ package pl.edu.pollub.virtualcasino.clientservices.api
 
 import org.springframework.http.RequestEntity
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.commands.BuyTokens
+import pl.edu.pollub.virtualcasino.clientservices.domain.client.events.TokensBought
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.exceptions.ClientBusy
 
 import static org.springframework.http.HttpMethod.*
@@ -21,6 +22,13 @@ class ClientApiTest extends ClientServicesApiTest {
         then:
             def foundClient = clientRepository.find(clientThatWantBuyTokensId)
             foundClient.tokens() == tokens
+        and:
+            conditions.eventually {
+                def event = getEvent(TokensBought.class)
+                event != null
+                event.clientId == clientThatWantBuyTokensId
+                event.tokens == tokens
+            }
     }
 
     def "should not buy tokens when client joined to reserved table"() {

@@ -1,7 +1,6 @@
 package pl.edu.pollub.virtualcasino.clientservices.api
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.web.client.TestRestTemplate
 import pl.edu.pollub.virtualcasino.clientservices.BaseIntegrationTest
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.domain.client.ClientRepository
@@ -24,9 +23,6 @@ class ClientServicesApiTest extends BaseIntegrationTest {
 
     @Autowired
     ClientRepository clientRepository
-
-    @Autowired
-    TestRestTemplate http
 
     def cleanup() {
         clientRepository.clear()
