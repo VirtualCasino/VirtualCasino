@@ -23,6 +23,3 @@ spring.cloud.stream:
       producer:
         partitionKeyExpression: headers['uuid']
         partitionCount: 2
-    input:
-      destination: commands
-      content-type: application/json

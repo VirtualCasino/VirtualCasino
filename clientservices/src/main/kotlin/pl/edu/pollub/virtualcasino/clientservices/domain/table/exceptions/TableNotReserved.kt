@@ -15,7 +15,7 @@ class TableNotReserved(val clientId: ClientId, val tableId: TableId)
     )
 
     companion object {
-        const val CODE = "table.tableNotReserved"
+        const val CODE = "casino-services.table.tableNotReserved"
     }
 
 

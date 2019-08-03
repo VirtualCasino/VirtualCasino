@@ -18,6 +18,6 @@ class InitialBidingRateTooHigh(val clientId: ClientId, val tableId: TableId, val
     )
 
     companion object {
-        const val CODE = "table.initialBidingRateToHigh"
+        const val CODE = "casino-services.table.initialBidingRateToHigh"
     }
 }

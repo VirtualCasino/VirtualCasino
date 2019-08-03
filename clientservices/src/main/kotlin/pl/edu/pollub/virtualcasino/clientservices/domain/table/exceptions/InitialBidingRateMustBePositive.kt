@@ -17,7 +17,7 @@ class InitialBidingRateMustBePositive(val clientId: ClientId, val tableId: Table
     )
 
     companion object {
-        const val CODE = "table.initialBidingRateMustBePositive"
+        const val CODE = "casino-services.table.initialBidingRateMustBePositive"
     }
 
 }

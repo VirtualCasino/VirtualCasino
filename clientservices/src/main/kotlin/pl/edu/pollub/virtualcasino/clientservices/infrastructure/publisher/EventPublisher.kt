@@ -21,6 +21,7 @@ class EventPublisher(val publishingChannel: PublishingChannel,
                      val properties: EventsPublishingProperties
 ) {
 
+    @Scheduled(fixedRateString = "\${events-publishing.frequency}")
     fun publish() {
         findUnpublishedEvents().forEach { sendSafely(it) }
     }
@@ -33,8 +34,7 @@ class EventPublisher(val publishingChannel: PublishingChannel,
             mongo.save(event.sent())
         }
         .onFailure {
-            //TODO add logger with event and information about fail
-            System.out.println(it)
+            //TODO add logger with event and information about failure
         }
     }
 

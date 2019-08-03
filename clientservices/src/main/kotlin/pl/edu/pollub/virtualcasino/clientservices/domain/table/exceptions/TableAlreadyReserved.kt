@@ -16,7 +16,7 @@ class TableAlreadyReserved(val clientId: ClientId, val tableId: TableId, val res
     )
 
     companion object {
-        const val CODE = "table.tableAlreadyReserved"
+        const val CODE = "casino-services.table.tableAlreadyReserved"
     }
 
 }

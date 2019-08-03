@@ -15,6 +15,6 @@ class ClientAlreadyParticipated(val clientId: ClientId, val tableId: TableId)
     )
 
     companion object {
-        const val CODE = "table.clientAlreadyParticipated"
+        const val CODE = "casino-services.table.clientAlreadyParticipated"
     }
 }
