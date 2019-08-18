@@ -1,3 +1,9 @@
 rootProject.name = 'virtualcasino'
 include 'clientservices'
+include 'client-services-model'
+include 'client-services-adapters'
+include 'shared-kernel-model'
+include 'app-monolith'
+include 'adapter-commons'
+include 'adapter-commons'
 
