@@ -1,5 +1,4 @@
 rootProject.name = 'virtualcasino'
-include 'clientservices'
 include 'client-services-model'
 include 'client-services-adapters'
 include 'shared-kernel-model'
