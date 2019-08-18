@@ -1,0 +1,49 @@
+buildscript {
+    ext.kotlin_version = '1.3.11'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.3.31"
+}
+
+group 'pl.edu.pollub'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+}
+
+evaluationDependsOn(':shared-kernel-model')
+
+compileTestJava.dependsOn tasks.getByPath(':shared-kernel-model:testClasses')
+
+dependencies {
+    compile (
+            project(':shared-kernel-model'),
+            'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.31'
+    )
+    testCompile(
+            files(project(':shared-kernel-model').sourceSets.test.output.classesDir),
+            'org.spockframework:spock-core:1.1-groovy-2.4',
+            'junit:junit:4.13-beta-3',
+            'org.codehaus.groovy:groovy-all:2.4.4'
+    )
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

@@ -54,7 +54,7 @@ class AdapterCommonsConfig {
     }
 
     @Bean(destroyMethod = "stop")
-    MongodExecutable casinoServicesWriteDbExecutable(IMongodConfig mongodConfig) {
+    MongodExecutable mongodExecutable(IMongodConfig mongodConfig) {
         return MongodStarter.getDefaultInstance().prepare(mongodConfig)
     }
 

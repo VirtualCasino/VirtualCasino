@@ -6,4 +6,6 @@ include 'shared-kernel-model'
 include 'app-monolith'
 include 'adapter-commons'
 include 'adapter-commons'
+include 'roulette-game-adapters'
+include 'roulette-game-model'
 

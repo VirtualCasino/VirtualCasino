@@ -10,4 +10,3 @@ mongodb:
     host: 127.0.0.1
     port: 27018
     database: casino-services-test-db
-    version: 4.0.0

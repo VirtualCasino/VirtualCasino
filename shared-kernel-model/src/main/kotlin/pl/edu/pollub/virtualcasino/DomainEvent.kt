@@ -2,10 +2,10 @@ package pl.edu.pollub.virtualcasino
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import pl.edu.pollub.virtualcasino.client.events.TokensBought
-import pl.edu.pollub.virtualcasino.table.events.JoinedTable
-import pl.edu.pollub.virtualcasino.table.events.PokerTableReserved
-import pl.edu.pollub.virtualcasino.table.events.RouletteTableReserved
+import pl.edu.pollub.virtualcasino.clientservices.client.samples.events.TokensBought
+import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.JoinedTable
+import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.PokerTableReserved
+import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteTableReserved
 import java.time.Instant
 import java.util.*
 

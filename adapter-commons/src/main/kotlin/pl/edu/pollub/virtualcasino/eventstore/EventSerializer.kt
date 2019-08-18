@@ -6,10 +6,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PRO
 import com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import org.springframework.stereotype.Component
 import pl.edu.pollub.virtualcasino.DomainEvent
 
-@Component
 class EventSerializer {
 
     private val objectMapper: ObjectMapper = ObjectMapper()
