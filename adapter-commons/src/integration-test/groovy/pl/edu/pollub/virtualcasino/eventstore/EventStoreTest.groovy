@@ -1,11 +1,16 @@
 package pl.edu.pollub.virtualcasino.eventstore
 
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
+import pl.edu.pollub.virtualcasino.AdapterCommonsConfig
 import pl.edu.pollub.virtualcasino.BaseIntegrationTest
 import spock.lang.Subject
 
 import static java.util.UUID.randomUUID
 import static pl.edu.pollub.virtualcasino.eventstore.samples.SampleEventDescriptor.sampleEventDescriptor
 
+@SpringBootTest(classes = [AdapterCommonsConfig.class])
+@ActiveProfiles("integration-test")
 class EventStoreTest extends BaseIntegrationTest {
 
     @Subject

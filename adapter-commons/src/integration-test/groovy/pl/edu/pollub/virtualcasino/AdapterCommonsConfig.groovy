@@ -25,7 +25,7 @@ import static de.flapdoodle.embed.mongo.distribution.Feature.*
 import static de.flapdoodle.embed.process.runtime.Network.localhostIsIPv6
 
 @SpringBootApplication
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 @EnableConfigurationProperties(MongoConfigurationProperties.class)
 @EntityScan(basePackageClasses = [AdapterCommonsConfig.class])
 class AdapterCommonsConfig {
@@ -54,7 +54,7 @@ class AdapterCommonsConfig {
     }
 
     @Bean(destroyMethod = "stop")
-    MongodExecutable casinoServicesWriteDbExecutable(IMongodConfig mongodConfig) {
+    MongodExecutable mongodExecutable(IMongodConfig mongodConfig) {
         return MongodStarter.getDefaultInstance().prepare(mongodConfig)
     }
 
