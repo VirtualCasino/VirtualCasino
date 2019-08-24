@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.roulettegame
+package pl.edu.pollub.virtualcasino
 
 import com.mongodb.MongoClient
 import de.flapdoodle.embed.mongo.MongodExecutable
@@ -17,22 +17,22 @@ import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.MongoTransactionManager
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.transaction.annotation.EnableTransactionManagement
-import pl.edu.pollub.virtualcasino.roulettegame.config.mongo.MongoConfigurationProperties
+import pl.edu.pollub.virtualcasino.roulettegame.config.mongo.RouletteGameBoundedContextMongoConfigurationProperties
 
 import static de.flapdoodle.embed.mongo.distribution.Feature.*
 import static de.flapdoodle.embed.process.runtime.Network.localhostIsIPv6
 
 @SpringBootApplication
 @EnableTransactionManagement(proxyTargetClass = true)
-@EntityScan(basePackageClasses = [RouletteGameAdaptersConfig.class])
-class RouletteGameAdaptersConfig {
+@EntityScan(basePackageClasses = [RouletteGameBoundedContext.class])
+class RouletteGameBoundedContext {
 
     private static final String VERSION = "4.0.0"
     private static final String REPLICA_SET_NAME = "rs0"
     private static final String STORAGE_ENGINE_NAME = "wiredTiger"
 
     @Bean
-    MongoTemplate mongoTemplate(MongoClient mongoClient, MongoConfigurationProperties properties) throws IOException {
+    MongoTemplate mongoTemplate(MongoClient mongoClient, RouletteGameBoundedContextMongoConfigurationProperties properties) throws IOException {
         def rouletteGameDb = properties.rouletteGameDb
         return new MongoTemplate(mongoClient, rouletteGameDb.database)
     }
@@ -56,7 +56,7 @@ class RouletteGameAdaptersConfig {
     }
 
     @Bean
-    IMongodConfig mongodConfig(MongoConfigurationProperties properties) throws IOException {
+    IMongodConfig mongodConfig(RouletteGameBoundedContextMongoConfigurationProperties properties) throws IOException {
         def rouletteGameDb = properties.rouletteGameDb
         def net = new Net(rouletteGameDb.host, rouletteGameDb.port, localhostIsIPv6())
         def version = Versions.withFeatures(
@@ -89,7 +89,7 @@ class RouletteGameAdaptersConfig {
     }
 
     @Bean
-    MongoTransactionManager transactionManager(MongoTemplate writeTemplate) {
-        return new MongoTransactionManager(writeTemplate.getMongoDbFactory())
+    MongoTransactionManager transactionManager(MongoTemplate mongoTemplate) {
+        return new MongoTransactionManager(mongoTemplate.getMongoDbFactory())
     }
 }

@@ -2,7 +2,6 @@ package pl.edu.pollub.virtualcasino.roulettegame
 
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
-import java.util.*
 
 class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) {
 
@@ -28,5 +27,3 @@ class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) 
     }
 
 }
-
-data class RoulettePlayerId(val value: UUID = UUID.randomUUID())

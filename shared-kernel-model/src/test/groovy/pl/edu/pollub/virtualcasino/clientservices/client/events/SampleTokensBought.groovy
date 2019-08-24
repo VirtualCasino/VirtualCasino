@@ -1,7 +1,9 @@
-package pl.edu.pollub.virtualcasino.clientservices.client.samples.events
+package pl.edu.pollub.virtualcasino.clientservices.client.events
 
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
+import pl.edu.pollub.virtualcasino.clientservices.client.samples.events.TokensBought
+import pl.edu.pollub.virtualcasino.clientservices.client.samples.events.TokensBoughtId
 
 import java.time.Instant
 

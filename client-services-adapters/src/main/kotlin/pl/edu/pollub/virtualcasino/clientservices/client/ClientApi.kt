@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 import pl.edu.pollub.virtualcasino.clientservices.client.commands.BuyTokens
 
 @RestController
-@RequestMapping("/casino-services/clients")
+@RequestMapping("/virtual-casino/casino-services/clients")
 class ClientApi(private val commandHandler: ClientCommandHandler) {
 
     @PutMapping("/tokens")

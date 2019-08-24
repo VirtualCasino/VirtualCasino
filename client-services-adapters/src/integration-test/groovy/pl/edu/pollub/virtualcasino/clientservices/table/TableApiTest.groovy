@@ -1,8 +1,8 @@
 package pl.edu.pollub.virtualcasino.clientservices.table
 
 import org.springframework.beans.factory.annotation.Autowired
+import pl.edu.pollub.virtualcasino.ExceptionView
 import pl.edu.pollub.virtualcasino.clientservices.ClientServicesApiTest
-import pl.edu.pollub.virtualcasino.clientservices.ExceptionView
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientBusy
 import pl.edu.pollub.virtualcasino.clientservices.table.exceptions.InitialBidingRateTooHigh
 import pl.edu.pollub.virtualcasino.clientservices.table.exceptions.TableFull
@@ -49,22 +49,22 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def reservedTableId = reserveTable(clientThatReservedTable.id())
         and:
-            def clientThatWantJoinTable = setupClient()
+            def clientThatWantJoiningTable = setupClient()
         and:
-            def expectedParticipation = sampleParticipation(clientId: clientThatWantJoinTable.id())
+            def expectedParticipation = sampleParticipation(clientId: clientThatWantJoiningTable.id())
         and:
             def joinedTableListener = new FakedJoinedTableListener()
             eventPublisher.subscribe(joinedTableListener)
         when:
-            joinTable(reservedTableId, clientThatWantJoinTable.id())
+            joinTable(reservedTableId, clientThatWantJoiningTable.id())
         then:
             tableRepository.containsWithParticipation(expectedParticipation)
         and:
             conditions.eventually {
                 def event = joinedTableListener.listenedEvents.first()
-                event.clientId == clientThatWantJoinTable.id()
+                event.clientId == clientThatWantJoiningTable.id()
                 event.tableId == reservedTableId
-                event.clientTokens == clientThatWantJoinTable.tokens()
+                event.clientTokens == clientThatWantJoiningTable.tokens()
             }
         cleanup:
             eventPublisher.unsubscribe(joinedTableListener)
@@ -78,7 +78,7 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def reserveTable = sampleReserveRouletteTable(clientId: clientThatReservedTable.id())
         when:
-            def response = http.postForEntity(URI.create("/casino-services/tables/roulette"), reserveTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/virtual-casino/casino-services/tables/roulette"), reserveTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -100,7 +100,7 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def joinOtherTable = sampleJoinTable(clientId: clientThatReservedTableId, tableId: otherReservedTableId)
         when:
-            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinOtherTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/virtual-casino/casino-services/tables/participation"), joinOtherTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -124,7 +124,7 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def joinToOtherTable = sampleJoinTable(tableId: otherTableId, clientId: clientThatJoinedTable.id())
         when:
-            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToOtherTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/virtual-casino/casino-services/tables/participation"), joinToOtherTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -145,7 +145,7 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def joinToTable = sampleJoinTable(tableId: tableWithToHighBidingRateId, clientId: clientThatWantJoinTable.id())
         when:
-            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/virtual-casino/casino-services/tables/participation"), joinToTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
@@ -169,7 +169,7 @@ class TableApiTest extends ClientServicesApiTest {
         and:
             def joinToTable = sampleJoinTable(tableId: reservedTableId, clientId: clientThatWantJoinTable.id())
         when:
-            def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToTable, ExceptionView.class)
+            def response = http.postForEntity(URI.create("/virtual-casino/casino-services/tables/participation"), joinToTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body

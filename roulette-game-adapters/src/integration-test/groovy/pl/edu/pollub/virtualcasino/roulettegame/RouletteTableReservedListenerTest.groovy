@@ -1,6 +1,7 @@
 package pl.edu.pollub.virtualcasino.roulettegame
 
 import org.springframework.beans.factory.annotation.Autowired
+import pl.edu.pollub.virtualcasino.BaseIntegrationTest
 import spock.lang.Subject
 
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
@@ -14,9 +15,6 @@ class RouletteTableReservedListenerTest extends BaseIntegrationTest {
     @Subject
     @Autowired
     RouletteTableReservedListener listener
-
-    @Autowired
-    RouletteGameRepository repository
 
     def cleanup() {
         repository.clear()
@@ -35,7 +33,7 @@ class RouletteTableReservedListenerTest extends BaseIntegrationTest {
             def foundRouletteGame = repository.find(sampleRouletteGameId(value: tableId.value))
             foundRouletteGame != null
             def players = foundRouletteGame.players()
-            players.size() == 2
+            players.size() == 1
             with(players.last()) {
                 id() == expectedPlayer.id()
                 tokens() == expectedPlayer.tokens()

@@ -5,7 +5,7 @@ import pl.edu.pollub.virtualcasino.EventSourcedAggregateRoot
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientRepository
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNotExist
-import pl.edu.pollub.virtualcasino.clientservices.table.commands.JoinToTable
+import pl.edu.pollub.virtualcasino.clientservices.table.commands.JoinTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReservePokerTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReserveRouletteTable
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.JoinedTable
@@ -48,7 +48,7 @@ class Table(private val id: TableId = TableId(),
         eventPublisher.publish(event)
     }
 
-    fun handle(command: JoinToTable) {
+    fun handle(command: JoinTable) {
         val clientId = command.clientId
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
         joiningSpecification.canJoin(this, client)

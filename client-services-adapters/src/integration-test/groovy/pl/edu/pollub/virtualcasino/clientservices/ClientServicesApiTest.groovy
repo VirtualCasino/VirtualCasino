@@ -8,9 +8,9 @@ import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.table.TableId
 import pl.edu.pollub.virtualcasino.clientservices.table.TableRepository
 
+import static pl.edu.pollub.virtualcasino.clientservices.client.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.sampleClient
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleJoinTable.sampleJoinTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleReserveTable.sampleReservePokerTable
@@ -46,23 +46,23 @@ class ClientServicesApiTest extends BaseIntegrationTest {
         def clientId = sampleClientId()
         def client = sampleClient(id: clientId)
         clientRepository.add(client)
-        http.put(URI.create("/casino-services/clients/tokens"), sampleTokensBought(clientId: clientId, tokens: tokens))
+        http.put(URI.create("/virtual-casino/casino-services/clients/tokens"), sampleTokensBought(clientId: clientId, tokens: tokens))
         return client
     }
 
     TableId reserveTable(ClientId clientThatReservedTableId) {
-        def tableUri = http.postForLocation(URI.create("/casino-services/tables/roulette"), sampleReserveRouletteTable(clientId: clientThatReservedTableId))
+        def tableUri = http.postForLocation(URI.create("/virtual-casino/casino-services/tables/roulette"), sampleReserveRouletteTable(clientId: clientThatReservedTableId))
         return uriToId(tableUri)
     }
 
     TableId reservePokerTable(ClientId clientThatReservedTableId, Tokens initialBidingRate) {
         def reserveTable = sampleReservePokerTable(clientId: clientThatReservedTableId, initialBidingRate: initialBidingRate)
-        def tableUri = http.postForLocation(URI.create("/casino-services/tables/poker"), reserveTable)
+        def tableUri = http.postForLocation(URI.create("/virtual-casino/casino-services/tables/poker"), reserveTable)
         return uriToId(tableUri)
     }
 
     TableId joinTable(TableId tableId, ClientId clientThatJoinedToTableId) {
-        def tableUri = http.postForLocation(URI.create("/casino-services/tables/participation"), sampleJoinTable(tableId: tableId, clientId: clientThatJoinedToTableId))
+        def tableUri = http.postForLocation(URI.create("/virtual-casino/casino-services/tables/participation"), sampleJoinTable(tableId: tableId, clientId: clientThatJoinedToTableId))
         return uriToId(tableUri)
     }
 }

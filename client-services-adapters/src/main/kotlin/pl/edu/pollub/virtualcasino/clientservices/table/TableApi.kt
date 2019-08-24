@@ -5,13 +5,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import pl.edu.pollub.virtualcasino.clientservices.table.commands.JoinToTable
+import pl.edu.pollub.virtualcasino.clientservices.table.commands.JoinTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReservePokerTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReserveRouletteTable
 import java.net.URI
 
 @RestController
-@RequestMapping("/casino-services/tables")
+@RequestMapping("/virtual-casino/casino-services/tables")
 class TableApi(private val commandHandler: TableCommandHandler) {
 
     @PostMapping("/poker")
@@ -27,7 +27,7 @@ class TableApi(private val commandHandler: TableCommandHandler) {
     }
 
     @PostMapping("/participation")
-    fun handle(@RequestBody command: JoinToTable): ResponseEntity<URI> {
+    fun handle(@RequestBody command: JoinTable): ResponseEntity<URI> {
         val joinedTableId = commandHandler.handle(command)
         return ResponseEntity.created(URI.create("/tables/${joinedTableId.value}")).build()
     }

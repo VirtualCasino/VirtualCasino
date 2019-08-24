@@ -2,8 +2,8 @@ package pl.edu.pollub.virtualcasino.clientservices.client
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.RequestEntity
+import pl.edu.pollub.virtualcasino.ExceptionView
 import pl.edu.pollub.virtualcasino.clientservices.ClientServicesApiTest
-import pl.edu.pollub.virtualcasino.clientservices.ExceptionView
 import pl.edu.pollub.virtualcasino.clientservices.client.commands.BuyTokens
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientBusy
 import pl.edu.pollub.virtualcasino.clientservices.client.fakes.FakedTokensBoughtListener
@@ -20,21 +20,21 @@ class ClientApiTest extends ClientServicesApiTest {
 
     def "should buy tokens"() {
         given:
-            def clientThatWantBuyTokens = setupClient()
+            def clientThatBuyingTokens = setupClient()
             def tokens = sampleTokens(count: 100)
-            def buyTokens = sampleBuyTokens(clientId: clientThatWantBuyTokens.id(), tokens: tokens)
+            def buyTokens = sampleBuyTokens(clientId: clientThatBuyingTokens.id(), tokens: tokens)
         and:
             def tokensBoughtListener = new FakedTokensBoughtListener()
             eventPublisher.subscribe(tokensBoughtListener)
         when:
-            http.put(URI.create("/casino-services/clients/tokens"), buyTokens)
+            http.put(URI.create("/virtual-casino/casino-services/clients/tokens"), buyTokens)
         then:
-            def foundClient = clientRepository.find(clientThatWantBuyTokens.id())
+            def foundClient = clientRepository.find(clientThatBuyingTokens.id())
             foundClient.tokens() == tokens
         and:
             conditions.eventually {
                 def event = tokensBoughtListener.listenedEvents.first()
-                event.clientId == clientThatWantBuyTokens.id()
+                event.clientId == clientThatBuyingTokens.id()
                 event.tokens == tokens
             }
         cleanup:
@@ -51,7 +51,7 @@ class ClientApiTest extends ClientServicesApiTest {
         and:
             def tokens = sampleTokens(count: 100)
             def buyTokens = sampleBuyTokens(clientId: clientThatJoinedTable.id(), tokens: tokens)
-            def request = new RequestEntity<BuyTokens>(buyTokens, PUT, URI.create("/casino-services/clients/tokens"))
+            def request = new RequestEntity<BuyTokens>(buyTokens, PUT, URI.create("/virtual-casino/casino-services/clients/tokens"))
         when:
             def response = http.exchange(request, ExceptionView.class)
         then:

@@ -7,10 +7,9 @@ import pl.edu.pollub.virtualcasino.eventstore.EventSerializer
 import pl.edu.pollub.virtualcasino.eventstore.EventStore
 
 @Component
-class EventSourcedMongoClientRepository(
-        private val eventStore: EventStore,
-        private val eventSerializer: EventSerializer,
-        private val clientFactory: ClientFactory
+class EventSourcedMongoClientRepository(private val clientServicesBoundedContextEventStore: EventStore,
+                                        private val clientServicesBoundedContextEventSerializer: EventSerializer,
+                                        private val factory: ClientFactory
 ): ClientRepository {
     
     override fun add(aggregate: Client): Boolean {
@@ -20,18 +19,18 @@ class EventSourcedMongoClientRepository(
     }
 
     override fun find(aggregateId: ClientId): Client? {
-        val events = eventStore.getEventsOfAggregate(aggregateId.value)
+        val events = clientServicesBoundedContextEventStore.getEventsOfAggregate(aggregateId.value)
                 ?.events
-                ?.map { eventSerializer.deserialize(it) }
+                ?.map { clientServicesBoundedContextEventSerializer.deserialize(it) }
                 ?: return null
-        val aggregate = clientFactory.create(aggregateId, events)
+        val aggregate = factory.create(aggregateId, events)
         aggregate.markChangesAsCommitted()
         dirtyChecking(aggregate)
         return aggregate
     }
 
     override fun clear() {
-        eventStore.clear()
+        clientServicesBoundedContextEventStore.clear()
     }
 
     private fun dirtyChecking(aggregate: Client) {
@@ -51,8 +50,8 @@ class EventSourcedMongoClientRepository(
 
     private fun flushChanges(aggregate: Client) {
         val pendingEvents = aggregate.getUncommittedChanges()
-        val serializedPendingEvents = pendingEvents.map { eventSerializer.serialize(it) }
-        eventStore.saveEvents(aggregate.id().value, serializedPendingEvents)
+        val serializedPendingEvents = pendingEvents.map { clientServicesBoundedContextEventSerializer.serialize(it) }
+        clientServicesBoundedContextEventStore.saveEvents(aggregate.id().value, serializedPendingEvents)
         aggregate.markChangesAsCommitted()
     }
 }

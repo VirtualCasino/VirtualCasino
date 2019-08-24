@@ -10,9 +10,9 @@ import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteT
 import pl.edu.pollub.virtualcasino.roulettegame.exceptions.RouletteGameForTableNotExist
 
 @Component
+@Transactional(rollbackFor = [DomainException::class])
 class JoinedTableListener(private val repository: RouletteGameRepository): DomainEventListener<JoinedTable> {
 
-    @Transactional(rollbackFor = [DomainException::class])
     override fun reactTo(event: DomainEvent) {
         reactTo(event as JoinedTable)
     }

@@ -6,7 +6,7 @@ import com.mongodb.BasicDBObject
 import com.mongodb.DB
 
 @ChangeLog
-class DatabaseChangelog {
+class ClientServicesBoundedContextDatabaseChangelog {
 
     @ChangeSet(order = "27-07-2019.23:00", id = "createEventSourcingDocumentsAndTableParticipantsProjection", author = "Jarek0")
     fun createEventSourcingDocumentsAndTableParticipantsProjection(db: DB) {

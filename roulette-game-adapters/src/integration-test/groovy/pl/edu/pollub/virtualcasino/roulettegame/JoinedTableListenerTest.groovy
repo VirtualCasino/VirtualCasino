@@ -1,6 +1,7 @@
 package pl.edu.pollub.virtualcasino.roulettegame
 
 import org.springframework.beans.factory.annotation.Autowired
+import pl.edu.pollub.virtualcasino.BaseIntegrationTest
 import spock.lang.Subject
 
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
@@ -16,9 +17,6 @@ class JoinedTableListenerTest extends BaseIntegrationTest {
     @Subject
     @Autowired
     JoinedTableListener listener
-
-    @Autowired
-    RouletteGameRepository repository
 
     def cleanup() {
         repository.clear()
