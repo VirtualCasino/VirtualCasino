@@ -22,7 +22,7 @@ class NoRequirements: TableRequirements {
 internal class RouletteTableRequirements(private val tableId: TableId, private val participation: List<Participation>): TableRequirements {
 
     override fun check(client: Client): Boolean {
-        if(participation.count() >= MAX_ROULETTE_PARTICIPANTS_COUNT) throw TableFull(client.id, tableId, MAX_ROULETTE_PARTICIPANTS_COUNT)
+        if(participation.count() >= MAX_ROULETTE_PARTICIPANTS_COUNT) throw TableFull(client.id(), tableId, MAX_ROULETTE_PARTICIPANTS_COUNT)
         return true
     }
 
@@ -35,8 +35,8 @@ internal class RouletteTableRequirements(private val tableId: TableId, private v
 internal class PokerTableRequirements(private val tableId: TableId, private val participation: List<Participation>, private val initialBidingRate: Tokens): TableRequirements {
 
     override fun check(client: Client): Boolean {
-        if(participation.count() >= MAX_POKER_PARTICIPANTS_COUNT) throw TableFull(client.id, tableId, MAX_POKER_PARTICIPANTS_COUNT)
-        if(client.tokens() < initialBidingRate) throw InitialBidingRateTooHigh(client.id, tableId, client.tokens(), initialBidingRate)
+        if(participation.count() >= MAX_POKER_PARTICIPANTS_COUNT) throw TableFull(client.id(), tableId, MAX_POKER_PARTICIPANTS_COUNT)
+        if(client.tokens() < initialBidingRate) throw InitialBidingRateTooHigh(client.id(), client.tokens(), initialBidingRate)
         return true
     }
 

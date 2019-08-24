@@ -19,12 +19,14 @@ class SampleTableReserved {
                 id: sampleRouletteTableReservedId(),
                 tableId: sampleTableId(),
                 clientId: sampleClientId(),
+                clientTokens: sampleTokens(),
                 occurredAt: samplePointInTime()
         ] + customProperties
         return new RouletteTableReserved(
                 properties.id as RouletteTableReservedId,
                 properties.tableId as TableId,
                 properties.clientId as ClientId,
+                properties.clientTokens as Tokens,
                 properties.occurredAt as Instant
         )
     }
@@ -42,6 +44,7 @@ class SampleTableReserved {
                 tableId: sampleTableId(),
                 clientId: sampleClientId(),
                 initialBidingRate: sampleTokens(),
+                clientTokens: sampleTokens(),
                 occurredAt: samplePointInTime()
         ] + customProperties
         return new PokerTableReserved(
@@ -49,6 +52,7 @@ class SampleTableReserved {
                 properties.tableId as TableId,
                 properties.clientId as ClientId,
                 properties.initialBidingRate as Tokens,
+                properties.clientTokens as Tokens,
                 properties.occurredAt as Instant
         )
     }

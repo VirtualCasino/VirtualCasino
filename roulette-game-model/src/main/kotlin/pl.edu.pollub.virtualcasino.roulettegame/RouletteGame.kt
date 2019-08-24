@@ -15,10 +15,10 @@ class RouletteGame(val id: RouletteGameId = RouletteGameId(),
     private val players = mutableListOf<RoulettePlayer>()
 
     init {
-        changes.fold(this) { _, event -> patternMatch(event) }
+        changes.toMutableList().fold(this) { _, event -> patternMatch(event) }
     }
 
-    internal fun players(): List<RoulettePlayer> = players
+    fun players(): List<RoulettePlayer> = players
 
     override fun patternMatch(event: DomainEvent): RouletteGame  = when(event) {
         is RouletteTableReserved -> `when`(event)
@@ -27,12 +27,14 @@ class RouletteGame(val id: RouletteGameId = RouletteGameId(),
     }
 
     fun `when`(event: JoinedTable): RouletteGame {
-        players.add(RoulettePlayer(event.clientId))
+        players.add(RoulettePlayer(event.clientId, event.clientTokens))
+        changes.add(event)
         return this
     }
 
     private fun `when`(event: RouletteTableReserved): RouletteGame {
-        players.add(RoulettePlayer(event.clientId))
+        players.add(RoulettePlayer(event.clientId, event.clientTokens))
+        changes.add(event)
         return this
     }
 

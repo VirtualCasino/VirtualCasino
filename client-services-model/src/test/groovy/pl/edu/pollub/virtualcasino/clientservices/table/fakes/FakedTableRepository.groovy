@@ -17,7 +17,7 @@ class FakedTableRepository implements TableRepository {
 
     @Override
     Table find(@NotNull TableId id) {
-        return aggregates.find { it.id == id }
+        return aggregates.find { it.id() == id }
     }
 
     @Override

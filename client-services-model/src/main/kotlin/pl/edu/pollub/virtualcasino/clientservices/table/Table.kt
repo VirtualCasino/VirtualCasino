@@ -2,67 +2,68 @@ package pl.edu.pollub.virtualcasino.clientservices.table
 
 import pl.edu.pollub.virtualcasino.DomainEvent
 import pl.edu.pollub.virtualcasino.EventSourcedAggregateRoot
-import pl.edu.pollub.virtualcasino.clientservices.client.Client
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientRepository
-import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
-import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientBusy
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNotExist
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.JoinToTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReservePokerTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReserveRouletteTable
-import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReserveTable
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.JoinedTable
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.PokerTableReserved
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteTableReserved
-import pl.edu.pollub.virtualcasino.clientservices.table.exceptions.*
 import java.lang.RuntimeException
 
-class Table(val id: TableId = TableId(),
+class Table(private val id: TableId = TableId(),
             private val changes: MutableList<DomainEvent> = mutableListOf(),
             private val clientRepository: ClientRepository,
             private val eventPublisher: TableEventPublisher
 ): EventSourcedAggregateRoot(changes) {
 
-    private val participation = mutableListOf<Participation>()
     private var requirements: TableRequirements = NoRequirements()
+    private val participation = mutableListOf<Participation>()
+    private val reservationSpecification = ReservationSpecification()
+    private val joiningSpecification = JoiningSpecification()
+    private val initialBiddingRateSpecification = InitialBiddingRateSpecification()
 
     init {
-        changes.fold(this) { _, event -> patternMatch(event) }
+        changes.toMutableList().fold(this) { _, event -> patternMatch(event) }
     }
 
     fun handle(command: ReserveRouletteTable) {
         val clientId = command.clientId()
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
-        validateReservation(command, client)
-        val event = RouletteTableReserved(tableId = id, clientId = clientId)
+        reservationSpecification.canReserve(this, client)
+        val event = RouletteTableReserved(tableId = id, clientId = clientId, clientTokens = client.tokens())
         `when`(event)
         eventPublisher.publish(event)
-        changes.add(event)
     }
 
     fun handle(command: ReservePokerTable) {
         val clientId = command.clientId()
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
-        validateReservation(command, client)
-        validatePokerInitialBiddingRate(command, client)
-        val event = PokerTableReserved(tableId = id, clientId = clientId, initialBidingRate = command.initialBidingRate)
+        reservationSpecification.canReserve(this, client)
+        initialBiddingRateSpecification.isInitialBiddingRateValid(command, client)
+        val event = PokerTableReserved(tableId = id, clientId = clientId, initialBidingRate = command.initialBidingRate, clientTokens = client.tokens())
         `when`(event)
         eventPublisher.publish(event)
-        changes.add(event)
     }
 
     fun handle(command: JoinToTable) {
         val clientId = command.clientId
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
-        validateJoining(command, client)
-        val event = JoinedTable(tableId = id, clientId = clientId)
+        joiningSpecification.canJoin(this, client)
+        val event = JoinedTable(tableId = id, clientId = clientId, clientTokens = client.tokens())
         `when`(event)
         eventPublisher.publish(event)
-        changes.add(event)
     }
 
+    fun id(): TableId = id
+
+    fun hasParticipation(participation: Participation): Boolean = this.participation.contains(participation)
+
     fun participation(): List<Participation> = participation
+
+    internal fun requirements(): TableRequirements = requirements
 
     override fun patternMatch(event: DomainEvent): Table = when(event) {
         is RouletteTableReserved -> `when`(event)
@@ -71,44 +72,25 @@ class Table(val id: TableId = TableId(),
         else -> throw RuntimeException("event: $event is not acceptable for Table")
     }
 
-    private fun hasParticipation(participation: Participation): Boolean = this.participation.contains(participation)
-
-    private fun validateReservation(command: ReserveTable, client: Client) {
-        val clientId = command.clientId()
-        if (isReserved()) throw TableAlreadyReserved(clientId, id, participation.first().clientId)
-        if (client.doesParticipateToAnyTable()) throw ClientBusy(clientId)
-    }
-
-    private fun validatePokerInitialBiddingRate(command: ReservePokerTable, client: Client) {
-        val clientId = command.clientId()
-        if (command.initialBidingRate <= Tokens()) throw InitialBidingRateMustBePositive(clientId, id, command.initialBidingRate)
-        if (client.tokens() < command.initialBidingRate) throw InitialBidingRateTooHigh(clientId, id, client.tokens(), command.initialBidingRate)
-    }
-
-    private fun validateJoining(command: JoinToTable, client: Client) {
-        val clientId = command.clientId
-        if (!isReserved()) throw TableNotReserved(clientId, id)
-        if (hasParticipation(Participation(clientId))) throw ClientAlreadyParticipated(clientId, id)
-        if (client.doesParticipateToAnyTable()) throw ClientBusy(clientId)
-        requirements.check(client)
-    }
-
-    private fun isReserved() = !participation.isEmpty()
+    internal fun isReserved() = !participation.isEmpty()
 
     private fun `when`(event: RouletteTableReserved): Table {
         participation.add(Participation(event.clientId))
         requirements = RouletteTableRequirements(event.tableId, participation)
+        changes.add(event)
         return this
     }
 
     private fun `when`(event: PokerTableReserved): Table {
         participation.add(Participation(event.clientId))
         requirements = PokerTableRequirements(event.tableId, participation, event.initialBidingRate)
+        changes.add(event)
         return this
     }
 
     private fun `when`(event: JoinedTable): Table {
         participation.add(Participation(event.clientId))
+        changes.add(event)
         return this
     }
 

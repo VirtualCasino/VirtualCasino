@@ -8,11 +8,11 @@ import pl.edu.pollub.virtualcasino.DomainException
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteTableReserved
 
 @Component
+@Transactional(rollbackFor = [DomainException::class])
 class RouletteTableReservedListener(private val factory: RouletteGameFactory,
                                     private val repository: RouletteGameRepository
 ): DomainEventListener<RouletteTableReserved> {
 
-    @Transactional(rollbackFor = [DomainException::class])
     override fun reactTo(event: DomainEvent) {
         reactTo(event as RouletteTableReserved)
     }

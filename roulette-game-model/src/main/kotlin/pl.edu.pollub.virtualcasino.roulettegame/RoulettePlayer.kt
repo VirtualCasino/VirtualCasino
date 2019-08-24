@@ -1,11 +1,16 @@
 package pl.edu.pollub.virtualcasino.roulettegame
 
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
+import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 import java.util.*
 
-internal class RoulettePlayer(clientId: ClientId) {
+class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) {
 
-    val id: RoulettePlayerId = RoulettePlayerId(clientId.value)
+    private val id: RoulettePlayerId = RoulettePlayerId(clientId.value)
+
+    fun id(): RoulettePlayerId = id
+
+    fun tokens(): Tokens = tokens
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -24,4 +29,4 @@ internal class RoulettePlayer(clientId: ClientId) {
 
 }
 
-internal data class RoulettePlayerId(val value: UUID = UUID.randomUUID())
+data class RoulettePlayerId(val value: UUID = UUID.randomUUID())

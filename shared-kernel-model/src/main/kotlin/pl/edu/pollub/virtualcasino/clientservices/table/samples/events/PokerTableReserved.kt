@@ -13,6 +13,7 @@ data class PokerTableReserved(
         val tableId: TableId,
         val clientId: ClientId,
         val initialBidingRate: Tokens = Tokens(),
+        val clientTokens: Tokens,
         val occurredAt: Instant = Instant.now()
 
 ): DomainEvent {

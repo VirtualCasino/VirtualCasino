@@ -57,15 +57,17 @@ class TableTest extends Specification {
             table = sampleTable(clientRepository: clientRepository, eventPublisher: eventPublisher)
         and:
             def clientId = sampleClientId()
-            clientRepository.add(sampleClient(id: clientId))
+            def client = sampleClient(id: clientId)
+            clientRepository.add(client)
             def reserveTable = sampleReserveRouletteTable(clientId: clientId)
         when:
             table.handle(reserveTable)
         then:
             def listenedEvent = rouletteTableReservedListener.listenedEvents.first()
             with(listenedEvent) {
-                tableId == table.id
+                tableId == table.id()
                 clientId == clientId
+                clientTokens == client.tokens()
             }
     }
 
@@ -78,7 +80,8 @@ class TableTest extends Specification {
         and:
             def clientId = sampleClientId()
             def tokensBought = sampleTokensBought(tokens: sampleTokens(count: 100))
-            clientRepository.add(sampleClient(id: clientId, changes: [tokensBought]))
+            def client = sampleClient(id: clientId, changes: [tokensBought])
+            clientRepository.add(client)
             def initialBidingRate = sampleTokens(count: 50)
             def reserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: initialBidingRate)
         when:
@@ -86,8 +89,9 @@ class TableTest extends Specification {
         then:
             def listenedEvent = pokerTableReservedListener.listenedEvents.first()
             with(listenedEvent) {
-                tableId == table.id
+                tableId == table.id()
                 clientId == clientId
+                clientTokens == client.tokens()
                 initialBidingRate == initialBidingRate
             }
     }
@@ -106,8 +110,7 @@ class TableTest extends Specification {
         then:
             def e = thrown(TableAlreadyReserved)
             e.clientId == clientId
-            e.tableId == table.id
-            e.reservedBy == reservedBy
+            e.tableId == table.id()
     }
 
     def "should throw ClientNotExist when client which not exists try to reserve table"() {
@@ -180,7 +183,6 @@ class TableTest extends Specification {
         then:
             def e = thrown(InitialBidingRateMustBePositive)
             e.clientId == clientId
-            e.tableId == tableId
             e.initialBidingRate == initialBidingRate
         where:
             invalidBidingRateValue << [0, -50]
@@ -211,15 +213,17 @@ class TableTest extends Specification {
             table = sampleTable(changes: [tableReserved], clientRepository: clientRepository, eventPublisher: eventPublisher)
         and:
             def clientId = sampleClientId()
-            clientRepository.add(sampleClient(id: clientId))
+            def client = sampleClient(id: clientId)
+            clientRepository.add(client)
             def joinToTable = sampleJoinTable(clientId: clientId)
         when:
             table.handle(joinToTable)
         then:
             def listenedEvent = joinedTableListener.listenedEvents.first()
             with(listenedEvent) {
-                tableId == table.id
+                tableId == table.id()
                 clientId == clientId
+                clientTokens == client.tokens()
             }
     }
 
@@ -236,7 +240,7 @@ class TableTest extends Specification {
         then:
             def e = thrown(ClientAlreadyParticipated)
             e.clientId == clientId
-            e.tableId == table.id
+            e.tableId == table.id()
     }
 
     def "should throw ClientAlreadyParticipated when client try to joint to table multiple times"() {
@@ -253,7 +257,7 @@ class TableTest extends Specification {
         then:
             def e = thrown(ClientAlreadyParticipated)
             e.clientId == clientId
-            e.tableId == table.id
+            e.tableId == table.id()
     }
 
     def "should throw ClientNotExist when client which doesn't exists try join table"() {
@@ -323,7 +327,7 @@ class TableTest extends Specification {
         then:
             def e = thrown(TableNotReserved)
             e.clientId == clientId
-            e.tableId == table.id
+            e.tableId == table.id()
     }
 
     @Unroll
@@ -342,7 +346,7 @@ class TableTest extends Specification {
         then:
             def e = thrown(TableFull)
             e.clientId == clientId
-            e.tableId == table.id
+            e.tableId == table.id()
             e.maxParticipantsCount == maxParticipantCount
         where:
             gameType   | maxParticipantCount
@@ -364,7 +368,6 @@ class TableTest extends Specification {
         then:
             def e = thrown(InitialBidingRateTooHigh)
             e.clientId == clientId
-            e.tableId == table.id
             e.tokens == tokensBought.tokens
             e.initialBidingRate == reserveTable.initialBidingRate
     }
@@ -386,7 +389,6 @@ class TableTest extends Specification {
         then:
             def e = thrown(InitialBidingRateTooHigh)
             e.clientId == clientId
-            e.tableId == table.id
             e.tokens == tokensBought.tokens
             e.initialBidingRate == tableReserved.initialBidingRate
     }

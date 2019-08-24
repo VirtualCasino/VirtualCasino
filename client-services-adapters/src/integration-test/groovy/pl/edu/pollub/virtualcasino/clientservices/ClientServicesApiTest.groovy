@@ -1,6 +1,7 @@
 package pl.edu.pollub.virtualcasino.clientservices
 
 import org.springframework.beans.factory.annotation.Autowired
+import pl.edu.pollub.virtualcasino.clientservices.client.Client
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientRepository
 import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
@@ -34,19 +35,19 @@ class ClientServicesApiTest extends BaseIntegrationTest {
         return sampleTableId(value: UUID.fromString(tableIdValue))
     }
 
-    ClientId setupClient() {
+    Client setupClient() {
         def clientId = sampleClientId()
         def client = sampleClient(id: clientId)
         clientRepository.add(client)
-        return clientId
+        return client
     }
 
-    ClientId setupClientWithTokens(Tokens tokens) {
+    Client setupClientWithTokens(Tokens tokens) {
         def clientId = sampleClientId()
-        def clientThatReservedTable = sampleClient(id: clientId,
-                changes: [sampleTokensBought(clientId: clientId, tokens: tokens)])
-        clientRepository.add(clientThatReservedTable)
-        return clientId
+        def client = sampleClient(id: clientId)
+        clientRepository.add(client)
+        http.put(URI.create("/casino-services/clients/tokens"), sampleTokensBought(clientId: clientId, tokens: tokens))
+        return client
     }
 
     TableId reserveTable(ClientId clientThatReservedTableId) {

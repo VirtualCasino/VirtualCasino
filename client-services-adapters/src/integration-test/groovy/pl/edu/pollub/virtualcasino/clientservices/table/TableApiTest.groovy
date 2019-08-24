@@ -22,21 +22,22 @@ class TableApiTest extends ClientServicesApiTest {
 
     def "should reserve table"() {
         given:
-            def clientId = setupClient()
+            def client = setupClient()
         and:
-            def expectedParticipation = sampleParticipation(clientId: clientId)
+            def expectedParticipation = sampleParticipation(clientId: client.id())
         and:
             def tableReservedListener = new FakedRouletteTableReservedListener()
             eventPublisher.subscribe(tableReservedListener)
         when:
-            def tableId = reserveTable(clientId)
+            def tableId = reserveTable(client.id())
         then:
             tableRepository.containsWithParticipation(expectedParticipation)
         and:
             conditions.eventually {
                 def event = tableReservedListener.listenedEvents.first()
-                event.clientId == clientId
+                event.clientId == client.id()
                 event.tableId == tableId
+                event.clientTokens == client.tokens()
             }
         cleanup:
             eventPublisher.unsubscribe(tableReservedListener)
@@ -44,25 +45,26 @@ class TableApiTest extends ClientServicesApiTest {
 
     def "should join client to reserved table"() {
         given:
-            def clientThatReservedTableId = setupClient()
+            def clientThatReservedTable = setupClient()
         and:
-            def reservedTableId = reserveTable(clientThatReservedTableId)
+            def reservedTableId = reserveTable(clientThatReservedTable.id())
         and:
-            def clientThatWantJoinTableId = setupClient()
+            def clientThatWantJoinTable = setupClient()
         and:
-            def expectedParticipation = sampleParticipation(clientId: clientThatWantJoinTableId)
+            def expectedParticipation = sampleParticipation(clientId: clientThatWantJoinTable.id())
         and:
             def joinedTableListener = new FakedJoinedTableListener()
             eventPublisher.subscribe(joinedTableListener)
         when:
-            joinTable(reservedTableId, clientThatWantJoinTableId)
+            joinTable(reservedTableId, clientThatWantJoinTable.id())
         then:
             tableRepository.containsWithParticipation(expectedParticipation)
         and:
             conditions.eventually {
                 def event = joinedTableListener.listenedEvents.first()
-                event.clientId == clientThatWantJoinTableId
+                event.clientId == clientThatWantJoinTable.id()
                 event.tableId == reservedTableId
+                event.clientTokens == clientThatWantJoinTable.tokens()
             }
         cleanup:
             eventPublisher.unsubscribe(joinedTableListener)
@@ -70,27 +72,29 @@ class TableApiTest extends ClientServicesApiTest {
 
     def "should not reserve table multiple times by the same client"() {
         given:
-            def clientThatReservedTableId = setupClient()
+            def clientThatReservedTable = setupClient()
         and:
-            reserveTable(clientThatReservedTableId)
+            reserveTable(clientThatReservedTable.id())
         and:
-            def reserveTable = sampleReserveRouletteTable(clientId: clientThatReservedTableId)
+            def reserveTable = sampleReserveRouletteTable(clientId: clientThatReservedTable.id())
         when:
             def response = http.postForEntity(URI.create("/casino-services/tables/roulette"), reserveTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatReservedTableId.value.toString()]
+            exceptionView.params == ["clientId": clientThatReservedTable.id().value.toString()]
     }
 
     def "should not join client to table when client already reserved other table"() {
         given:
-            def clientThatReservedTableId = setupClient()
+            def clientThatReservedTable = setupClient()
+            def clientThatReservedTableId = clientThatReservedTable.id()
         and:
             reserveTable(clientThatReservedTableId)
         and:
-            def otherClientThatReservedOtherTableId = setupClient()
+            def otherClientThatReservedOtherTable = setupClient()
+            def otherClientThatReservedOtherTableId = otherClientThatReservedOtherTable.id()
         and:
             def otherReservedTableId = reserveTable(otherClientThatReservedOtherTableId)
         and:
@@ -106,40 +110,40 @@ class TableApiTest extends ClientServicesApiTest {
 
     def "should not join client to reserved table when client already joined to other table"() {
         given:
-            def clientThatReservedTableId = setupClient()
+            def clientThatReservedTable = setupClient()
         and:
-            def tableId = reserveTable(clientThatReservedTableId)
+            def tableId = reserveTable(clientThatReservedTable.id())
         and:
-            def clientThatReservedOtherTableId = setupClient()
+            def clientThatReservedOtherTable = setupClient()
         and:
-            def otherTableId = reserveTable(clientThatReservedOtherTableId)
+            def otherTableId = reserveTable(clientThatReservedOtherTable.id())
         and:
-            def clientThatJoinedTableId = setupClient()
+            def clientThatJoinedTable = setupClient()
         and:
-            joinTable(tableId, clientThatJoinedTableId)
+            joinTable(tableId, clientThatJoinedTable.id())
         and:
-            def joinToOtherTable = sampleJoinTable(tableId: otherTableId, clientId: clientThatJoinedTableId)
+            def joinToOtherTable = sampleJoinTable(tableId: otherTableId, clientId: clientThatJoinedTable.id())
         when:
             def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToOtherTable, ExceptionView.class)
         then:
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatJoinedTableId.value.toString()]
+            exceptionView.params == ["clientId": clientThatJoinedTable.id().value.toString()]
     }
 
     def "should not join client to reserved poker table when client doesn't have enough tokens to start biding"() {
         given:
             def clientThatReservedTableTokens = sampleTokens(count: 100)
-            def clientThatReservedTableId = setupClientWithTokens(clientThatReservedTableTokens)
+            def clientThatReservedTable = setupClientWithTokens(clientThatReservedTableTokens)
         and:
             def initialBidingRate = sampleTokens(count: 100)
-            def tableWithToHighBidingRateId = reservePokerTable(clientThatReservedTableId, initialBidingRate)
+            def tableWithToHighBidingRateId = reservePokerTable(clientThatReservedTable.id(), initialBidingRate)
         and:
             def clientThatWantJoinTableTokens = sampleTokens(count: 50)
-            def clientThatWantJoinTableId = setupClientWithTokens(clientThatWantJoinTableTokens)
+            def clientThatWantJoinTable = setupClientWithTokens(clientThatWantJoinTableTokens)
         and:
-            def joinToTable = sampleJoinTable(tableId: tableWithToHighBidingRateId, clientId: clientThatWantJoinTableId)
+            def joinToTable = sampleJoinTable(tableId: tableWithToHighBidingRateId, clientId: clientThatWantJoinTable.id())
         when:
             def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToTable, ExceptionView.class)
         then:
@@ -147,8 +151,7 @@ class TableApiTest extends ClientServicesApiTest {
             def exceptionView = response.body
             exceptionView.code == InitialBidingRateTooHigh.CODE
             exceptionView.params == [
-                    "clientId": clientThatWantJoinTableId.value.toString(),
-                    "tableId": tableWithToHighBidingRateId.value.toString(),
+                    "clientId": clientThatWantJoinTable.id().value.toString(),
                     "tokens": clientThatWantJoinTableTokens.count.toString(),
                     "initialBidingRate": initialBidingRate.count.toString()
             ]
@@ -156,15 +159,15 @@ class TableApiTest extends ClientServicesApiTest {
 
     def "should not join client when max table participants count is reached"() {
         given:
-            def clientThatReservedTableId = setupClient()
+            def clientThatReservedTable = setupClient()
         and:
-            def reservedTableId = reserveTable(clientThatReservedTableId)
+            def reservedTableId = reserveTable(clientThatReservedTable.id())
         and:
-            (0..8).forEach{ joinTable(reservedTableId, setupClient()) }
+            (0..8).forEach{ joinTable(reservedTableId, setupClient().id()) }
         and:
-            def clientThatWantJoinTableId = setupClient()
+            def clientThatWantJoinTable = setupClient()
         and:
-            def joinToTable = sampleJoinTable(tableId: reservedTableId, clientId: clientThatWantJoinTableId)
+            def joinToTable = sampleJoinTable(tableId: reservedTableId, clientId: clientThatWantJoinTable.id())
         when:
             def response = http.postForEntity(URI.create("/casino-services/tables/participation"), joinToTable, ExceptionView.class)
         then:
@@ -172,7 +175,7 @@ class TableApiTest extends ClientServicesApiTest {
             def exceptionView = response.body
             exceptionView.code == TableFull.CODE
             exceptionView.params == [
-                    "clientId": clientThatWantJoinTableId.value.toString(),
+                    "clientId": clientThatWantJoinTable.id().value.toString(),
                     "tableId": reservedTableId.value.toString(),
                     "maxParticipantsCount": "10"
             ]

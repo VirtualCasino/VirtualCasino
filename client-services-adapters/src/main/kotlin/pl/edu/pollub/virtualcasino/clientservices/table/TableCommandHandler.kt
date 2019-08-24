@@ -17,21 +17,21 @@ class TableCommandHandler(private val factory: TableFactory,
         val tableToReserve = factory.create()
         tableToReserve.handle(command)
         repository.add(tableToReserve)
-        return tableToReserve.id
+        return tableToReserve.id()
     }
 
     fun handle(command: ReserveRouletteTable): TableId {
         val tableToReserve = factory.create()
         tableToReserve.handle(command)
         repository.add(tableToReserve)
-        return tableToReserve.id
+        return tableToReserve.id()
     }
 
     fun handle(command: JoinToTable): TableId {
         val tableId = command.tableId
         val tableToJoin = repository.find(tableId) ?: throw TableNotExist(tableId)
         tableToJoin.handle(command)
-        return tableToJoin.id
+        return tableToJoin.id()
     }
 
 }

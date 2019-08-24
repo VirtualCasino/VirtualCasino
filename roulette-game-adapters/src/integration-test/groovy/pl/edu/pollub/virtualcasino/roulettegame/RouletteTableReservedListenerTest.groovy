@@ -18,6 +18,10 @@ class RouletteTableReservedListenerTest extends BaseIntegrationTest {
     @Autowired
     RouletteGameRepository repository
 
+    def cleanup() {
+        repository.clear()
+    }
+
     def "should create roulette game for reserved table"() {
         given:
             def tableId = sampleTableId()
@@ -28,9 +32,14 @@ class RouletteTableReservedListenerTest extends BaseIntegrationTest {
         when:
             listener.reactTo(tableReserved)
         then:
-            def rouletteGame = repository.find(sampleRouletteGameId(value: tableId.value))
-            rouletteGame != null
-            rouletteGame.players.contains(expectedPlayer)
+            def foundRouletteGame = repository.find(sampleRouletteGameId(value: tableId.value))
+            foundRouletteGame != null
+            def players = foundRouletteGame.players()
+            players.size() == 2
+            with(players.last()) {
+                id() == expectedPlayer.id()
+                tokens() == expectedPlayer.tokens()
+            }
     }
 
 }

@@ -11,7 +11,7 @@ class FakedClientRepository implements ClientRepository {
 
     @Override
     Client find(ClientId id) {
-        return aggregates.find { it.id == id }
+        return aggregates.find { it.id() == id }
     }
 
     @Override

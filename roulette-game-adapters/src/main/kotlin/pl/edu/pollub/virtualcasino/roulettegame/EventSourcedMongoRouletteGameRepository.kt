@@ -28,10 +28,10 @@ class EventSourcedMongoRouletteGameRepository(val eventStore: EventStore,
         val events = eventStore.getEventsOfAggregate(id.value)
                 ?.events
                 ?.map { eventSerializer.deserialize(it) } ?: return null
-        val rouletteGame = rouletteGameFactory.create(id, events)
-        rouletteGame.markChangesAsCommitted()
-        dirtyChecking(rouletteGame)
-        return rouletteGame
+        val aggregate = rouletteGameFactory.create(id, events)
+        aggregate.markChangesAsCommitted()
+        dirtyChecking(aggregate)
+        return aggregate
     }
 
     override fun clear() {

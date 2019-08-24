@@ -10,7 +10,7 @@ import pl.edu.pollub.virtualcasino.clientservices.table.Participation
 import pl.edu.pollub.virtualcasino.clientservices.table.TableRepository
 import java.lang.RuntimeException
 
-class Client(val id: ClientId = ClientId(),
+class Client(private val id: ClientId = ClientId(),
              private val changes: MutableList<DomainEvent> = mutableListOf(),
              private val tableRepository: TableRepository,
              private val eventPublisher: ClientEventPublisher
@@ -19,7 +19,7 @@ class Client(val id: ClientId = ClientId(),
     private var tokens = Tokens()
 
     init {
-        changes.fold(this) { _, event -> patternMatch(event) }
+        changes.toMutableList().fold(this) { _, event -> patternMatch(event) }
     }
 
     fun handle(command: BuyTokens) {
@@ -28,8 +28,9 @@ class Client(val id: ClientId = ClientId(),
         val event = TokensBought(clientId = id, tokens = command.tokens)
         `when`(event)
         eventPublisher.publish(event)
-        changes.add(event)
     }
+
+    fun id(): ClientId = id
 
     fun tokens(): Tokens = tokens
 
@@ -42,6 +43,7 @@ class Client(val id: ClientId = ClientId(),
 
     private fun `when`(event: TokensBought): Client {
         tokens = tokens.changeCount(event.tokens)
+        changes.add(event)
         return this
     }
 

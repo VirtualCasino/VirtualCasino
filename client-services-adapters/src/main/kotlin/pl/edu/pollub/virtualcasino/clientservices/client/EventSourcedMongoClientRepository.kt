@@ -24,10 +24,10 @@ class EventSourcedMongoClientRepository(
                 ?.events
                 ?.map { eventSerializer.deserialize(it) }
                 ?: return null
-        val client = clientFactory.create(aggregateId, events)
-        client.markChangesAsCommitted()
-        dirtyChecking(client)
-        return client
+        val aggregate = clientFactory.create(aggregateId, events)
+        aggregate.markChangesAsCommitted()
+        dirtyChecking(aggregate)
+        return aggregate
     }
 
     override fun clear() {
@@ -52,7 +52,7 @@ class EventSourcedMongoClientRepository(
     private fun flushChanges(aggregate: Client) {
         val pendingEvents = aggregate.getUncommittedChanges()
         val serializedPendingEvents = pendingEvents.map { eventSerializer.serialize(it) }
-        eventStore.saveEvents(aggregate.id.value, serializedPendingEvents)
+        eventStore.saveEvents(aggregate.id().value, serializedPendingEvents)
         aggregate.markChangesAsCommitted()
     }
 }

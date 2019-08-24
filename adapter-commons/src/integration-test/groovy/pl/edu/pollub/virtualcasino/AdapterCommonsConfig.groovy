@@ -25,7 +25,7 @@ import static de.flapdoodle.embed.mongo.distribution.Feature.*
 import static de.flapdoodle.embed.process.runtime.Network.localhostIsIPv6
 
 @SpringBootApplication
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 @EnableConfigurationProperties(MongoConfigurationProperties.class)
 @EntityScan(basePackageClasses = [AdapterCommonsConfig.class])
 class AdapterCommonsConfig {

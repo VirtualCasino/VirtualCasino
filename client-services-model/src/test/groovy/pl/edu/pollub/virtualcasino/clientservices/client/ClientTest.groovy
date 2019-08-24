@@ -54,7 +54,7 @@ class ClientTest extends Specification {
         then:
             def listenedEvent = tokensBoughtListener.listenedEvents.first()
             with(listenedEvent) {
-                clientId == client.id
+                clientId == client.id()
                 tokens == tokens
             }
     }

@@ -29,10 +29,10 @@ class EventSourcedMongoTableRepository(val eventStore: EventStore,
         val events = eventStore.getEventsOfAggregate(id.value)
                 ?.events
                 ?.map { eventSerializer.deserialize(it) } ?: return null
-        val table = tableFactory.create(id, events)
-        table.markChangesAsCommitted()
-        dirtyChecking(table)
-        return table
+        val aggregate = tableFactory.create(id, events)
+        aggregate.markChangesAsCommitted()
+        dirtyChecking(aggregate)
+        return aggregate
     }
 
     override fun clear() {
@@ -49,8 +49,8 @@ class EventSourcedMongoTableRepository(val eventStore: EventStore,
 
     private fun saveParticipantsProjection(aggregate: Table) {
         val query = Query()
-        query.addCriteria(Criteria.where("tableId").isEqualTo(aggregate.id))
-        val projection = mongo.findOne(query, ParticipantsOfTable::class.java) ?: ParticipantsOfTable(tableId = aggregate.id)
+        query.addCriteria(Criteria.where("tableId").isEqualTo(aggregate.id()))
+        val projection = mongo.findOne(query, ParticipantsOfTable::class.java) ?: ParticipantsOfTable(tableId = aggregate.id())
         projection.participation = aggregate.participation()
         mongo.save(projection)
     }
@@ -73,7 +73,7 @@ class EventSourcedMongoTableRepository(val eventStore: EventStore,
     private fun flushChanges(aggregate: Table) {
         val pendingEvents = aggregate.getUncommittedChanges()
         val serializedPendingEvents = pendingEvents.map { eventSerializer.serialize(it) }
-        eventStore.saveEvents(aggregate.id.value, serializedPendingEvents)
+        eventStore.saveEvents(aggregate.id().value, serializedPendingEvents)
         saveParticipantsProjection(aggregate)
         aggregate.markChangesAsCommitted()
     }

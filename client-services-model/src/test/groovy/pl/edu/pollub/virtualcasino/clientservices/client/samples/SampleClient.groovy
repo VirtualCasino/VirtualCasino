@@ -8,7 +8,7 @@ import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.table.TableRepository
 import pl.edu.pollub.virtualcasino.clientservices.table.fakes.FakedTableRepository
 
-import static SampleClientId.sampleClientId
+import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
 
 class SampleClient {
 

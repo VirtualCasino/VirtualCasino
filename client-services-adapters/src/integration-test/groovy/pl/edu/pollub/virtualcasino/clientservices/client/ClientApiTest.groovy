@@ -10,7 +10,7 @@ import pl.edu.pollub.virtualcasino.clientservices.client.fakes.FakedTokensBought
 
 import static org.springframework.http.HttpMethod.*
 import static org.springframework.http.HttpStatus.BAD_REQUEST
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.comands.SampleBuyTokens.sampleBuyTokens
 
 class ClientApiTest extends ClientServicesApiTest {
@@ -20,21 +20,21 @@ class ClientApiTest extends ClientServicesApiTest {
 
     def "should buy tokens"() {
         given:
-            def clientThatWantBuyTokensId = setupClient()
+            def clientThatWantBuyTokens = setupClient()
             def tokens = sampleTokens(count: 100)
-            def buyTokens = sampleBuyTokens(clientId: clientThatWantBuyTokensId, tokens: tokens)
+            def buyTokens = sampleBuyTokens(clientId: clientThatWantBuyTokens.id(), tokens: tokens)
         and:
             def tokensBoughtListener = new FakedTokensBoughtListener()
             eventPublisher.subscribe(tokensBoughtListener)
         when:
             http.put(URI.create("/casino-services/clients/tokens"), buyTokens)
         then:
-            def foundClient = clientRepository.find(clientThatWantBuyTokensId)
+            def foundClient = clientRepository.find(clientThatWantBuyTokens.id())
             foundClient.tokens() == tokens
         and:
             conditions.eventually {
                 def event = tokensBoughtListener.listenedEvents.first()
-                event.clientId == clientThatWantBuyTokensId
+                event.clientId == clientThatWantBuyTokens.id()
                 event.tokens == tokens
             }
         cleanup:
@@ -43,14 +43,14 @@ class ClientApiTest extends ClientServicesApiTest {
 
     def "should not buy tokens when client joined to reserved table"() {
         given:
-            def clientThatJoinedTableId = setupClient()
+            def clientThatJoinedTable = setupClient()
         and:
-            def clientThatReservedTableId = setupClient()
-            def tableId = reserveTable(clientThatReservedTableId)
-            joinTable(tableId, clientThatJoinedTableId)
+            def clientThatReservedTable = setupClient()
+            def tableId = reserveTable(clientThatReservedTable.id())
+            joinTable(tableId, clientThatJoinedTable.id())
         and:
             def tokens = sampleTokens(count: 100)
-            def buyTokens = sampleBuyTokens(clientId: clientThatJoinedTableId, tokens: tokens)
+            def buyTokens = sampleBuyTokens(clientId: clientThatJoinedTable.id(), tokens: tokens)
             def request = new RequestEntity<BuyTokens>(buyTokens, PUT, URI.create("/casino-services/clients/tokens"))
         when:
             def response = http.exchange(request, ExceptionView.class)
@@ -58,6 +58,6 @@ class ClientApiTest extends ClientServicesApiTest {
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatJoinedTableId.value.toString()]
+            exceptionView.params == ["clientId": clientThatJoinedTable.id().value.toString()]
     }
 }
