@@ -14,10 +14,10 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import static pl.edu.pollub.virtualcasino.clientservices.client.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.*
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTable.*
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleJoinTable.sampleJoinTable

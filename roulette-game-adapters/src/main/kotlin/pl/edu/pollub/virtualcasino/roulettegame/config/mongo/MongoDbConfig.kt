@@ -15,42 +15,42 @@ import org.springframework.stereotype.Component
 
 @Configuration
 @Profile("default")
-class MongoDbConfig {
+class RouletteGameBoundedContextMongoDbConfig {
 
     @Bean
-    fun mongoTemplate(mongoTemplateFactory: MongoDbFactory): MongoTemplate {
-        return MongoTemplate(mongoTemplateFactory)
+    fun rouletteGameBoundedContextMongoTemplate(rouletteGameBoundedContextMongoTemplateFactory: MongoDbFactory): MongoTemplate {
+        return MongoTemplate(rouletteGameBoundedContextMongoTemplateFactory)
     }
 
     @Bean
-    fun mongoTemplateFactory(mongoClient: MongoClient, properties: MongoConfigurationProperties): MongoDbFactory {
-        val casinoServicesWriteDb = properties.rouletteGameDb
-        return SimpleMongoDbFactory(mongoClient, casinoServicesWriteDb.database)
+    fun rouletteGameBoundedContextMongoTemplateFactory(rouletteGameBoundedContextMongoClient: MongoClient, properties: RouletteGameBoundedContextMongoConfigurationProperties): MongoDbFactory {
+        val rouletteGameDb = properties.rouletteGameDb
+        return SimpleMongoDbFactory(rouletteGameBoundedContextMongoClient, rouletteGameDb.database)
     }
 
     @Bean
-    fun mongoClient(properties: MongoConfigurationProperties): MongoClient {
+    fun rouletteGameBoundedContextMongoClient(properties: RouletteGameBoundedContextMongoConfigurationProperties): MongoClient {
         val rouletteGameDb = properties.rouletteGameDb
         return MongoClient(rouletteGameDb.host, rouletteGameDb.port)
     }
 
     @Bean
-    fun transactionManager(casinoServicesWriteDbTemplateFactory: MongoDbFactory): MongoTransactionManager {
-        return MongoTransactionManager(casinoServicesWriteDbTemplateFactory)
+    fun rouletteGameBoundedContextTransactionManager(rouletteGameBoundedContextMongoTemplateFactory: MongoDbFactory): MongoTransactionManager {
+        return MongoTransactionManager(rouletteGameBoundedContextMongoTemplateFactory)
     }
 
 
 }
 
 @Configuration
-class MongoBee {
+class RouletteGameBoundedContextMongoBee {
 
     @Bean
-    fun mongobee(properties: MongoConfigurationProperties): Mongobee {
-        val casinoServicesWriteDb = properties.rouletteGameDb
-        val dbUri = "mongodb://${casinoServicesWriteDb.host}:${casinoServicesWriteDb.port}/${casinoServicesWriteDb.database}"
+    fun rouletteGameBoundedContextMongobee(properties: RouletteGameBoundedContextMongoConfigurationProperties): Mongobee {
+        val rouletteGameDb = properties.rouletteGameDb
+        val dbUri = "mongodb://${rouletteGameDb.host}:${rouletteGameDb.port}/${rouletteGameDb.database}"
         val runner = Mongobee(dbUri)
-        runner.setDbName(casinoServicesWriteDb.database)
+        runner.setDbName(rouletteGameDb.database)
         runner.setChangeLogsScanPackage(DatabaseChangelog::class.java.`package`.name)
         return runner
     }
@@ -59,7 +59,7 @@ class MongoBee {
 
 @Component
 @ConfigurationProperties(prefix = "mongodb")
-class MongoConfigurationProperties {
+class RouletteGameBoundedContextMongoConfigurationProperties {
 
     var rouletteGameDb: MongoProperties = MongoProperties()
 

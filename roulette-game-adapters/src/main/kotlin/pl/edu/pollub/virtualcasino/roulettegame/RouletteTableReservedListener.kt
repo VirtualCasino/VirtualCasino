@@ -18,7 +18,8 @@ class RouletteTableReservedListener(private val factory: RouletteGameFactory,
     }
 
     private fun reactTo(event: RouletteTableReserved) {
-        val rouletteGame = factory.create(RouletteGameId(event.tableId), listOf(event))
+        val rouletteGame = factory.create(RouletteGameId(event.tableId))
+        rouletteGame.`when`(event)
         repository.add(rouletteGame)
     }
 

@@ -17,22 +17,22 @@ import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.MongoTransactionManager
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.transaction.annotation.EnableTransactionManagement
-import pl.edu.pollub.virtualcasino.clientservices.config.mongo.MongoConfigurationProperties
+import pl.edu.pollub.virtualcasino.clientservices.config.mongo.ClientServicesBoundedContextMongoConfigurationProperties
 
 import static de.flapdoodle.embed.mongo.distribution.Feature.*
 import static de.flapdoodle.embed.process.runtime.Network.localhostIsIPv6
 
 @SpringBootApplication
 @EnableTransactionManagement(proxyTargetClass = true)
-@EntityScan(basePackageClasses = [ClientServicesAdaptersConfig.class])
-class ClientServicesAdaptersConfig {
+@EntityScan(basePackageClasses = [ClientServicesBoundedContext.class])
+class ClientServicesBoundedContext {
 
     private static final String VERSION = "4.0.0"
     private static final String REPLICA_SET_NAME = "rs0"
     private static final String STORAGE_ENGINE_NAME = "wiredTiger"
 
     @Bean
-    MongoTemplate mongoTemplate(MongoClient mongoClient, MongoConfigurationProperties properties) throws IOException {
+    MongoTemplate mongoTemplate(MongoClient mongoClient, ClientServicesBoundedContextMongoConfigurationProperties properties) throws IOException {
         def casinoServicesDb = properties.casinoServicesDb
         return new MongoTemplate(mongoClient, casinoServicesDb.database)
     }
@@ -56,7 +56,7 @@ class ClientServicesAdaptersConfig {
     }
 
     @Bean
-    IMongodConfig mongodConfig(MongoConfigurationProperties properties) throws IOException {
+    IMongodConfig mongodConfig(ClientServicesBoundedContextMongoConfigurationProperties properties) throws IOException {
         def casinoServicesDb = properties.casinoServicesDb
         def net = new Net(casinoServicesDb.host, casinoServicesDb.port, localhostIsIPv6())
         def version = Versions.withFeatures(
@@ -89,7 +89,7 @@ class ClientServicesAdaptersConfig {
     }
 
     @Bean
-    MongoTransactionManager transactionManager(MongoTemplate writeTemplate) {
-        return new MongoTransactionManager(writeTemplate.getMongoDbFactory())
+    MongoTransactionManager transactionManager(MongoTemplate mongoTemplate) {
+        return new MongoTransactionManager(mongoTemplate.getMongoDbFactory())
     }
 }

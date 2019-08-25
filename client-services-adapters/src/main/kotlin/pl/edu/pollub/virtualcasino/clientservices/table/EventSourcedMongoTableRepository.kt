@@ -13,10 +13,10 @@ import pl.edu.pollub.virtualcasino.eventstore.EventStore
 import pl.edu.pollub.virtualcasino.infrastructure.table.ParticipantsOfTable
 
 @Component
-class EventSourcedMongoTableRepository(val eventStore: EventStore,
-                                       val eventSerializer: EventSerializer,
-                                       val tableFactory: TableFactory,
-                                       val mongo: MongoTemplate
+class EventSourcedMongoTableRepository(val clientServicesBoundedContextEventStore: EventStore,
+                                       val clientServicesBoundedContextEventSerializer: EventSerializer,
+                                       val factory: TableFactory,
+                                       val clientServicesBoundedContextMongoTemplate: MongoTemplate
 ): TableRepository {
 
     override fun add(aggregate: Table): Boolean {
@@ -26,33 +26,33 @@ class EventSourcedMongoTableRepository(val eventStore: EventStore,
     }
 
     override fun find(id: TableId): Table? {
-        val events = eventStore.getEventsOfAggregate(id.value)
+        val events = clientServicesBoundedContextEventStore.getEventsOfAggregate(id.value)
                 ?.events
-                ?.map { eventSerializer.deserialize(it) } ?: return null
-        val aggregate = tableFactory.create(id, events)
+                ?.map { clientServicesBoundedContextEventSerializer.deserialize(it) } ?: return null
+        val aggregate = factory.create(id, events)
         aggregate.markChangesAsCommitted()
         dirtyChecking(aggregate)
         return aggregate
     }
 
     override fun clear() {
-        eventStore.clear()
-        mongo.remove(Query(), ParticipantsOfTable::class.java)
+        clientServicesBoundedContextEventStore.clear()
+        clientServicesBoundedContextMongoTemplate.remove(Query(), ParticipantsOfTable::class.java)
     }
 
     override fun containsWithParticipation(participation: Participation): Boolean {
         val query = Query()
         query.addCriteria(Criteria.where("participation.clientId").`is`(participation.clientId))
-        val projection = mongo.findOne(query, ParticipantsOfTable::class.java)
+        val projection = clientServicesBoundedContextMongoTemplate.findOne(query, ParticipantsOfTable::class.java)
         return projection != null
     }
 
     private fun saveParticipantsProjection(aggregate: Table) {
         val query = Query()
         query.addCriteria(Criteria.where("tableId").isEqualTo(aggregate.id()))
-        val projection = mongo.findOne(query, ParticipantsOfTable::class.java) ?: ParticipantsOfTable(tableId = aggregate.id())
+        val projection = clientServicesBoundedContextMongoTemplate.findOne(query, ParticipantsOfTable::class.java) ?: ParticipantsOfTable(tableId = aggregate.id())
         projection.participation = aggregate.participation()
-        mongo.save(projection)
+        clientServicesBoundedContextMongoTemplate.save(projection)
     }
 
     private fun dirtyChecking(aggregate: Table) {
@@ -72,8 +72,8 @@ class EventSourcedMongoTableRepository(val eventStore: EventStore,
 
     private fun flushChanges(aggregate: Table) {
         val pendingEvents = aggregate.getUncommittedChanges()
-        val serializedPendingEvents = pendingEvents.map { eventSerializer.serialize(it) }
-        eventStore.saveEvents(aggregate.id().value, serializedPendingEvents)
+        val serializedPendingEvents = pendingEvents.map { clientServicesBoundedContextEventSerializer.serialize(it) }
+        clientServicesBoundedContextEventStore.saveEvents(aggregate.id().value, serializedPendingEvents)
         saveParticipantsProjection(aggregate)
         aggregate.markChangesAsCommitted()
     }

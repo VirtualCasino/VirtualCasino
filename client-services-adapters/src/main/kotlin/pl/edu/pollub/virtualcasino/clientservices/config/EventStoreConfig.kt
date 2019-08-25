@@ -7,13 +7,13 @@ import pl.edu.pollub.virtualcasino.eventstore.EventSerializer
 import pl.edu.pollub.virtualcasino.eventstore.EventStore
 
 @Configuration
-class EventStoreConfig {
+class ClientServicesBoundedContextEventStoreConfig {
 
     @Bean
-    fun eventStore(mongoTemplate: MongoTemplate): EventStore {
-        return EventStore(mongoTemplate)
+    fun clientServicesBoundedContextEventStore(clientServicesBoundedContextMongoTemplate: MongoTemplate): EventStore {
+        return EventStore(clientServicesBoundedContextMongoTemplate)
     }
 
     @Bean
-    fun eventSerializer(): EventSerializer = EventSerializer()
+    fun clientServicesBoundedContextEventSerializer(): EventSerializer = EventSerializer()
 }

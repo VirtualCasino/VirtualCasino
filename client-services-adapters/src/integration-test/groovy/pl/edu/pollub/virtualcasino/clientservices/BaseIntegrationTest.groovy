@@ -10,7 +10,7 @@ import spock.util.concurrent.PollingConditions
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = [ClientServicesAdaptersConfig.class])
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = [ClientServicesBoundedContext.class])
 @ActiveProfiles("integration-test")
 class BaseIntegrationTest extends Specification {
 

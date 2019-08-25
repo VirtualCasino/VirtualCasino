@@ -12,10 +12,10 @@ import pl.edu.pollub.virtualcasino.eventstore.EventStore
 import pl.edu.pollub.virtualcasino.eventstore.EventStream
 
 @Component
-class EventSourcedMongoRouletteGameRepository(val eventStore: EventStore,
-                                              val eventSerializer: EventSerializer,
-                                              val rouletteGameFactory: RouletteGameFactory,
-                                              val mongo: MongoTemplate
+class EventSourcedMongoRouletteGameRepository(val rouletteGameBoundedContextEventStore: EventStore,
+                                              val rouletteGameBoundedContextEventSerializer: EventSerializer,
+                                              val factory: RouletteGameFactory,
+                                              val rouletteGameBoundedContextMongoTemplate: MongoTemplate
 ): RouletteGameRepository {
 
     override fun add(aggregate: RouletteGame): Boolean {
@@ -25,23 +25,23 @@ class EventSourcedMongoRouletteGameRepository(val eventStore: EventStore,
     }
 
     override fun find(id: RouletteGameId): RouletteGame? {
-        val events = eventStore.getEventsOfAggregate(id.value)
+        val events = rouletteGameBoundedContextEventStore.getEventsOfAggregate(id.value)
                 ?.events
-                ?.map { eventSerializer.deserialize(it) } ?: return null
-        val aggregate = rouletteGameFactory.create(id, events)
+                ?.map { rouletteGameBoundedContextEventSerializer.deserialize(it) } ?: return null
+        val aggregate = factory.create(id, events)
         aggregate.markChangesAsCommitted()
         dirtyChecking(aggregate)
         return aggregate
     }
 
     override fun clear() {
-        eventStore.clear()
+        rouletteGameBoundedContextEventStore.clear()
     }
 
     override fun contains(id: RouletteGameId): Boolean {
         val query = Query()
         query.addCriteria(Criteria.where("aggregateId").isEqualTo(id))
-        return mongo.exists(query, EventStream::class.java)
+        return rouletteGameBoundedContextMongoTemplate.exists(query, EventStream::class.java)
     }
 
     private fun dirtyChecking(aggregate: RouletteGame) {
@@ -61,8 +61,8 @@ class EventSourcedMongoRouletteGameRepository(val eventStore: EventStore,
 
     private fun flushChanges(aggregate: RouletteGame) {
         val pendingEvents = aggregate.getUncommittedChanges()
-        val serializedPendingEvents = pendingEvents.map { eventSerializer.serialize(it) }
-        eventStore.saveEvents(aggregate.id.value, serializedPendingEvents)
+        val serializedPendingEvents = pendingEvents.map { rouletteGameBoundedContextEventSerializer.serialize(it) }
+        rouletteGameBoundedContextEventStore.saveEvents(aggregate.id().value, serializedPendingEvents)
         aggregate.markChangesAsCommitted()
     }
 }

@@ -8,7 +8,8 @@ import pl.edu.pollub.virtualcasino.DomainEvent
 class SpringContextBasedRouletteGameFactory(private val context: ApplicationContext): RouletteGameFactory {
 
     override fun create(aggregateId: RouletteGameId, events: List<DomainEvent>): RouletteGame {
-        return RouletteGame(aggregateId, events.toMutableList())
+        val eventPublisher = context.getBean(RouletteGameEventPublisher::class.java)
+        return RouletteGame(aggregateId, events.toMutableList(), eventPublisher)
     }
 
 }
