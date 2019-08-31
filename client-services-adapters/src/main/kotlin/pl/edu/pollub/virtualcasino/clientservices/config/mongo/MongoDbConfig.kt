@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory
 import org.springframework.data.mongodb.MongoDbFactory
 import org.springframework.data.mongodb.MongoTransactionManager
 import com.github.mongobee.Mongobee
-import org.springframework.stereotype.Component
 
 @Configuration
 @Profile("default")
@@ -30,8 +29,8 @@ class ClientServicesBoundedContextMongoDbConfig {
 
     @Bean
     fun clientServicesBoundedContextMongoClient(properties: ClientServicesBoundedContextMongoConfigurationProperties): MongoClient {
-        val casinoServicesWriteDb = properties.casinoServicesDb
-        return MongoClient(casinoServicesWriteDb.host, casinoServicesWriteDb.port)
+        val casinoServicesDb = properties.casinoServicesDb
+        return MongoClient(casinoServicesDb.host, casinoServicesDb.port.toInt())
     }
 
     @Bean
@@ -57,7 +56,7 @@ class ClientServicesBoundedContextMongoBee {
 
 }
 
-@Component
+@Configuration
 @ConfigurationProperties(prefix = "mongodb")
 class ClientServicesBoundedContextMongoConfigurationProperties {
 

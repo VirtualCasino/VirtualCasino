@@ -1,6 +1,7 @@
 package pl.edu.pollub.virtualcasino.clientservices
 
 import org.springframework.beans.factory.annotation.Autowired
+import pl.edu.pollub.virtualcasino.BaseIntegrationTest
 import pl.edu.pollub.virtualcasino.clientservices.client.Client
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientRepository

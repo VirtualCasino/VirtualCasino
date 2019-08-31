@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory
 import org.springframework.data.mongodb.MongoDbFactory
 import org.springframework.data.mongodb.MongoTransactionManager
 import com.github.mongobee.Mongobee
-import org.springframework.stereotype.Component
 
 @Configuration
 @Profile("default")
@@ -31,7 +30,7 @@ class RouletteGameBoundedContextMongoDbConfig {
     @Bean
     fun rouletteGameBoundedContextMongoClient(properties: RouletteGameBoundedContextMongoConfigurationProperties): MongoClient {
         val rouletteGameDb = properties.rouletteGameDb
-        return MongoClient(rouletteGameDb.host, rouletteGameDb.port)
+        return MongoClient(rouletteGameDb.host, rouletteGameDb.port.toInt())
     }
 
     @Bean
@@ -51,13 +50,13 @@ class RouletteGameBoundedContextMongoBee {
         val dbUri = "mongodb://${rouletteGameDb.host}:${rouletteGameDb.port}/${rouletteGameDb.database}"
         val runner = Mongobee(dbUri)
         runner.setDbName(rouletteGameDb.database)
-        runner.setChangeLogsScanPackage(DatabaseChangelog::class.java.`package`.name)
+        runner.setChangeLogsScanPackage(RouletteGameBoundedContextDatabaseChangelog::class.java.`package`.name)
         return runner
     }
 
 }
 
-@Component
+@Configuration
 @ConfigurationProperties(prefix = "mongodb")
 class RouletteGameBoundedContextMongoConfigurationProperties {
 
