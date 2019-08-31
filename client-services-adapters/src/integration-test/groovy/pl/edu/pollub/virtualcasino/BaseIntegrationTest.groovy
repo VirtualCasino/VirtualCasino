@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices
+package pl.edu.pollub.virtualcasino
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

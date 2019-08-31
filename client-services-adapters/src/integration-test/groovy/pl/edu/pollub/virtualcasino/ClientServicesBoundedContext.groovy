@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices
+package pl.edu.pollub.virtualcasino
 
 import com.mongodb.MongoClient
 import de.flapdoodle.embed.mongo.MongodExecutable
@@ -92,4 +92,5 @@ class ClientServicesBoundedContext {
     MongoTransactionManager transactionManager(MongoTemplate mongoTemplate) {
         return new MongoTransactionManager(mongoTemplate.getMongoDbFactory())
     }
+
 }

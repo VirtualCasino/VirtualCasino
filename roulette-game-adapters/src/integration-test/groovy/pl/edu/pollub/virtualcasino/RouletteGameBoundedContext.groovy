@@ -1,5 +1,6 @@
 package pl.edu.pollub.virtualcasino
 
+import com.github.mongobee.Mongobee
 import com.mongodb.MongoClient
 import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodProcess
@@ -13,6 +14,7 @@ import de.flapdoodle.embed.process.distribution.GenericVersion
 import org.bson.Document
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.MongoTransactionManager
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -92,4 +94,5 @@ class RouletteGameBoundedContext {
     MongoTransactionManager transactionManager(MongoTemplate mongoTemplate) {
         return new MongoTransactionManager(mongoTemplate.getMongoDbFactory())
     }
+
 }

@@ -6,8 +6,7 @@ spring:
     - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
 
 mongodb:
-  test-db:
+  roulette-game-db:
     host: 127.0.0.1
     port: 27018
-    database: casino-services-test-db
-    version: 4.0.0
+    database: roulette-game-db

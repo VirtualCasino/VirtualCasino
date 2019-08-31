@@ -1,0 +1,66 @@
+buildscript {
+    ext.kotlin_version = '1.3.11'
+    ext.spring_boot_version = '2.1.6.RELEASE'
+
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "http://repo.spring.io/release" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.31' apply false
+}
+
+allprojects {
+
+    apply plugin: 'groovy'
+    apply plugin: 'kotlin'
+    apply plugin: "kotlin-spring"
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'org.jetbrains.kotlin.jvm'
+
+    group 'pl.edu.pollub'
+    version = '1.0-SNAPSHOT'
+
+    bootJar.enabled = false
+    jar.enabled = true
+    bootRun.enabled = false
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.4.14'
+    }
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+}
+
+ext {
+    projectGroupId = project.group
+    projectArtifactId = "app-monolith"
+    projectVersion = project.version
+}
+
+[bootJar, bootRun]*.enabled = false
