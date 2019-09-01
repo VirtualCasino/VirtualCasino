@@ -2,6 +2,7 @@ package pl.edu.pollub.virtualcasino.clientservices.table
 
 import pl.edu.pollub.virtualcasino.DomainEvent
 import pl.edu.pollub.virtualcasino.EventSourcedAggregateRoot
+import pl.edu.pollub.virtualcasino.clientservices.client.Client
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientRepository
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNotExist
@@ -19,10 +20,9 @@ class Table(private val id: TableId = TableId(),
             private val eventPublisher: TableEventPublisher
 ): EventSourcedAggregateRoot(changes) {
 
-    private var requirements: TableRequirements = NoRequirements()
+    private var state: TableState = NotReserved()
     private val participation = mutableListOf<Participation>()
     private val reservationSpecification = ReservationSpecification()
-    private val joiningSpecification = JoiningSpecification()
     private val initialBiddingRateSpecification = InitialBiddingRateSpecification()
 
     init {
@@ -51,7 +51,7 @@ class Table(private val id: TableId = TableId(),
     fun handle(command: JoinTable) {
         val clientId = command.clientId
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
-        joiningSpecification.canJoin(this, client)
+        canJoin(client)
         val event = JoinedTable(tableId = id, clientId = clientId, clientTokens = client.tokens())
         `when`(event)
         eventPublisher.publish(event)
@@ -63,8 +63,6 @@ class Table(private val id: TableId = TableId(),
 
     fun participation(): List<Participation> = participation
 
-    internal fun requirements(): TableRequirements = requirements
-
     override fun patternMatch(event: DomainEvent): Table = when(event) {
         is RouletteTableReserved -> `when`(event)
         is PokerTableReserved -> `when`(event)
@@ -74,16 +72,18 @@ class Table(private val id: TableId = TableId(),
 
     internal fun isReserved() = !participation.isEmpty()
 
+    private fun canJoin(client: Client): Boolean = state.canJoin(this, client)
+
     private fun `when`(event: RouletteTableReserved): Table {
         participation.add(Participation(event.clientId))
-        requirements = RouletteTableRequirements(event.tableId, participation)
+        state = ReservedRouletteTable()
         changes.add(event)
         return this
     }
 
     private fun `when`(event: PokerTableReserved): Table {
         participation.add(Participation(event.clientId))
-        requirements = PokerTableRequirements(event.tableId, participation, event.initialBidingRate)
+        state = ReservedPokerTable(event.initialBidingRate)
         changes.add(event)
         return this
     }
