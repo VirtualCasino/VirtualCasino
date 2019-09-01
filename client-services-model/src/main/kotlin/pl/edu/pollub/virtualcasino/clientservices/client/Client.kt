@@ -8,6 +8,7 @@ import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientBusy
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.TokensCountMustBePositive
 import pl.edu.pollub.virtualcasino.clientservices.table.Participation
 import pl.edu.pollub.virtualcasino.clientservices.table.TableRepository
+import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
 import java.lang.RuntimeException
 
 class Client(private val id: ClientId = ClientId(),
@@ -32,17 +33,24 @@ class Client(private val id: ClientId = ClientId(),
 
     fun id(): ClientId = id
 
-    fun tokens(): Tokens = tokens
+    fun tokens(): Tokens = Tokens(tokens.count)
 
     fun doesParticipateToAnyTable(): Boolean = tableRepository.containsWithParticipation(Participation(id))
 
     override fun patternMatch(event: DomainEvent): Client = when(event) {
         is TokensBought -> `when`(event)
+        is RouletteGameLeft -> `when`(event)
         else -> throw RuntimeException("event: $event is not acceptable for Client")
     }
 
     private fun `when`(event: TokensBought): Client {
-        tokens = tokens.changeCount(event.tokens)
+        tokens += event.tokens
+        changes.add(event)
+        return this
+    }
+
+    fun `when`(event: RouletteGameLeft): Client {
+        tokens = Tokens(event.playerTokens.count)
         changes.add(event)
         return this
     }

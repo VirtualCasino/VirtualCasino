@@ -13,10 +13,13 @@ import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleCl
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.comands.SampleBuyTokens.sampleBuyTokens
+import static pl.edu.pollub.virtualcasino.clientservices.client.samples.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTable.sampleTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedToTable.sampleJoinedTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleRouletteGameLeft.sampleRouletteGameLeft
 
 class ClientTest extends Specification {
 
@@ -114,6 +117,22 @@ class ClientTest extends Specification {
         then:
             def e = thrown(ClientBusy)
             e.clientId == clientId
+    }
+
+    def "should charge client when he left game"() {
+        given:
+            def clientThatLeftGameId = sampleClientId()
+            def tokensBeforePlayingGame = sampleTokens(count: 50)
+            def boughtTokens = sampleTokensBought(tokens: tokensBeforePlayingGame)
+            client = sampleClient(id: clientThatLeftGameId, changes: [boughtTokens])
+        and:
+            def playerThatLeftGameId = sampleRoulettePlayerId(value: clientThatLeftGameId.value)
+            def tokensAfterPlayingGame = sampleTokens(count: 100)
+            def gameLeft = sampleRouletteGameLeft(playerId: playerThatLeftGameId, playerTokens: tokensAfterPlayingGame)
+        when:
+            client.when(gameLeft)
+        then:
+            client.tokens() == sampleTokens(count: 100)
     }
 
 }

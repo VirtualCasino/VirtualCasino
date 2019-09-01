@@ -9,7 +9,7 @@ class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) 
 
     fun id(): RoulettePlayerId = id
 
-    fun tokens(): Tokens = tokens
+    fun tokens(): Tokens = Tokens(tokens.count)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
