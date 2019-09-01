@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.roulettegame.samples
+package pl.edu.pollub.virtualcasino.roulettegame.samples.comands
 
 import pl.edu.pollub.virtualcasino.roulettegame.RouletteGameId
 import pl.edu.pollub.virtualcasino.roulettegame.RoulettePlayerId

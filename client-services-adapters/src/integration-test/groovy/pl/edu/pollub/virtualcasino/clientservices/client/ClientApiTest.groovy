@@ -41,6 +41,23 @@ class ClientApiTest extends ClientServicesApiTest {
             eventPublisher.unsubscribe(tokensBoughtListener)
     }
 
+    def "should not buy tokens when client reserved table"() {
+        given:
+            def clientThatReservedTable = setupClient()
+            reserveTable(clientThatReservedTable.id())
+        and:
+            def tokens = sampleTokens(count: 100)
+            def buyTokens = sampleBuyTokens(clientId: clientThatReservedTable.id(), tokens: tokens)
+            def request = new RequestEntity<BuyTokens>(buyTokens, PUT, URI.create("/virtual-casino/casino-services/clients/tokens"))
+        when:
+            def response = http.exchange(request, ExceptionView.class)
+        then:
+            response.statusCode == BAD_REQUEST
+            def exceptionView = response.body
+            exceptionView.code == ClientBusy.CODE
+            exceptionView.params == ["clientId": clientThatReservedTable.id().value.toString()]
+    }
+
     def "should not buy tokens when client joined to reserved table"() {
         given:
             def clientThatJoinedTable = setupClient()

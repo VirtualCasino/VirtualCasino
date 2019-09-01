@@ -10,7 +10,7 @@ import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleCl
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedToTable.sampleJoinedTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
-import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleLeaveRouletteGame.sampleLeaveRouletteGame
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.comands.SampleLeaveRouletteGame.sampleLeaveRouletteGame
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGame.sampleRouletteGame
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGameId.sampleRouletteGameId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId

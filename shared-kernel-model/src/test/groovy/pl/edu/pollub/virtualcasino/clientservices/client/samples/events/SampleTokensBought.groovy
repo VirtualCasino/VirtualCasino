@@ -1,4 +1,4 @@
-package pl.edu.pollub.virtualcasino.clientservices.client.events
+package pl.edu.pollub.virtualcasino.clientservices.client.samples.events
 
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.Tokens

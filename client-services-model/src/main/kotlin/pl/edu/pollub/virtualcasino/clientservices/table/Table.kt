@@ -12,6 +12,7 @@ import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReserveRoulette
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.JoinedTable
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.PokerTableReserved
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteTableReserved
+import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
 import java.lang.RuntimeException
 
 class Table(private val id: TableId = TableId(),
@@ -22,8 +23,8 @@ class Table(private val id: TableId = TableId(),
 
     private var state: TableState = NotReserved()
     private val participation = mutableListOf<Participation>()
-    private val reservationSpecification = ReservationSpecification()
-    private val initialBiddingRateSpecification = InitialBiddingRateSpecification()
+    private val reservationRules = BasicReservationRules()
+    private val initialBiddingRateRules = InitialBiddingRateRules()
 
     init {
         changes.toMutableList().fold(this) { _, event -> patternMatch(event) }
@@ -32,7 +33,7 @@ class Table(private val id: TableId = TableId(),
     fun handle(command: ReserveRouletteTable) {
         val clientId = command.clientId()
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
-        reservationSpecification.canReserve(this, client)
+        reservationRules.canReserve(this, client)
         val event = RouletteTableReserved(tableId = id, clientId = clientId, clientTokens = client.tokens())
         `when`(event)
         eventPublisher.publish(event)
@@ -41,8 +42,8 @@ class Table(private val id: TableId = TableId(),
     fun handle(command: ReservePokerTable) {
         val clientId = command.clientId()
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
-        reservationSpecification.canReserve(this, client)
-        initialBiddingRateSpecification.isInitialBiddingRateValid(command, client)
+        reservationRules.canReserve(this, client)
+        initialBiddingRateRules.isInitialBiddingRateValid(command, client)
         val event = PokerTableReserved(tableId = id, clientId = clientId, initialBidingRate = command.initialBidingRate, clientTokens = client.tokens())
         `when`(event)
         eventPublisher.publish(event)
@@ -67,10 +68,13 @@ class Table(private val id: TableId = TableId(),
         is RouletteTableReserved -> `when`(event)
         is PokerTableReserved -> `when`(event)
         is JoinedTable -> `when`(event)
+        is RouletteGameLeft -> `when`(event)
         else -> throw RuntimeException("event: $event is not acceptable for Table")
     }
 
-    internal fun isReserved() = !participation.isEmpty()
+    internal fun isReserved() = state.isReserved()
+
+    internal fun isClosed() = state.isClosed()
 
     private fun canJoin(client: Client): Boolean = state.canJoin(this, client)
 
@@ -90,6 +94,15 @@ class Table(private val id: TableId = TableId(),
 
     private fun `when`(event: JoinedTable): Table {
         participation.add(Participation(event.clientId))
+        changes.add(event)
+        return this
+    }
+
+    fun `when`(event: RouletteGameLeft): Table {
+        participation.removeIf { it.clientId == ClientId(event.playerId) }
+        if(participation.isEmpty()) {
+            state = Closed()
+        }
         changes.add(event)
         return this
     }

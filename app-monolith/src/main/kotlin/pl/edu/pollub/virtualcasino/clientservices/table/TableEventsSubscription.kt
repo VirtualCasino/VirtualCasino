@@ -6,7 +6,7 @@ import pl.edu.pollub.virtualcasino.roulettegame.RouletteTableReservedListener
 import javax.annotation.PostConstruct
 
 @Configuration
-class TableEventPublisherConfiguration(
+class TableEventsSubscription(
         private val publisher: TableEventPublisher,
         private val joinedTableListener: JoinedTableListener,
         private val rouletteTableReservedListener: RouletteTableReservedListener
