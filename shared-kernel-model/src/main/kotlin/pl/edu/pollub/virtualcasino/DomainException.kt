@@ -2,15 +2,15 @@ package pl.edu.pollub.virtualcasino
 
 import java.lang.RuntimeException
 
-abstract class DomainException(message: String): RuntimeException(message) {
+abstract class DomainException(val code: String, val params: Map<String, String>, message: String): RuntimeException(message) {
 
-    abstract fun code(): String
+    fun code(): String = code
 
-    abstract fun params(): Map<String, String>
+    fun params(): Map<String, String> = params
 
 }
 
-abstract class DomainObjectNotExist(message: String): DomainException(message)
+abstract class DomainObjectNotExist(code: String, params: Map<String, String>, message: String): DomainException(code, params, message)
 
-abstract class DomainObjectInvalidUsed(message: String): DomainException(message)
+abstract class DomainObjectInvalidUsed(code: String, params: Map<String, String>, message: String): DomainException(code, params, message)
 

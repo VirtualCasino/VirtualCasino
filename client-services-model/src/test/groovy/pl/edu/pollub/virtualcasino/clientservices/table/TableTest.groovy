@@ -14,7 +14,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import static pl.edu.pollub.virtualcasino.clientservices.client.events.SampleTokensBought.sampleTokensBought
+import static pl.edu.pollub.virtualcasino.clientservices.client.samples.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.*
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
@@ -26,6 +26,8 @@ import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.S
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedToTable.sampleJoinedTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.samplePokerTableReserved
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleRouletteGameLeft.sampleRouletteGameLeft
 
 class TableTest extends Specification {
 
@@ -104,9 +106,9 @@ class TableTest extends Specification {
         and:
             def clientId = sampleClientId()
             clientRepository.add(sampleClient(id: clientId))
-            def reserveTable = sampleReserveRouletteTable(clientId: clientId)
+            def tryReserveTable = sampleReserveRouletteTable(clientId: clientId)
         when:
-            table.handle(reserveTable)
+            table.handle(tryReserveTable)
         then:
             def e = thrown(TableAlreadyReserved)
             e.clientId == clientId
@@ -118,9 +120,9 @@ class TableTest extends Specification {
             table = sampleTable()
         and:
             def notExistingClientId = sampleClientId()
-            def reserveTable = sampleReserveRouletteTable(clientId: notExistingClientId)
+            def tryReserveTable = sampleReserveRouletteTable(clientId: notExistingClientId)
         when:
-            table.handle(reserveTable)
+            table.handle(tryReserveTable)
         then:
             def e = thrown(ClientNotExist)
             e.clientId == notExistingClientId
@@ -139,9 +141,9 @@ class TableTest extends Specification {
             tableRepository.add(otherTable)
         and:
             table = sampleTable(clientRepository: clientRepository)
-            def reserveTable = sampleReserveRouletteTable(clientId: clientId)
+            def tryReserveTable = sampleReserveRouletteTable(clientId: clientId)
         when:
-            table.handle(reserveTable)
+            table.handle(tryReserveTable)
         then:
             def e = thrown(ClientBusy)
             e.clientId == clientId
@@ -159,9 +161,9 @@ class TableTest extends Specification {
             tableRepository.add(otherTable)
         and:
             table = sampleTable(clientRepository: clientRepository)
-            def reserveTable = sampleReserveRouletteTable(clientId: clientId)
+            def tryReserveTable = sampleReserveRouletteTable(clientId: clientId)
         when:
-            table.handle(reserveTable)
+            table.handle(tryReserveTable)
         then:
             def e = thrown(ClientBusy)
             e.clientId == clientId
@@ -177,9 +179,9 @@ class TableTest extends Specification {
             clientRepository.add(sampleClient(id: clientId))
         and:
             def initialBidingRate = sampleTokens(count: invalidBidingRateValue)
-            def reserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: initialBidingRate)
+            def tryReserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: initialBidingRate)
         when:
-            table.handle(reserveTable)
+            table.handle(tryReserveTable)
         then:
             def e = thrown(InitialBidingRateMustBePositive)
             e.clientId == clientId
@@ -227,23 +229,23 @@ class TableTest extends Specification {
             }
     }
 
-    def "should throw ClientAlreadyParticipated when client which reserved table try to joint this table"() {
+    def "should throw ClientAlreadyParticipated when client which reserved table try to join this table"() {
         given:
             def clientId = sampleClientId()
             clientRepository.add(sampleClient(id: clientId))
             def tableReserved = sampleRouletteTableReserved(clientId: clientId)
             def table = sampleTable(changes: [tableReserved], clientRepository: clientRepository)
         and:
-            def joinToTable = sampleJoinTable(clientId: clientId)
+            def tryJoinToTable = sampleJoinTable(clientId: clientId)
         when:
-            table.handle(joinToTable)
+            table.handle(tryJoinToTable)
         then:
             def e = thrown(ClientAlreadyParticipated)
             e.clientId == clientId
             e.tableId == table.id()
     }
 
-    def "should throw ClientAlreadyParticipated when client try to joint to table multiple times"() {
+    def "should throw ClientAlreadyParticipated when client try to join to table multiple times"() {
         given:
             def tableReserved = sampleRouletteTableReserved()
             def clientId = sampleClientId()
@@ -251,9 +253,9 @@ class TableTest extends Specification {
             def joinedToTable = sampleJoinedTable(clientId: clientId)
             table = sampleTable(changes: [tableReserved, joinedToTable], clientRepository: clientRepository)
         and:
-            def joinToTable = sampleJoinTable(clientId: clientId)
+            def tryJoinToTable = sampleJoinTable(clientId: clientId)
         when:
-            table.handle(joinToTable)
+            table.handle(tryJoinToTable)
         then:
             def e = thrown(ClientAlreadyParticipated)
             e.clientId == clientId
@@ -266,9 +268,9 @@ class TableTest extends Specification {
             table = sampleTable(changes: [tableReserved])
         and:
             def notExistingClientId = sampleClientId()
-            def joinToTable = sampleJoinTable(clientId: notExistingClientId)
+            def tryJoinToTable = sampleJoinTable(clientId: notExistingClientId)
         when:
-            table.handle(joinToTable)
+            table.handle(tryJoinToTable)
         then:
             def e = thrown(ClientNotExist)
             e.clientId == notExistingClientId
@@ -286,9 +288,9 @@ class TableTest extends Specification {
             tableRepository.add(otherTable)
         and:
             table = sampleTable(changes: [sampleRouletteTableReserved()], clientRepository: clientRepository)
-            def joinToTable = sampleJoinTable(clientId: clientId)
+            def tryJoinToTable = sampleJoinTable(clientId: clientId)
         when:
-            table.handle(joinToTable)
+            table.handle(tryJoinToTable)
         then:
             def e = thrown(ClientBusy)
             e.clientId == clientId
@@ -307,9 +309,9 @@ class TableTest extends Specification {
             tableRepository.add(otherTable)
         and:
             table = sampleTable(changes: [sampleRouletteTableReserved()], clientRepository: clientRepository)
-            def joinToTable = sampleJoinTable(clientId: clientId)
+            def tryJoinToTable = sampleJoinTable(clientId: clientId)
         when:
-            table.handle(joinToTable)
+            table.handle(tryJoinToTable)
         then:
             def e = thrown(ClientBusy)
             e.clientId == clientId
@@ -321,9 +323,9 @@ class TableTest extends Specification {
         and:
             def clientId = sampleClientId()
             clientRepository.add(sampleClient(id: clientId))
-            def joinToTable = sampleJoinTable(clientId: clientId)
+            def tryJoinToTable = sampleJoinTable(clientId: clientId)
         when:
-            table.handle(joinToTable)
+            table.handle(tryJoinToTable)
         then:
             def e = thrown(TableNotReserved)
             e.clientId == clientId
@@ -340,9 +342,9 @@ class TableTest extends Specification {
         and:
             def clientId = sampleClientId()
             clientRepository.add(sampleClient(id: clientId))
-            def joinToTable = sampleJoinTable(clientId: clientId)
+            def tryJoinToTable = sampleJoinTable(clientId: clientId)
         when:
-            table.handle(joinToTable)
+            table.handle(tryJoinToTable)
         then:
             def e = thrown(TableFull)
             e.clientId == clientId
@@ -362,14 +364,14 @@ class TableTest extends Specification {
             clientRepository.add(client)
         and:
             table = sampleTable(clientRepository: clientRepository)
-            def reserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: sampleTokens(count: 100))
+            def tryReserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: sampleTokens(count: 100))
         when:
-            table.handle(reserveTable)
+            table.handle(tryReserveTable)
         then:
             def e = thrown(InitialBidingRateTooHigh)
             e.clientId == clientId
             e.tokens == tokensBought.tokens
-            e.initialBidingRate == reserveTable.initialBidingRate
+            e.initialBidingRate == tryReserveTable.initialBidingRate
     }
 
     def "should throw InitialBidingRateTooHigh when client try join poker table with initial biding rate higher then their tokens count"() {
@@ -391,6 +393,80 @@ class TableTest extends Specification {
             e.clientId == clientId
             e.tokens == tokensBought.tokens
             e.initialBidingRate == tableReserved.initialBidingRate
+    }
+
+    def "should not has participation of client that reserved and left game"() {
+        given:
+            def clientThatReservedTableId = sampleClientId()
+            def tableReserved = sampleRouletteTableReserved(clientId: clientThatReservedTableId)
+            def table = sampleTable(changes: [tableReserved])
+        and:
+            def playerThatLeftGameId = sampleRoulettePlayerId(value: clientThatReservedTableId.value)
+            def gameLeft = sampleRouletteGameLeft(playerId: playerThatLeftGameId)
+        and:
+            def notExpectedParticipation = sampleParticipation(clientId: clientThatReservedTableId)
+        when:
+            table.when(gameLeft)
+        then:
+            !table.hasParticipation(notExpectedParticipation)
+    }
+
+    def "should not has participation of client that joined and left game"() {
+        given:
+            def clientThatReservedTableId = sampleClientId()
+            def tableReserved = sampleRouletteTableReserved(clientId: clientThatReservedTableId)
+            def clientThatJoinedTableId = sampleClientId()
+            def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId)
+            def table = sampleTable(changes: [tableReserved, joinedTable])
+        and:
+            def playerThatLeftGameId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def gameLeft = sampleRouletteGameLeft(playerId: playerThatLeftGameId)
+        and:
+            def notExpectedParticipation = sampleParticipation(clientId: clientThatJoinedTableId)
+        when:
+            table.when(gameLeft)
+        then:
+            !table.hasParticipation(notExpectedParticipation)
+    }
+
+    def "should throw TableClosed when last client left game and other player try to reserve table"() {
+        given:
+            def clientId = sampleClientId()
+            def tableReserved = sampleRouletteTableReserved(clientId: clientId)
+            def gameLeft = sampleRouletteGameLeft(playerId: sampleRoulettePlayerId(value: clientId.value))
+            def clientRepository = new FakedClientRepository()
+            def table = sampleTable(clientRepository: clientRepository, changes: [tableReserved, gameLeft])
+        and:
+            def otherClientId = sampleClientId()
+            def otherClient = sampleClient(id: otherClientId)
+            clientRepository.add(otherClient)
+            def tryReserveTable = sampleReserveRouletteTable(clientId: otherClientId)
+        when:
+            table.handle(tryReserveTable)
+        then:
+            def e = thrown(TableClosed)
+            e.clientId == otherClientId
+            e.tableId == table.id()
+    }
+
+    def "should throw TableClosed when last client left game and other player try to join table"() {
+        given:
+            def clientId = sampleClientId()
+            def tableReserved = sampleRouletteTableReserved(clientId: clientId)
+            def gameLeft = sampleRouletteGameLeft(playerId: sampleRoulettePlayerId(value: clientId.value))
+            def clientRepository = new FakedClientRepository()
+            def table = sampleTable(clientRepository: clientRepository, changes: [tableReserved, gameLeft])
+        and:
+            def otherClientId = sampleClientId()
+            def otherClient = sampleClient(id: otherClientId)
+            clientRepository.add(otherClient)
+            def tryJoinTable = sampleJoinTable(clientId: otherClientId)
+        when:
+            table.handle(tryJoinTable)
+        then:
+            def e = thrown(TableClosed)
+            e.clientId == otherClientId
+            e.tableId == table.id()
     }
 
 }

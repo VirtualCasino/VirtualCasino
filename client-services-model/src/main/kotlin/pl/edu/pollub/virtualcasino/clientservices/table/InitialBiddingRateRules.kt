@@ -6,7 +6,7 @@ import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReservePokerTab
 import pl.edu.pollub.virtualcasino.clientservices.table.exceptions.InitialBidingRateMustBePositive
 import pl.edu.pollub.virtualcasino.clientservices.table.exceptions.InitialBidingRateTooHigh
 
-internal class InitialBiddingRateSpecification {
+internal class InitialBiddingRateRules {
 
     internal fun isInitialBiddingRateValid(command: ReservePokerTable, client: Client) {
         val clientId = command.clientId()

@@ -9,9 +9,9 @@ import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.table.TableId
 import pl.edu.pollub.virtualcasino.clientservices.table.TableRepository
 
-import static pl.edu.pollub.virtualcasino.clientservices.client.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.sampleClient
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
+import static pl.edu.pollub.virtualcasino.clientservices.client.samples.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleJoinTable.sampleJoinTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleReserveTable.sampleReservePokerTable
