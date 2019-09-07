@@ -23,7 +23,7 @@ import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTab
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleJoinTable.sampleJoinTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleReserveTable.sampleReservePokerTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleReserveTable.sampleReserveRouletteTable
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedToTable.sampleJoinedTable
+import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedTable.sampleJoinedTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.samplePokerTableReserved
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId

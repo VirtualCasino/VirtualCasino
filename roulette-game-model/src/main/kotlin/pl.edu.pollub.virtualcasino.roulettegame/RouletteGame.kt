@@ -5,6 +5,7 @@ import pl.edu.pollub.virtualcasino.EventSourcedAggregateRoot
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.JoinedTable
 import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteTableReserved
 import pl.edu.pollub.virtualcasino.roulettegame.commands.LeaveRouletteGame
+import pl.edu.pollub.virtualcasino.roulettegame.commands.PlaceBet
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
 import pl.edu.pollub.virtualcasino.roulettegame.exceptions.RoulettePlayerNotExist
 import java.lang.RuntimeException
@@ -18,6 +19,10 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
 
     init {
         changes.toMutableList().fold(this) { _, event -> patternMatch(event) }
+    }
+
+    fun handle(command: PlaceBet) {
+
     }
 
     fun handle(command: LeaveRouletteGame) {

@@ -12,7 +12,7 @@ import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleCl
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
 
-class SampleJoinedToTable {
+class SampleJoinedTable {
 
     static JoinedTable sampleJoinedTable(customProperties = [:]) {
         def properties = [

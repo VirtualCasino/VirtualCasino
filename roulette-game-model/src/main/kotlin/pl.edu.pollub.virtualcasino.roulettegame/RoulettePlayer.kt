@@ -11,6 +11,8 @@ class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) 
 
     fun tokens(): Tokens = Tokens(tokens.count)
 
+    internal fun placedBets(): List<Bet> = emptyList()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -25,5 +27,13 @@ class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) 
     override fun hashCode(): Int {
         return id.hashCode()
     }
+
+}
+
+internal data class Bet(private val field: RouletteField, private val value: Tokens) {
+
+    fun field(): RouletteField = field
+
+    fun value(): Tokens = Tokens(value.count)
 
 }

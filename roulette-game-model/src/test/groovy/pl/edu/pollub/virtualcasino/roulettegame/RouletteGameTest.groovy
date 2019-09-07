@@ -8,12 +8,14 @@ import spock.lang.Subject
 
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedToTable.sampleJoinedTable
+import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedTable.sampleJoinedTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
+import static pl.edu.pollub.virtualcasino.roulettegame.RouletteField.*
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.comands.SampleLeaveRouletteGame.sampleLeaveRouletteGame
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGame.sampleRouletteGame
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGameId.sampleRouletteGameId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.comands.SamplePlaceBet.samplePlaceBet
 
 class RouletteGameTest extends Specification {
 
@@ -24,16 +26,16 @@ class RouletteGameTest extends Specification {
         given:
             rouletteGame = sampleRouletteGame()
         and:
-            def clientId = sampleClientId()
+            def clientThatReservedTableId = sampleClientId()
             def clientTokens = sampleTokens(count: 60)
-            def tableReserved = sampleRouletteTableReserved(clientId: clientId, clientTokens: clientTokens)
+            def tableReserved = sampleRouletteTableReserved(clientId: clientThatReservedTableId, clientTokens: clientTokens)
         when:
             rouletteGame.when(tableReserved)
         then:
             def players = rouletteGame.players()
             players.size() == 1
             def player = players.first()
-            player.id().value == clientId.value
+            player.id().value == clientThatReservedTableId.value
             player.tokens() == clientTokens
     }
 
@@ -41,17 +43,39 @@ class RouletteGameTest extends Specification {
         given:
             rouletteGame = sampleRouletteGame()
         and:
-            def clientId = sampleClientId()
+            def clientThatJoinedTableId = sampleClientId()
             def clientTokens = sampleTokens(count: 60)
-            def joinedTable = sampleJoinedTable(clientId: clientId, clientTokens: clientTokens)
+            def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
         when:
             rouletteGame.when(joinedTable)
         then:
             def players = rouletteGame.players()
             players.size() == 1
             def player = players.first()
-            player.id().value == clientId.value
+            player.id().value == clientThatJoinedTableId.value
             player.tokens() == clientTokens
+    }
+
+    def "should place bet"() {
+        given:
+            def clientThatJoinedTableId = sampleClientId()
+            def clientTokens = sampleTokens(count: 60)
+            def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
+            rouletteGame = sampleRouletteGame(changes: [joinedTable])
+        and:
+            def playerThatPlacingBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def betValue = sampleTokens(count: 5)
+            def placeBet = samplePlaceBet(playerId: playerThatPlacingBetId, field: FIELD_1, value: betValue)
+        when:
+            rouletteGame.handle(placeBet)
+        then:
+            def playerThatPlacedBet = rouletteGame.players().first()
+            playerThatPlacedBet.tokens() == sampleTokens(count: 55)
+            def playerPlacedBets = playerThatPlacedBet.placedBets()
+            playerPlacedBets.size() == 1
+            def placedBet = playerPlacedBets.first()
+            placedBet.value() == betValue
+            placedBet.field() == FIELD_1
     }
 
     def "should does not have player that left game"() {
@@ -76,8 +100,8 @@ class RouletteGameTest extends Specification {
     def "should publish that player left game"() {
         given:
             def eventPublisher = new FakedRouletteGamePublisher()
-            def fakedRouletteGameLeftListener = new FakedRouletteGameLeftListener()
-            eventPublisher.subscribe(fakedRouletteGameLeftListener)
+            def rouletteGameLeftListener = new FakedRouletteGameLeftListener()
+            eventPublisher.subscribe(rouletteGameLeftListener)
         and:
             def clientThatLeavingTableId = sampleClientId()
             def clientThatLeavingJoinedTable = sampleJoinedTable(clientId: clientThatLeavingTableId)
@@ -88,7 +112,7 @@ class RouletteGameTest extends Specification {
         when:
             rouletteGame.handle(leaveGame)
         then:
-            def listenedEvent = fakedRouletteGameLeftListener.listenedEvents.first()
+            def listenedEvent = rouletteGameLeftListener.listenedEvents.first()
             with(listenedEvent) {
                 gameId == rouletteGame.id()
                 playerId == playerId
