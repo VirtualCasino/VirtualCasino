@@ -6,6 +6,7 @@ import pl.edu.pollub.virtualcasino.roulettegame.RouletteGameId
 import pl.edu.pollub.virtualcasino.roulettegame.RoulettePlayerId
 import java.time.Instant
 import java.util.*
+import java.util.UUID.randomUUID
 
 data class RouletteBetCanceled(
         val id: RouletteBetCanceledId = RouletteBetCanceledId(),
@@ -27,4 +28,4 @@ data class RouletteBetCanceled(
 
 }
 
-data class RouletteBetCanceledId(val value: UUID = UUID.randomUUID())
+data class RouletteBetCanceledId(val value: UUID = randomUUID())

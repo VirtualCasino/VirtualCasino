@@ -1,7 +1,10 @@
 package pl.edu.pollub.virtualcasino.roulettegame
 
+import pl.edu.pollub.virtualcasino.FakedClock
+import pl.edu.pollub.virtualcasino.roulettegame.exceptions.AnySpinNotStartedYet
 import pl.edu.pollub.virtualcasino.roulettegame.exceptions.BetNotExist
 import pl.edu.pollub.virtualcasino.roulettegame.exceptions.BetValueMustBePositive
+import pl.edu.pollub.virtualcasino.roulettegame.exceptions.BettingTimeExceeded
 import pl.edu.pollub.virtualcasino.roulettegame.exceptions.PlacedBetsExceedPlayerFreeTokens
 import pl.edu.pollub.virtualcasino.roulettegame.exceptions.RoulettePlayerNotExist
 import pl.edu.pollub.virtualcasino.roulettegame.fakes.FakedRouletteGameLeftListener
@@ -10,6 +13,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import static pl.edu.pollub.virtualcasino.SamplePointInTime.samplePointInTime
 import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleClientId.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
 import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
@@ -21,7 +25,9 @@ import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGam
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGameId.sampleRouletteGameId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.comands.SamplePlaceRouletteBet.samplePlaceRouletteBet
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.comands.SampleStartSpin.sampleStartSpin
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleRouletteBetPlaced.sampleRouletteBetPlaced
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleSpinStarted.sampleSpinStarted
 
 class RouletteGameTest extends Specification {
 
@@ -62,12 +68,27 @@ class RouletteGameTest extends Specification {
             player.tokens() == clientTokens
     }
 
-    def "should place bet and charge player for them"() {
+    def "should start new spin"() {
+        given:
+            rouletteGame = sampleRouletteGame()
+        and:
+            def bettingTimeEnd = samplePointInTime()
+            def startSpin = sampleStartSpin(bettingTimeEnd: bettingTimeEnd)
+        when:
+            rouletteGame.handle(startSpin)
+        then:
+            def startedSpin = rouletteGame.currentSpin$roulette_game_model()
+            startedSpin != null
+            startedSpin.bettingTimeEnd() == bettingTimeEnd
+    }
+
+    def "should place bet and charge player for them when betting time is not exceeded"() {
         given:
             def clientThatJoinedTableId = sampleClientId()
             def clientTokens = sampleTokens(count: 60)
             def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
-            rouletteGame = sampleRouletteGame(changes: [joinedTable])
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted], clock: new FakedClock(samplePointInTime()))
         and:
             def playerThatPlacingBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def betValue = sampleTokens(count: 5)
@@ -84,22 +105,60 @@ class RouletteGameTest extends Specification {
             placedBet.field$roulette_game_model() == FIELD_1
     }
 
+    def "should throw BettingTimeExceeded when player try to place bet after betting time"() {
+        given:
+            def clientThatJoinedTableId = sampleClientId()
+            def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: sampleTokens(count: 60))
+            def bettingTimeEnd = samplePointInTime(minute: 15)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: bettingTimeEnd)
+            def clock = new FakedClock(samplePointInTime())
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted], clock: clock)
+        and:
+            clock.moveTo(samplePointInTime(minute: 15 + 1))
+            def playerThatTryingPlaceBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def tryPlaceBet = samplePlaceRouletteBet(playerId: playerThatTryingPlaceBetId, value: sampleTokens(count: 5))
+        when:
+            rouletteGame.handle(tryPlaceBet)
+        then:
+            def e = thrown(BettingTimeExceeded)
+            e.gameId == rouletteGame.id()
+            e.playerId == playerThatTryingPlaceBetId
+            e.bettingTimeEnd == bettingTimeEnd
+    }
+
+    def "should throw AnySpinNotStartedYet when player try to place bet but any spin doesn't exists"() {
+        given:
+            def clientThatJoinedTableId = sampleClientId()
+            def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId)
+            rouletteGame = sampleRouletteGame(changes: [joinedTable])
+        and:
+            def playerThatTryingPlaceBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def tryPlaceBet = samplePlaceRouletteBet(playerId: playerThatTryingPlaceBetId)
+        when:
+            rouletteGame.handle(tryPlaceBet)
+        then:
+            def e = thrown(AnySpinNotStartedYet)
+            e.gameId == rouletteGame.id()
+            e.playerId == playerThatTryingPlaceBetId
+    }
+
     @Unroll
     def "should throw BetValueMustBePositive when player try to place bet with value: #invalidBetTokensCount"() {
         given:
             def clientThatJoinedTableId = sampleClientId()
             def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: sampleTokens(count: 60))
-            rouletteGame = sampleRouletteGame(changes: [joinedTable])
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted], clock: new FakedClock(samplePointInTime()))
         and:
-            def playerThatPlacingBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def playerThatTryingPlaceBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def invalidBetValue = sampleTokens(count: invalidBetTokensCount)
-            def tryPlaceBet = samplePlaceRouletteBet(playerId: playerThatPlacingBetId, field: FIELD_1, value: invalidBetValue)
+            def tryPlaceBet = samplePlaceRouletteBet(playerId: playerThatTryingPlaceBetId, field: FIELD_1, value: invalidBetValue)
         when:
             rouletteGame.handle(tryPlaceBet)
         then:
             def e = thrown(BetValueMustBePositive)
             e.gameId == rouletteGame.id()
-            e.playerId == playerThatPlacingBetId
+            e.playerId == playerThatTryingPlaceBetId
             e.betValue == invalidBetValue
         where:
             invalidBetTokensCount << [0, -5]
@@ -110,10 +169,11 @@ class RouletteGameTest extends Specification {
             def clientThatJoinedTableId = sampleClientId()
             def clientTokens = sampleTokens(count: 60)
             def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatPlacedBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def previousBetValue = sampleTokens(count: 5)
             def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: previousBetValue, field: FIELD_1)
-            rouletteGame = sampleRouletteGame(changes: [joinedTable, betPlaced])
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, betPlaced], clock: new FakedClock(samplePointInTime()))
         and:
             def nextBetValue = sampleTokens(count: 3)
             def placeNextBetForSameField = samplePlaceRouletteBet(playerId: playerThatPlacedBetId, field: FIELD_1, value: nextBetValue)
@@ -134,10 +194,11 @@ class RouletteGameTest extends Specification {
             def clientThatJoinedTableId = sampleClientId()
             def clientTokens = sampleTokens(count: 60)
             def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatPlacedBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def betValue = sampleTokens(count: 5)
             def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: betValue, field: FIELD_1)
-            rouletteGame = sampleRouletteGame(changes: [joinedTable, betPlaced])
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, betPlaced], clock: new FakedClock(samplePointInTime()))
         and:
             def cancelBet = sampleCancelRouletteBet(playerId: playerThatPlacedBetId, field: FIELD_1)
         when:
@@ -149,36 +210,76 @@ class RouletteGameTest extends Specification {
             playerPlacedBets.size() == 0
     }
 
+    def "should throw BettingTimeExceeded when player try to cancel bet after betting time"() {
+        given:
+            def clientThatJoinedTableId = sampleClientId()
+            def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: sampleTokens(count: 60))
+            def bettingTimeEnd = samplePointInTime(minute: 15)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: bettingTimeEnd)
+            def playerThatTryingCancelBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatTryingCancelBetId)
+            def clock = new FakedClock(samplePointInTime())
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, betPlaced], clock: clock)
+        and:
+            clock.moveTo(samplePointInTime(minute: 15 + 1))
+            def tryCancelBet = sampleCancelRouletteBet(playerId: playerThatTryingCancelBetId, field: FIELD_1)
+        when:
+            rouletteGame.handle(tryCancelBet)
+        then:
+            def e = thrown(BettingTimeExceeded)
+            e.gameId == rouletteGame.id()
+            e.playerId == playerThatTryingCancelBetId
+            e.bettingTimeEnd == bettingTimeEnd
+    }
+
+    def "should throw AnySpinNotStartedYet when player try to cancel bet but any spin doesn't exists"() {
+        given:
+            def clientThatJoinedTableId = sampleClientId()
+            def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId)
+            rouletteGame = sampleRouletteGame(changes: [joinedTable])
+        and:
+            def playerThatTryingPlaceBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def tryCancelBet = sampleCancelRouletteBet(playerId: playerThatTryingPlaceBetId)
+        when:
+            rouletteGame.handle(tryCancelBet)
+        then:
+            def e = thrown(AnySpinNotStartedYet)
+            e.gameId == rouletteGame.id()
+            e.playerId == playerThatTryingPlaceBetId
+    }
+
     def "should throw BetNotExist when player try to cancel bet for field that doesn't have any bet"() {
         given:
             def clientThatJoinedTableId = sampleClientId()
             def clientTokens = sampleTokens(count: 60)
             def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
-            rouletteGame = sampleRouletteGame(changes: [joinedTable])
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted], clock: new FakedClock(samplePointInTime()))
         and:
-            def playerThatTryCancelBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
-            def tryCancelBet = sampleCancelRouletteBet(playerId: playerThatTryCancelBetId, field: FIELD_1)
+            def playerThatTryingCancelBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
+            def tryCancelBet = sampleCancelRouletteBet(playerId: playerThatTryingCancelBetId, field: FIELD_1)
         when:
             rouletteGame.handle(tryCancelBet)
         then:
             def e = thrown(BetNotExist)
             e.gameId == rouletteGame.id()
-            e.playerId == playerThatTryCancelBetId
+            e.playerId == playerThatTryingCancelBetId
             e.field == FIELD_1
     }
 
-    def "should throw PlacedBetsExceedPlayerFreeTokens when player try to place bet that exceeds their its tokens value"() {
+    def "should throw PlacedBetsExceedPlayerFreeTokens when player try to place bet that exceeds its tokens value"() {
         given:
             def clientThatJoinedTableId = sampleClientId()
             def clientTokens = sampleTokens(count: 10)
             def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatPlacedBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def previousBetValue = sampleTokens(count: 5)
-            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: previousBetValue, field: FIELD_1)
-            rouletteGame = sampleRouletteGame(changes: [joinedTable, betPlaced])
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: previousBetValue)
+            rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, betPlaced], clock: new FakedClock(samplePointInTime()))
         and:
             def betThatExceedsPlayerTokens = sampleTokens(count: 6)
-            def tryToPlaceBetThatExceedsPlayerTokens = samplePlaceRouletteBet(playerId: playerThatPlacedBetId, field: FIELD_1, value: betThatExceedsPlayerTokens)
+            def tryToPlaceBetThatExceedsPlayerTokens = samplePlaceRouletteBet(playerId: playerThatPlacedBetId, value: betThatExceedsPlayerTokens)
         when:
             rouletteGame.handle(tryToPlaceBetThatExceedsPlayerTokens)
         then:
@@ -236,13 +337,13 @@ class RouletteGameTest extends Specification {
             def gameId = sampleRouletteGameId()
             rouletteGame = sampleRouletteGame(id: gameId)
         and:
-            def playerThatLeavingGameId = sampleRoulettePlayerId()
-            def leaveGame = sampleLeaveRouletteGame(playerId: playerThatLeavingGameId)
+            def playerThatTryingLeaveGameId = sampleRoulettePlayerId()
+            def leaveGame = sampleLeaveRouletteGame(playerId: playerThatTryingLeaveGameId)
         when:
             rouletteGame.handle(leaveGame)
         then:
             def e = thrown(RoulettePlayerNotExist)
-            e.playerId == playerThatLeavingGameId
+            e.playerId == playerThatTryingLeaveGameId
             e.gameId == gameId
     }
 

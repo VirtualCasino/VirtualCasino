@@ -8,30 +8,39 @@ import pl.edu.pollub.virtualcasino.clientservices.table.events.RouletteTableRese
 import pl.edu.pollub.virtualcasino.roulettegame.commands.CancelRouletteBet
 import pl.edu.pollub.virtualcasino.roulettegame.commands.LeaveRouletteGame
 import pl.edu.pollub.virtualcasino.roulettegame.commands.PlaceRouletteBet
+import pl.edu.pollub.virtualcasino.roulettegame.commands.StartSpin
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteBetCanceled
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteBetPlaced
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
-import pl.edu.pollub.virtualcasino.roulettegame.exceptions.BetNotExist
-import pl.edu.pollub.virtualcasino.roulettegame.exceptions.BetValueMustBePositive
-import pl.edu.pollub.virtualcasino.roulettegame.exceptions.PlacedBetsExceedPlayerFreeTokens
-import pl.edu.pollub.virtualcasino.roulettegame.exceptions.RoulettePlayerNotExist
+import pl.edu.pollub.virtualcasino.roulettegame.events.SpinStarted
+import pl.edu.pollub.virtualcasino.roulettegame.exceptions.*
 import java.lang.RuntimeException
+import java.time.Clock
+import java.time.Instant.now
 
 class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
                    changes: MutableList<DomainEvent> = mutableListOf(),
-                   private val eventPublisher: RouletteGameEventPublisher
+                   private val eventPublisher: RouletteGameEventPublisher,
+                   private val clock: Clock
 ): EventSourcedAggregateRoot() {
 
     private val players = mutableSetOf<RoulettePlayer>()
+    private var spin: Spin? = null
 
     init {
         changes.toMutableList().fold(this) { _, event -> patternMatch(event) }
+    }
+
+    fun handle(command: StartSpin) {
+        `when`(SpinStarted(gameId = id(), bettingTimeEnd = command.bettingTimeEnd))
     }
 
     fun handle(command: PlaceRouletteBet) {
         val betValue = command.value
         val playerId = command.playerId
         val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
+        val bettingTimeEnd = spin?.bettingTimeEnd() ?: throw AnySpinNotStartedYet(id, playerId)
+        if(bettingTimeEnd < clock.instant()) throw BettingTimeExceeded(id, player.id(), bettingTimeEnd)
         if(betValue <= Tokens()) throw BetValueMustBePositive(id, player.id(), betValue)
         val playerFreeTokens = player.freeTokens()
         if(betValue > playerFreeTokens) throw PlacedBetsExceedPlayerFreeTokens(id, player.id(), betValue, playerFreeTokens)
@@ -41,6 +50,8 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
     fun handle(command: CancelRouletteBet) {
         val playerId = command.playerId
         val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
+        val bettingTimeEnd = spin?.bettingTimeEnd() ?: throw AnySpinNotStartedYet(id, playerId)
+        if(bettingTimeEnd < clock.instant()) throw BettingTimeExceeded(id, player.id(), bettingTimeEnd)
         val canceledBetField = command.field
         if(!player.placedBetsFields().contains(canceledBetField)) throw BetNotExist(id, playerId, canceledBetField)
         `when`(RouletteBetCanceled(gameId = id(), playerId = playerId, field = canceledBetField))
@@ -58,6 +69,8 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
 
     fun players(): Set<RoulettePlayer> = players
 
+    internal fun currentSpin(): Spin? = spin
+
     fun `when`(event: JoinedTable): RouletteGame {
         players.add(RoulettePlayer(event.clientId, event.clientTokens))
         changes.add(event)
@@ -67,6 +80,11 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
     fun `when`(event: RouletteTableReserved): RouletteGame {
         players.add(RoulettePlayer(event.clientId, event.clientTokens))
         changes.add(event)
+        return this
+    }
+
+    private fun `when`(event: SpinStarted): RouletteGame {
+        spin = Spin(event.bettingTimeEnd)
         return this
     }
 
@@ -94,6 +112,7 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
         is RouletteGameLeft -> `when`(event)
         is RouletteBetPlaced -> `when`(event)
         is RouletteBetCanceled -> `when`(event)
+        is SpinStarted -> `when`(event)
         else -> throw RuntimeException("event: $event is not acceptable for RouletteGame")
     }
 
