@@ -16,7 +16,6 @@ import pl.edu.pollub.virtualcasino.roulettegame.events.SpinStarted
 import pl.edu.pollub.virtualcasino.roulettegame.exceptions.*
 import java.lang.RuntimeException
 import java.time.Clock
-import java.time.Instant.now
 
 class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
                    changes: MutableList<DomainEvent> = mutableListOf(),
@@ -39,8 +38,7 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
         val betValue = command.value
         val playerId = command.playerId
         val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
-        val bettingTimeEnd = spin?.bettingTimeEnd() ?: throw AnySpinNotStartedYet(id, playerId)
-        if(bettingTimeEnd < clock.instant()) throw BettingTimeExceeded(id, player.id(), bettingTimeEnd)
+        validateBettingTime(playerId, player)
         if(betValue <= Tokens()) throw BetValueMustBePositive(id, player.id(), betValue)
         val playerFreeTokens = player.freeTokens()
         if(betValue > playerFreeTokens) throw PlacedBetsExceedPlayerFreeTokens(id, player.id(), betValue, playerFreeTokens)
@@ -50,8 +48,7 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
     fun handle(command: CancelRouletteBet) {
         val playerId = command.playerId
         val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
-        val bettingTimeEnd = spin?.bettingTimeEnd() ?: throw AnySpinNotStartedYet(id, playerId)
-        if(bettingTimeEnd < clock.instant()) throw BettingTimeExceeded(id, player.id(), bettingTimeEnd)
+        validateBettingTime(playerId, player)
         val canceledBetField = command.field
         if(!player.placedBetsFields().contains(canceledBetField)) throw BetNotExist(id, playerId, canceledBetField)
         `when`(RouletteBetCanceled(gameId = id(), playerId = playerId, field = canceledBetField))
@@ -81,6 +78,11 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
         players.add(RoulettePlayer(event.clientId, event.clientTokens))
         changes.add(event)
         return this
+    }
+
+    private fun validateBettingTime(playerId: RoulettePlayerId, player: RoulettePlayer) {
+        val bettingTimeEnd = spin?.bettingTimeEnd() ?: throw AnySpinNotStartedYet(id, playerId)
+        if (bettingTimeEnd < clock.instant()) throw BettingTimeExceeded(id, player.id(), bettingTimeEnd)
     }
 
     private fun `when`(event: SpinStarted): RouletteGame {
