@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive
 import org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization
+import pl.edu.pollub.virtualcasino.clientservices.table.projection.TableParticipants
 import pl.edu.pollub.virtualcasino.eventstore.EventSerializer
 import pl.edu.pollub.virtualcasino.eventstore.EventStore
-import pl.edu.pollub.virtualcasino.infrastructure.table.ParticipantsOfTable
 
 @Component
 class EventSourcedMongoTableRepository(val clientServicesBoundedContextEventStore: EventStore,
@@ -37,20 +37,20 @@ class EventSourcedMongoTableRepository(val clientServicesBoundedContextEventStor
 
     override fun clear() {
         clientServicesBoundedContextEventStore.clear()
-        clientServicesBoundedContextMongoTemplate.remove(Query(), ParticipantsOfTable::class.java)
+        clientServicesBoundedContextMongoTemplate.remove(Query(), TableParticipants::class.java)
     }
 
     override fun containsWithParticipation(participation: Participation): Boolean {
         val query = Query()
         query.addCriteria(Criteria.where("participation.clientId").`is`(participation.clientId))
-        val projection = clientServicesBoundedContextMongoTemplate.findOne(query, ParticipantsOfTable::class.java)
+        val projection = clientServicesBoundedContextMongoTemplate.findOne(query, TableParticipants::class.java)
         return projection != null
     }
 
     private fun saveParticipantsProjection(aggregate: Table) {
         val query = Query()
         query.addCriteria(Criteria.where("tableId").isEqualTo(aggregate.id()))
-        val projection = clientServicesBoundedContextMongoTemplate.findOne(query, ParticipantsOfTable::class.java) ?: ParticipantsOfTable(tableId = aggregate.id())
+        val projection = clientServicesBoundedContextMongoTemplate.findOne(query, TableParticipants::class.java) ?: TableParticipants(tableId = aggregate.id())
         projection.participation = aggregate.participation()
         clientServicesBoundedContextMongoTemplate.save(projection)
     }

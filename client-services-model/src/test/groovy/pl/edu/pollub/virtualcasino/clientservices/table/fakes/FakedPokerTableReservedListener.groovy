@@ -3,7 +3,7 @@ package pl.edu.pollub.virtualcasino.clientservices.table.fakes
 import org.jetbrains.annotations.NotNull
 import pl.edu.pollub.virtualcasino.DomainEvent
 import pl.edu.pollub.virtualcasino.DomainEventListener
-import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.PokerTableReserved
+import pl.edu.pollub.virtualcasino.clientservices.table.events.PokerTableReserved
 
 class FakedPokerTableReservedListener implements DomainEventListener<PokerTableReserved> {
 

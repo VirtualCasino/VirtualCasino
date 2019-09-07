@@ -2,22 +2,20 @@ package pl.edu.pollub.virtualcasino.clientservices.client
 
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientBusy
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.TokensCountMustBePositive
-import pl.edu.pollub.virtualcasino.clientservices.client.fakes.FakedClientEventPublisher
-import pl.edu.pollub.virtualcasino.clientservices.client.fakes.FakedTokensBoughtListener
 import pl.edu.pollub.virtualcasino.clientservices.table.fakes.FakedTableRepository
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.*
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleClientId.sampleClientId
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.comands.SampleBuyTokens.sampleBuyTokens
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.events.SampleTokensBought.sampleTokensBought
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.events.SampleTokensBought.sampleTokensBought
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleJoinedTable.sampleJoinedTable
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTable.sampleTable
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedTable.sampleJoinedTable
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.SampleTableId.sampleTableId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleRouletteGameLeft.sampleRouletteGameLeft
 
@@ -41,25 +39,6 @@ class ClientTest extends Specification {
             client.handle(buyTokens)
         then:
             client.tokens == sampleTokens(count: 100)
-    }
-
-    def "should publish that tokens have been bought"() {
-        given:
-            def eventPublisher = new FakedClientEventPublisher()
-            def tokensBoughtListener = new FakedTokensBoughtListener()
-            eventPublisher.subscribe(tokensBoughtListener)
-            client = sampleClient(eventPublisher: eventPublisher)
-        and:
-            def tokens = sampleTokens(count: 100)
-            def buyTokens = sampleBuyTokens(tokens: tokens)
-        when:
-            client.handle(buyTokens)
-        then:
-            def listenedEvent = tokensBoughtListener.listenedEvents.first()
-            with(listenedEvent) {
-                clientId == client.id()
-                tokens == tokens
-            }
     }
 
     @Unroll

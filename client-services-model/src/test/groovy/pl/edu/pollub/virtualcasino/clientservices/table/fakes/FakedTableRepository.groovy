@@ -27,7 +27,7 @@ class FakedTableRepository implements TableRepository {
 
     @Override
     boolean containsWithParticipation(@NotNull Participation participation) {
-        return aggregates.any { it.hasParticipation(participation) }
+        return aggregates.any { it.hasParticipation$client_services_model(participation) }
     }
 
     List<Table> findAll() {

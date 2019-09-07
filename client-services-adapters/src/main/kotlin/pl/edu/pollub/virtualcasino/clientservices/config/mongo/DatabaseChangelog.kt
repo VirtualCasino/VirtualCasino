@@ -12,7 +12,7 @@ class ClientServicesBoundedContextDatabaseChangelog {
     fun createEventSourcingDocumentsAndTableParticipantsProjection(db: DB) {
         db.createCollection("event_stream", BasicDBObject())
         db.createCollection("event_descriptor", BasicDBObject())
-        db.createCollection("participants_of_table", BasicDBObject())
+        db.createCollection("table_participants", BasicDBObject())
     }
 
 }

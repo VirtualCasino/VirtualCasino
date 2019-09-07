@@ -4,8 +4,8 @@ import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.client.commands.BuyTokens
 
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleClientId.sampleClientId
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
 
 class SampleBuyTokens {
 
