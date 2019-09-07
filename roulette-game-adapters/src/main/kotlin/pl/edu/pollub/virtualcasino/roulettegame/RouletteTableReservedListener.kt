@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional
 import pl.edu.pollub.virtualcasino.DomainEvent
 import pl.edu.pollub.virtualcasino.DomainEventListener
 import pl.edu.pollub.virtualcasino.DomainException
-import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteTableReserved
+import pl.edu.pollub.virtualcasino.clientservices.table.events.RouletteTableReserved
 
 @Component
 @Transactional(rollbackFor = [DomainException::class])

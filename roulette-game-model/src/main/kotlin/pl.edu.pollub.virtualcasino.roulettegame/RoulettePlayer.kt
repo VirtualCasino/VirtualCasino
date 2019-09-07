@@ -3,13 +3,31 @@ package pl.edu.pollub.virtualcasino.roulettegame
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 
-class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) {
+class RoulettePlayer(clientId: ClientId, private var tokens: Tokens = Tokens()) {
 
     private val id: RoulettePlayerId = RoulettePlayerId(clientId.value)
+
+    private val placedBets = mutableMapOf<RouletteField, Bet>()
 
     fun id(): RoulettePlayerId = id
 
     fun tokens(): Tokens = Tokens(tokens.count)
+
+    internal fun placedBetsValue(): Tokens = placedBets.values.fold(Tokens()) { placedTokens, betValue -> placedTokens + betValue.value() }
+
+    internal fun freeTokens(): Tokens = tokens() - placedBetsValue()
+
+    internal fun placeBet(field: RouletteField, value: Tokens) {
+        placedBets.put(field, Bet(field, id, value))
+    }
+
+    internal fun cancelBet(field: RouletteField) {
+        placedBets.remove(field)
+    }
+
+    internal fun placedBets(): Set<Bet> = placedBets.values.toSet()
+
+    internal fun placedBetsFields(): Set<RouletteField> = placedBets.keys
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -25,5 +43,4 @@ class RoulettePlayer(clientId: ClientId, private val tokens: Tokens = Tokens()) 
     override fun hashCode(): Int {
         return id.hashCode()
     }
-
 }

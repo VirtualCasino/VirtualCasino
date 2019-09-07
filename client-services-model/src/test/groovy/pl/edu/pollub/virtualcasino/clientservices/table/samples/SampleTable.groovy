@@ -9,8 +9,8 @@ import pl.edu.pollub.virtualcasino.clientservices.table.TableId
 import pl.edu.pollub.virtualcasino.clientservices.client.fakes.FakedClientRepository
 import pl.edu.pollub.virtualcasino.clientservices.table.fakes.FakedTableEventPublisher
 
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleClientId.sampleClientId
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.SampleTableId.sampleTableId
 
 class SampleTable {
 

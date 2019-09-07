@@ -15,7 +15,7 @@ internal interface TableState {
 
 }
 
-class NotReserved: TableState {
+internal class NotReserved: TableState {
 
     override fun canJoin(table: Table, client: Client): Boolean {
         throw TableNotReserved(client.id(), table.id())
@@ -78,7 +78,7 @@ internal class Closed: TableState {
 
 }
 
-internal class BasicJoiningRules(val maxParticipantCount: Int) {
+internal class BasicJoiningRules(private val maxParticipantCount: Int) {
 
     fun canJoin(table: Table, client: Client): Boolean {
         val clientId = client.id()

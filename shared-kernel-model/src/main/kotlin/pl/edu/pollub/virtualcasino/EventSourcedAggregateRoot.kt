@@ -1,8 +1,8 @@
 package pl.edu.pollub.virtualcasino
 
-abstract class EventSourcedAggregateRoot(private val changes: MutableList<DomainEvent> = mutableListOf()) {
+abstract class EventSourcedAggregateRoot {
 
-    protected abstract fun patternMatch(event: DomainEvent): EventSourcedAggregateRoot
+    protected val changes: MutableList<DomainEvent> = mutableListOf()
 
     fun getUncommittedChanges(): List<DomainEvent> = changes
 

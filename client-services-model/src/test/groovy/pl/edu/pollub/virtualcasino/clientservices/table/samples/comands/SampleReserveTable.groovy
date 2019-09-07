@@ -5,8 +5,8 @@ import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReservePokerTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReserveRouletteTable
 
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleClientId.sampleClientId
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
 
 class SampleReserveTable {
 

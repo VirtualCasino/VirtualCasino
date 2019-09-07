@@ -9,20 +9,20 @@ import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNotExi
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.JoinTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReservePokerTable
 import pl.edu.pollub.virtualcasino.clientservices.table.commands.ReserveRouletteTable
-import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.JoinedTable
-import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.PokerTableReserved
-import pl.edu.pollub.virtualcasino.clientservices.table.samples.events.RouletteTableReserved
+import pl.edu.pollub.virtualcasino.clientservices.table.events.JoinedTable
+import pl.edu.pollub.virtualcasino.clientservices.table.events.PokerTableReserved
+import pl.edu.pollub.virtualcasino.clientservices.table.events.RouletteTableReserved
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
 import java.lang.RuntimeException
 
 class Table(private val id: TableId = TableId(),
-            private val changes: MutableList<DomainEvent> = mutableListOf(),
+            changes: MutableList<DomainEvent> = mutableListOf(),
             private val clientRepository: ClientRepository,
             private val eventPublisher: TableEventPublisher
-): EventSourcedAggregateRoot(changes) {
+): EventSourcedAggregateRoot() {
 
     private var state: TableState = NotReserved()
-    private val participation = mutableListOf<Participation>()
+    private val participation = mutableSetOf<Participation>()
     private val reservationRules = BasicReservationRules()
     private val initialBiddingRateRules = InitialBiddingRateRules()
 
@@ -60,18 +60,19 @@ class Table(private val id: TableId = TableId(),
 
     fun id(): TableId = id
 
-    fun hasParticipation(participation: Participation): Boolean = this.participation.contains(participation)
+    fun participation(): Set<Participation> = participation
 
-    fun participation(): List<Participation> = participation
-
-    override fun patternMatch(event: DomainEvent): Table = when(event) {
-        is RouletteTableReserved -> `when`(event)
-        is PokerTableReserved -> `when`(event)
-        is JoinedTable -> `when`(event)
-        is RouletteGameLeft -> `when`(event)
-        else -> throw RuntimeException("event: $event is not acceptable for Table")
+    fun `when`(event: RouletteGameLeft): Table {
+        participation.removeIf { it.clientId == ClientId(event.playerId) }
+        if(participation.isEmpty()) {
+            state = Closed()
+        }
+        changes.add(event)
+        return this
     }
 
+    internal fun hasParticipation(participation: Participation): Boolean = this.participation.contains(participation)
+    
     internal fun isReserved() = state.isReserved()
 
     internal fun isClosed() = state.isClosed()
@@ -98,13 +99,12 @@ class Table(private val id: TableId = TableId(),
         return this
     }
 
-    fun `when`(event: RouletteGameLeft): Table {
-        participation.removeIf { it.clientId == ClientId(event.playerId) }
-        if(participation.isEmpty()) {
-            state = Closed()
-        }
-        changes.add(event)
-        return this
+    private fun patternMatch(event: DomainEvent): Table = when(event) {
+        is RouletteTableReserved -> `when`(event)
+        is PokerTableReserved -> `when`(event)
+        is JoinedTable -> `when`(event)
+        is RouletteGameLeft -> `when`(event)
+        else -> throw RuntimeException("event: $event is not acceptable for Table")
     }
 
     override fun equals(other: Any?): Boolean {

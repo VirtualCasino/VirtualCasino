@@ -10,7 +10,7 @@ import java.time.Instant
 
 import static java.util.UUID.randomUUID
 import static pl.edu.pollub.virtualcasino.SamplePointInTime.samplePointInTime
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGameId.sampleRouletteGameId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
 

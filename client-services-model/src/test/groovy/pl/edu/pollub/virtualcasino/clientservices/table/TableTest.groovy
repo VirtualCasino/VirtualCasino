@@ -14,18 +14,18 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.*
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClientId.sampleClientId
-import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleTokens.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleClientId.sampleClientId
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.events.SampleTokensBought.sampleTokensBought
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleJoinedTable.sampleJoinedTable
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleTableReserved.samplePokerTableReserved
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTable.*
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.SampleTableId.sampleTableId
+import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.SampleTableId.sampleTableId
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleJoinTable.sampleJoinTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleReserveTable.sampleReservePokerTable
 import static pl.edu.pollub.virtualcasino.clientservices.table.samples.comands.SampleReserveTable.sampleReserveRouletteTable
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleJoinedToTable.sampleJoinedTable
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.samplePokerTableReserved
-import static pl.edu.pollub.virtualcasino.clientservices.table.samples.events.SampleTableReserved.sampleRouletteTableReserved
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleRouletteGameLeft.sampleRouletteGameLeft
 
@@ -48,7 +48,7 @@ class TableTest extends Specification {
         when:
             table.handle(reserveTable)
         then:
-            table.hasParticipation(expectedParticipation)
+            table.hasParticipation$client_services_model(expectedParticipation)
     }
 
     def "should publish that roulette table is reserved"() {
@@ -203,7 +203,7 @@ class TableTest extends Specification {
         when:
             table.handle(joinToTable)
         then:
-            table.hasParticipation(expectedParticipation)
+            table.hasParticipation$client_services_model(expectedParticipation)
     }
 
     def "should publish that client joined table"() {
@@ -408,7 +408,7 @@ class TableTest extends Specification {
         when:
             table.when(gameLeft)
         then:
-            !table.hasParticipation(notExpectedParticipation)
+            !table.hasParticipation$client_services_model(notExpectedParticipation)
     }
 
     def "should not has participation of client that joined and left game"() {
@@ -426,7 +426,7 @@ class TableTest extends Specification {
         when:
             table.when(gameLeft)
         then:
-            !table.hasParticipation(notExpectedParticipation)
+            !table.hasParticipation$client_services_model(notExpectedParticipation)
     }
 
     def "should throw TableClosed when last client left game and other player try to reserve table"() {
