@@ -33,8 +33,8 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
         val playerId = command.playerId
         val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
         if(betValue <= Tokens()) throw BetValueMustBePositive(id, player.id(), betValue)
-        val placedBetsValue = player.placedBetsValue()
-        if(placedBetsValue + betValue > player.tokens()) throw PlacedBetsExceedPlayerFreeTokens(id, player.id(), betValue, player.tokens() - placedBetsValue)
+        val playerFreeTokens = player.freeTokens()
+        if(betValue > playerFreeTokens) throw PlacedBetsExceedPlayerFreeTokens(id, player.id(), betValue, playerFreeTokens)
         `when`(RouletteBetPlaced(gameId = id(), playerId = player.id(), field = command.field, value = command.value))
     }
 

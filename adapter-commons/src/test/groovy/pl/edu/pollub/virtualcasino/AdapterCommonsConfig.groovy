@@ -15,16 +15,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.autoconfigure.mongo.MongoProperties
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.MongoTransactionManager
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
 import static de.flapdoodle.embed.mongo.distribution.Feature.*
 import static de.flapdoodle.embed.process.runtime.Network.localhostIsIPv6
 
 @SpringBootApplication
+@EnableConfigurationProperties([MongoConfigurationProperties])
 @EnableTransactionManagement(proxyTargetClass = true)
 @EntityScan(basePackageClasses = [AdapterCommonsConfig.class])
 class AdapterCommonsConfig {
@@ -95,7 +96,6 @@ class AdapterCommonsConfig {
         return new MongoTransactionManager(writeTemplate.getMongoDbFactory())
     }
 
-    @Component
     @ConfigurationProperties(prefix = "mongodb")
     class MongoConfigurationProperties {
 
