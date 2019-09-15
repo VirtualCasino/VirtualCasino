@@ -16,7 +16,7 @@ class PlacedBetsExceedPlayerFreeTokens(private val gameId: RouletteGameId,
                 Pair("betValue", betValue.count.toString()),
                 Pair("playerFreeTokens", playerFreeTokens.count.toString())
         ),
-        "Player with id: ${playerId.value} can't place bet with value: ${betValue.count} because it's value exceeds free tokens count: ${playerFreeTokens.count}") {
+        "Player with id: ${playerId.value} can't place bet with value: ${betValue.count} in game with id: ${gameId.value} because it's value exceeds free tokens count: ${playerFreeTokens.count}") {
 
     companion object {
         const val CODE = "rouletteGame.rouletteGame.placedBetsExceedPlayerTokens"

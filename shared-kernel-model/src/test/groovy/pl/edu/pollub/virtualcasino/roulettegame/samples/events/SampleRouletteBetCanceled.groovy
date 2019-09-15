@@ -10,7 +10,7 @@ import java.time.Instant
 
 import static java.util.UUID.randomUUID
 import static pl.edu.pollub.virtualcasino.SamplePointInTime.samplePointInTime
-import static pl.edu.pollub.virtualcasino.roulettegame.RouletteField.*
+import static pl.edu.pollub.virtualcasino.roulettegame.NumberField.*
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGameId.sampleRouletteGameId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
 
@@ -21,7 +21,7 @@ class SampleRouletteBetCanceled {
                 id: sampleRouletteBetCanceledId(),
                 gameId: sampleRouletteGameId(),
                 playerId: sampleRoulettePlayerId(),
-                field: FIELD_1,
+                field: NUMBER_1,
                 occurredAt: samplePointInTime()
         ] + customProperties
         return new RouletteBetCanceled(

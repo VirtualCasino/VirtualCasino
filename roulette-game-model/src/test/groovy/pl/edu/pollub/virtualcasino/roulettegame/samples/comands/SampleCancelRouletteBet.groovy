@@ -5,7 +5,7 @@ import pl.edu.pollub.virtualcasino.roulettegame.RouletteGameId
 import pl.edu.pollub.virtualcasino.roulettegame.RoulettePlayerId
 import pl.edu.pollub.virtualcasino.roulettegame.commands.CancelRouletteBet
 
-import static pl.edu.pollub.virtualcasino.roulettegame.RouletteField.*
+import static pl.edu.pollub.virtualcasino.roulettegame.NumberField.*
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGameId.sampleRouletteGameId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
 
@@ -15,7 +15,7 @@ class SampleCancelRouletteBet {
         def properties = [
                 gameId: sampleRouletteGameId(),
                 playerId: sampleRoulettePlayerId(),
-                field: FIELD_1
+                field: NUMBER_1
         ] + customProperties
         return new CancelRouletteBet(
                 properties.gameId as RouletteGameId,

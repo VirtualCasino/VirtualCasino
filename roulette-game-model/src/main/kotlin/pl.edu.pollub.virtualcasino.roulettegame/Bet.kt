@@ -4,9 +4,11 @@ import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 
 internal class Bet(private val field: RouletteField, private val playerId: RoulettePlayerId, private var value: Tokens) {
 
-    internal fun field(): RouletteField = field
-
     internal fun value(): Tokens = Tokens(value.count)
+
+    internal fun tokensToWin(): Tokens = Tokens(value.count * field.valueMultiplier())
+
+    internal fun isWon(fieldDrawn: NumberField): Boolean = field.isDrawn(fieldDrawn)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -25,6 +25,17 @@ class RoulettePlayer(clientId: ClientId, private var tokens: Tokens = Tokens()) 
         placedBets.remove(field)
     }
 
+    internal fun chargeForBets(fieldDrawn: NumberField) {
+        var charge = 0
+        //side effect, mutability and primitive type for optimization
+        placedBets.values.forEach{
+            if(it.isWon(fieldDrawn)) charge += it.tokensToWin().count
+            else charge -= it.value().count
+        }
+        tokens += Tokens(charge)
+        placedBets.clear()
+    }
+
     internal fun placedBets(): Set<Bet> = placedBets.values.toSet()
 
     internal fun placedBetsFields(): Set<RouletteField> = placedBets.keys
