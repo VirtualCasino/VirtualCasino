@@ -14,7 +14,7 @@ class BetNotExist(private val gameId: RouletteGameId,
                 Pair("playerId", playerId.value.toString()),
                 Pair("field", field.toString())
         ),
-        "Player with id: ${playerId.value} can't cancel bet for field: $field because it hasn't any bet for that field") {
+        "Player with id: ${playerId.value} can't cancel bet in game with id: ${gameId.value} for field: $field because it hasn't any bet for that field") {
 
     companion object {
         const val CODE = "rouletteGame.rouletteGame.betNotExist"

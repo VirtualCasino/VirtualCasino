@@ -14,7 +14,7 @@ class BetValueMustBePositive(private val gameId: RouletteGameId,
                 Pair("playerId", playerId.value.toString()),
                 Pair("betValue", betValue.count.toString())
         ),
-        "Player with id: ${playerId.value} can't place bet with value: ${betValue.count} because bet value must be positive") {
+        "Player with id: ${playerId.value} can't place bet with value: ${betValue.count} in game with id: ${gameId.value} because bet value must be positive") {
 
     companion object {
         const val CODE = "rouletteGame.rouletteGame.betValueMustBePositive"

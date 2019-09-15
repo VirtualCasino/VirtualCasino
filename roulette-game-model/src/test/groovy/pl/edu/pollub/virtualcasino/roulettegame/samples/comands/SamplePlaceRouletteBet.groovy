@@ -7,7 +7,7 @@ import pl.edu.pollub.virtualcasino.roulettegame.RoulettePlayerId
 import pl.edu.pollub.virtualcasino.roulettegame.commands.PlaceRouletteBet
 
 import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
-import static pl.edu.pollub.virtualcasino.roulettegame.RouletteField.*
+import static pl.edu.pollub.virtualcasino.roulettegame.NumberField.*
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRouletteGameId.sampleRouletteGameId
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePlayerId.sampleRoulettePlayerId
 
@@ -17,7 +17,7 @@ class SamplePlaceRouletteBet {
         def properties = [
                 gameId: sampleRouletteGameId(),
                 playerId: sampleRoulettePlayerId(),
-                field: FIELD_1,
+                field: NUMBER_1,
                 value: sampleTokens()
         ] + customProperties
         return new PlaceRouletteBet(
