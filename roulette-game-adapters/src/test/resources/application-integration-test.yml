@@ -1,0 +1,19 @@
+#Database
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
+
+mongodb:
+  roulette-game-db:
+    host: 127.0.0.1
+    port: 27018
+    database: roulette-game-test-db
+
+#Businness config
+spin:
+  start-spin-delay-after-table-reservation-in-milliseconds: 10000 # 10 seconds
+  betting-time-in-milliseconds: 240000 # 4 minutes
+  spin-time-duration-in-milliseconds: 300000 # 5 minutes
+  break-time-between-spins-in-milliseconds: 20000 # 20 seconds
