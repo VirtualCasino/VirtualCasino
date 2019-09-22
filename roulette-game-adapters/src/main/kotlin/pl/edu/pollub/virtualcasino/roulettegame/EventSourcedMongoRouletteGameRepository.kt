@@ -19,7 +19,6 @@ class EventSourcedMongoRouletteGameRepository(val rouletteGameBoundedContextEven
 ): RouletteGameRepository {
 
     override fun add(aggregate: RouletteGame): Boolean {
-        flushChanges(aggregate)
         dirtyChecking(aggregate)
         return true
     }

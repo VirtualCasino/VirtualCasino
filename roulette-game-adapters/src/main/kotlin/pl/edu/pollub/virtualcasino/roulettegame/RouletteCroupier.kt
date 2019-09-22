@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
+import org.springframework.transaction.support.TransactionSynchronizationAdapter
+import org.springframework.transaction.support.TransactionSynchronizationManager.*
 import pl.edu.pollub.virtualcasino.roulettegame.commands.FinishSpin
 import pl.edu.pollub.virtualcasino.roulettegame.commands.StartSpin
 import java.time.Clock
@@ -19,14 +21,14 @@ class RouletteCroupier(private val rouletteWheel: RouletteWheel,
                        private val commandHandler: RouletteGameCommandHandler) {
 
     fun planTheStartOfFirstSpinForGame(gameId: RouletteGameId) {
-        startSpin(gameId, spinConfig.startSpinDelayAfterTableReservationInMilliseconds)
+        planStartSpin(gameId, spinConfig.startSpinDelayAfterTableReservationInMilliseconds)
     }
 
     private fun planTheStartOfEveryNextSpinForGame(gameId: RouletteGameId) {
-        startSpin(gameId, spinConfig.breakTimeBetweenSpinsInMilliseconds)
+        planStartSpin(gameId, spinConfig.breakTimeBetweenSpinsInMilliseconds)
     }
 
-    private fun startSpin(gameId: RouletteGameId, delay: Long) {
+    private fun planStartSpin(gameId: RouletteGameId, delay: Long) {
         val currentPointInTime = clock.instant()
         val endBettingPointInTime = currentPointInTime.plusMillis(spinConfig.bettingTimeInMilliseconds)
         val command = StartSpin(gameId, endBettingPointInTime)
