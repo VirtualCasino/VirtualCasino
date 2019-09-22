@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.MongoTransactionManager
 import com.github.mongobee.Mongobee
 
 @Configuration
-@Profile("default")
+@Profile("client-services")
 class ClientServicesBoundedContextMongoDbConfig {
 
     @Bean

@@ -10,7 +10,8 @@ import pl.edu.pollub.virtualcasino.clientservices.table.events.RouletteTableRese
 @Component
 @Transactional(rollbackFor = [DomainException::class])
 class RouletteTableReservedListener(private val factory: RouletteGameFactory,
-                                    private val repository: RouletteGameRepository
+                                    private val repository: RouletteGameRepository,
+                                    private val rouletteCroupier: RouletteCroupier
 ): DomainEventListener<RouletteTableReserved> {
 
     override fun reactTo(event: DomainEvent) {
@@ -21,6 +22,7 @@ class RouletteTableReservedListener(private val factory: RouletteGameFactory,
         val rouletteGame = factory.create(RouletteGameId(event.tableId))
         rouletteGame.`when`(event)
         repository.add(rouletteGame)
+        rouletteCroupier.planTheStartOfFirstSpinForGame(rouletteGame.id())
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is RouletteTableReserved

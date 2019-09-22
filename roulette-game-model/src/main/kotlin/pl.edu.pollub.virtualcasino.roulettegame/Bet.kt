@@ -6,6 +6,8 @@ internal class Bet(private val field: RouletteField, private val playerId: Roule
 
     internal fun value(): Tokens = Tokens(value.count)
 
+    internal fun field(): RouletteField = field
+
     internal fun tokensToWin(): Tokens = Tokens(value.count * field.valueMultiplier())
 
     internal fun isWon(fieldDrawn: NumberField): Boolean = field.isDrawn(fieldDrawn)
