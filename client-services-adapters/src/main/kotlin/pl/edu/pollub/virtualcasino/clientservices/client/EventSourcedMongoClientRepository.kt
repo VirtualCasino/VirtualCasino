@@ -13,6 +13,7 @@ class EventSourcedMongoClientRepository(private val clientServicesBoundedContext
 ): ClientRepository {
     
     override fun add(aggregate: Client): Boolean {
+        flushChanges(aggregate)
         dirtyChecking(aggregate)
         return true
     }

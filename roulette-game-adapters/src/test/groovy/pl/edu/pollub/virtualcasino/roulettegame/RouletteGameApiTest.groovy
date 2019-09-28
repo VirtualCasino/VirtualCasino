@@ -90,7 +90,7 @@ class RouletteGameApiTest extends BaseIntegrationTest {
                 event.playerTokens == clientThatJoinedTableTokens
             }
     }
-
+/*
     def "should provide sample spin for two players"() {
         given:
             def initialPointInTime = samplePointInTime()
@@ -101,11 +101,11 @@ class RouletteGameApiTest extends BaseIntegrationTest {
             def clientThatReservedTableTokensCount = 60
             tableReserved(clientThatReservedTableId, tableId, sampleTokens(count: clientThatReservedTableTokensCount))
         and:
-            startSpin(initialPointInTime)
-        and:
             def clientThatJoinedTableId = sampleClientId()
             def clientThatJoinedTableTokensCount = 60
             tableJoined(clientThatJoinedTableId, tableId, sampleTokens(count: clientThatJoinedTableTokensCount))
+        and:
+            startSpin(initialPointInTime)
         and:
             def gameId = sampleRouletteGameId(value: tableId.value)
             def playerThatReservedTableId = sampleRoulettePlayerId(value: clientThatReservedTableId.value)
@@ -126,7 +126,7 @@ class RouletteGameApiTest extends BaseIntegrationTest {
             players[0].tokens() == sampleTokens(clientThatReservedTableTokensCount - playerThatReservedTableBet1Value + playerThatReservedTableBet2Value * RED.valueMultiplier())
             players[1].tokens() == sampleTokens(clientThatJoinedTableTokensCount + playerThatJoinedTableBetValue * PAIR_2_3.valueMultiplier())
     }
-
+*/
     void tableReserved(ClientId clientId = sampleClientId(), TableId tableId = sampleTableId(), Tokens clientTokens = sampleTokens()) {
         def tableReserved = sampleRouletteTableReserved(
                 tableId: tableId,

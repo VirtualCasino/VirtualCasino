@@ -25,7 +25,7 @@ class RouletteTableReservedListener(private val factory: RouletteGameFactory,
         val rouletteGame = factory.create(RouletteGameId(event.tableId))
         rouletteGame.`when`(event)
         repository.add(rouletteGame)
-        registerSynchronization(
+        /*registerSynchronization(
                 object : TransactionSynchronizationAdapter() {
 
                     override fun afterCommit() {
@@ -33,7 +33,7 @@ class RouletteTableReservedListener(private val factory: RouletteGameFactory,
                     }
 
                 }
-        )
+        )*/
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is RouletteTableReserved
