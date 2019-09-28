@@ -1,6 +1,5 @@
 package pl.edu.pollub.virtualcasino
 
-import com.github.mongobee.Mongobee
 import com.mongodb.MongoClient
 import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodProcess
@@ -14,24 +13,36 @@ import de.flapdoodle.embed.process.distribution.GenericVersion
 import org.bson.Document
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.MongoTransactionManager
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import pl.edu.pollub.virtualcasino.roulettegame.config.mongo.RouletteGameBoundedContextMongoConfigurationProperties
 
 import static de.flapdoodle.embed.mongo.distribution.Feature.*
 import static de.flapdoodle.embed.process.runtime.Network.localhostIsIPv6
+import static pl.edu.pollub.virtualcasino.SamplePointInTime.samplePointInTime
 
 @SpringBootApplication
 @EnableTransactionManagement(proxyTargetClass = true)
+@EnableScheduling
 @EntityScan(basePackageClasses = [RouletteGameBoundedContext.class])
 class RouletteGameBoundedContext {
 
     private static final String VERSION = "4.0.0"
     private static final String REPLICA_SET_NAME = "rs0"
     private static final String STORAGE_ENGINE_NAME = "wiredTiger"
+
+    @Bean
+    FakedClock clock() {
+        return new FakedClock(samplePointInTime())
+    }
+
+    @Bean
+    FakedRandom random() {
+        return new FakedRandom()
+    }
 
     @Bean
     MongoTemplate mongoTemplate(MongoClient mongoClient, RouletteGameBoundedContextMongoConfigurationProperties properties) throws IOException {
