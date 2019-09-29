@@ -6,19 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.data.mongodb.core.MongoTemplate
-import pl.edu.pollub.virtualcasino.eventstore.EventSerializer
-import pl.edu.pollub.virtualcasino.eventstore.EventStore
 import pl.edu.pollub.virtualcasino.eventstore.ObjectMapperFactory
 import pl.edu.pollub.virtualcasino.roulettegame.*
 
 @Configuration
-class RouletteGameBoundedContextEventStoreConfig {
-
-    @Bean
-    fun rouletteGameBoundedContextEventStore(rouletteGameBoundedContextMongoTemplate: MongoTemplate): EventStore {
-        return EventStore(rouletteGameBoundedContextMongoTemplate)
-    }
+class RouletteGameBoundedContextObjectMapperConfig {
 
     @Bean
     @Primary
@@ -27,8 +19,6 @@ class RouletteGameBoundedContextEventStoreConfig {
         objectMapper.addMixIn(RouletteField::class.java, RouletteFieldInheritanceHierarchy::class.java)
         return objectMapper
     }
-    @Bean
-    fun rouletteGameBoundedContextEventSerializer(objectMapper: ObjectMapper): EventSerializer = EventSerializer(objectMapper)
 
 }
 

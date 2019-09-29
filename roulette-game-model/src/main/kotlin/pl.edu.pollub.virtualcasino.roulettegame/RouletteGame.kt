@@ -15,12 +15,12 @@ import pl.edu.pollub.virtualcasino.roulettegame.exceptions.*
 import java.lang.RuntimeException
 import java.time.Clock
 
-class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
+class RouletteGame(override val id: RouletteGameId = RouletteGameId(),
                    changes: MutableList<DomainEvent> = mutableListOf(),
                    private val croupier: RouletteCroupier,
                    private val eventPublisher: RouletteGameEventPublisher,
                    private val clock: Clock
-): EventSourcedAggregateRoot() {
+): EventSourcedAggregateRoot<RouletteGameId>(id) {
 
     private val players = mutableSetOf<RoulettePlayer>()
     private var state: RouletteGameState = SpinNotStartYet()
@@ -40,7 +40,7 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
     fun handle(command: PlaceRouletteBet) {
         val betValue = command.value
         val playerId = command.playerId
-        val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
+        val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id, playerId)
         validateBettingTime(player)
         if(betValue <= Tokens()) throw BetValueMustBePositive(id, player.id(), betValue)
         val playerFreeTokens = player.freeTokens()
@@ -50,7 +50,7 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
 
     fun handle(command: CancelRouletteBet) {
         val playerId = command.playerId
-        val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
+        val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id, playerId)
         validateBettingTime(player)
         val canceledBetField = command.field
         if(!player.placedBetsFields().contains(canceledBetField)) throw BetNotExist(id, playerId, canceledBetField)
@@ -67,29 +67,29 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
 
     fun handle(command: LeaveRouletteGame) {
         val playerId = command.playerId
-        val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
+        val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id, playerId)
         val playerTokensAfterLeftGame = when(state.isBettingTimeEnded()) {
             true -> player.freeTokens()
             else -> player.tokens()
         }
-        val event = RouletteGameLeft(gameId = id(), playerId = player.id(), playerTokens = playerTokensAfterLeftGame)
+        val event = RouletteGameLeft(gameId = id, playerId = player.id(), playerTokens = playerTokensAfterLeftGame)
         `when`(event)
         eventPublisher.publish(event)
     }
 
-    fun id(): RouletteGameId = id
-
     fun players(): Set<RoulettePlayer> = players
+
+    override fun id(): RouletteGameId = id
 
     fun `when`(event: JoinedTable): RouletteGame {
         players.add(RoulettePlayer(event.clientId, event.clientTokens))
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
     fun `when`(event: RouletteTableReserved): RouletteGame {
         players.add(RoulettePlayer(event.clientId, event.clientTokens))
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
@@ -100,34 +100,34 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
 
     private fun `when`(event: SpinStarted): RouletteGame {
         state = SpinStarted(clock, event.bettingTimeEnd)
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
     private fun `when`(event: RouletteBetPlaced): RouletteGame {
         val playerThatPlacedBet = players.find { it.id() == event.playerId }!!
         playerThatPlacedBet.placeBet(event.field, event.value)
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
     private fun `when`(event: RouletteBetCanceled): RouletteGame {
         val playerThatPlacedBet = players.find { it.id() == event.playerId }!!
         playerThatPlacedBet.cancelBet(event.field)
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
     private fun `when`(event: SpinFinished): RouletteGame {
         players.forEach { it.chargeForBets(event.fieldDrawn) }
         state = SpinFinished()
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
     private fun `when`(event: RouletteGameLeft): RouletteGame {
         players.removeIf { it.id() == event.playerId }
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
@@ -140,21 +140,6 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
         is SpinStarted -> `when`(event)
         is SpinFinished -> `when`(event)
         else -> throw RuntimeException("event: $event is not acceptable for RouletteGame")
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as RouletteGame
-
-        if (id != other.id) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
     }
 
 }

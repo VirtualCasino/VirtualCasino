@@ -4,7 +4,7 @@ interface ClientRepository {
 
     fun add(aggregate: Client): Boolean
 
-    fun find(aggregateId: ClientId): Client?
+    fun find(id: ClientId): Client?
 
     fun clear()
 

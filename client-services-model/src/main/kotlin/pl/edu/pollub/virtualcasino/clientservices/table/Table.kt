@@ -15,11 +15,11 @@ import pl.edu.pollub.virtualcasino.clientservices.table.events.RouletteTableRese
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
 import java.lang.RuntimeException
 
-class Table(private val id: TableId = TableId(),
+class Table(override val id: TableId = TableId(),
             changes: MutableList<DomainEvent> = mutableListOf(),
             private val clientRepository: ClientRepository,
             private val eventPublisher: TableEventPublisher
-): EventSourcedAggregateRoot() {
+): EventSourcedAggregateRoot<TableId>(id) {
 
     private var state: TableState = NotReserved()
     private val participation = mutableSetOf<Participation>()
@@ -58,7 +58,7 @@ class Table(private val id: TableId = TableId(),
         eventPublisher.publish(event)
     }
 
-    fun id(): TableId = id
+    override fun id(): TableId = id
 
     fun participation(): Set<Participation> = participation
 
@@ -67,7 +67,7 @@ class Table(private val id: TableId = TableId(),
         if(participation.isEmpty()) {
             state = Closed()
         }
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
@@ -82,20 +82,20 @@ class Table(private val id: TableId = TableId(),
     private fun `when`(event: RouletteTableReserved): Table {
         participation.add(Participation(event.clientId))
         state = ReservedRouletteTable()
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
     private fun `when`(event: PokerTableReserved): Table {
         participation.add(Participation(event.clientId))
         state = ReservedPokerTable(event.initialBidingRate)
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
     private fun `when`(event: JoinedTable): Table {
         participation.add(Participation(event.clientId))
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
@@ -105,21 +105,6 @@ class Table(private val id: TableId = TableId(),
         is JoinedTable -> `when`(event)
         is RouletteGameLeft -> `when`(event)
         else -> throw RuntimeException("event: $event is not acceptable for Table")
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Table
-
-        if (id != other.id) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
     }
 
 }

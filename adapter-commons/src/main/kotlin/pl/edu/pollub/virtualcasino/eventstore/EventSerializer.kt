@@ -3,7 +3,7 @@ package pl.edu.pollub.virtualcasino.eventstore
 import com.fasterxml.jackson.databind.ObjectMapper
 import pl.edu.pollub.virtualcasino.DomainEvent
 
-class EventSerializer(private val objectMapper: ObjectMapper) {
+internal class EventSerializer(private val objectMapper: ObjectMapper) {
 
     fun serialize(event: DomainEvent): EventDescriptor = runCatching {
         val eventBody = objectMapper.writeValueAsString(event)
