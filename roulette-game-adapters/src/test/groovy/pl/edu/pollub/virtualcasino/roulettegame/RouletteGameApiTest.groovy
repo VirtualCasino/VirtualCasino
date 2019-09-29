@@ -12,9 +12,6 @@ import pl.edu.pollub.virtualcasino.roulettegame.commands.PlaceRouletteBet
 import pl.edu.pollub.virtualcasino.roulettegame.fakes.FakedRouletteGameLeftListener
 import pl.edu.pollub.virtualcasino.BaseIntegrationTest
 
-import java.time.Instant
-
-import static java.time.temporal.ChronoUnit.*
 import static org.springframework.http.HttpMethod.DELETE
 import static org.springframework.http.HttpMethod.POST
 import static org.springframework.http.HttpStatus.*
@@ -90,7 +87,7 @@ class RouletteGameApiTest extends BaseIntegrationTest {
                 event.playerTokens == clientThatJoinedTableTokens
             }
     }
-/*
+
     def "should provide sample spin for two players"() {
         given:
             def initialPointInTime = samplePointInTime()
@@ -105,28 +102,28 @@ class RouletteGameApiTest extends BaseIntegrationTest {
             def clientThatJoinedTableTokensCount = 60
             tableJoined(clientThatJoinedTableId, tableId, sampleTokens(count: clientThatJoinedTableTokensCount))
         and:
-            startSpin(initialPointInTime)
-        and:
             def gameId = sampleRouletteGameId(value: tableId.value)
+            startSpin()
+        and:
             def playerThatReservedTableId = sampleRoulettePlayerId(value: clientThatReservedTableId.value)
             def playerThatReservedTableBet1Value = 5
             betPlaced(gameId, playerThatReservedTableId, QUARTER_1_2_4_5, sampleTokens(count: playerThatReservedTableBet1Value))
             def playerThatReservedTableBet2Value = 7
             betPlaced(gameId, playerThatReservedTableId, RED, sampleTokens(count: playerThatReservedTableBet2Value))
         and:
-            def playerThatJoinedTableId = sampleRoulettePlayerId(value: clientThatReservedTableId.value)
+            def playerThatJoinedTableId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def playerThatJoinedTableBetValue = 8
             betPlaced(gameId, playerThatJoinedTableId, PAIR_2_3, sampleTokens(count: playerThatJoinedTableBetValue))
         when:
-            finishSpin(initialPointInTime, 3)
+            finishSpin(3)
         then:
-            def foundRouletteGame = repository.find(sampleRouletteGameId(value: tableId.value))
+            def foundRouletteGame = repository.find(gameId)
             foundRouletteGame != null
             def players = foundRouletteGame.players()
-            players[0].tokens() == sampleTokens(clientThatReservedTableTokensCount - playerThatReservedTableBet1Value + playerThatReservedTableBet2Value * RED.valueMultiplier())
-            players[1].tokens() == sampleTokens(clientThatJoinedTableTokensCount + playerThatJoinedTableBetValue * PAIR_2_3.valueMultiplier())
+            players[0].tokens() == sampleTokens(count: clientThatReservedTableTokensCount - playerThatReservedTableBet1Value + playerThatReservedTableBet2Value * RED.valueMultiplier())
+            players[1].tokens() == sampleTokens(count: clientThatJoinedTableTokensCount + playerThatJoinedTableBetValue * PAIR_2_3.valueMultiplier())
     }
-*/
+
     void tableReserved(ClientId clientId = sampleClientId(), TableId tableId = sampleTableId(), Tokens clientTokens = sampleTokens()) {
         def tableReserved = sampleRouletteTableReserved(
                 tableId: tableId,
@@ -145,8 +142,8 @@ class RouletteGameApiTest extends BaseIntegrationTest {
         joinedTableListener.reactTo(tableJoined)
     }
 
-    void startSpin(Instant initialPointInTime) {
-        clock.moveTo(initialPointInTime.plus(spinConfig.startSpinDelayAfterTableReservationInMilliseconds, MILLIS))
+    void startSpin() {
+        clock.moveTo(clock.instant().plusMillis(spinConfig.startSpinDelayAfterTableReservationInMilliseconds))
     }
 
     void betPlaced(RouletteGameId gameId, RoulettePlayerId playerId, RouletteField field, Tokens betValue) {
@@ -162,8 +159,8 @@ class RouletteGameApiTest extends BaseIntegrationTest {
                 URI.create("/virtual-casino/roulette-game/games/bets")), Void.class)
     }
 
-    void finishSpin(Instant initialPointInTime, Integer drawnFieldNumber) {
+    void finishSpin(Integer drawnFieldNumber) {
         random.setRandomIntValue(drawnFieldNumber)
-        clock.moveTo(initialPointInTime.plus(spinConfig.spinTimeDurationInMilliseconds, MILLIS))
+        clock.moveTo(clock.instant().plusMillis(spinConfig.spinTimeDurationInMilliseconds))
     }
 }

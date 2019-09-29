@@ -11,7 +11,8 @@ class SpringContextBasedRouletteGameFactory(private val context: ApplicationCont
     override fun create(aggregateId: RouletteGameId, events: List<DomainEvent>): RouletteGame {
         val eventPublisher = context.getBean(RouletteGameEventPublisher::class.java)
         val clock = context.getBean(Clock::class.java)
-        return RouletteGame(aggregateId, events.toMutableList(), eventPublisher, clock)
+        val croupier = context.getBean(RouletteCroupier::class.java)
+        return RouletteGame(aggregateId, events.toMutableList(), croupier, eventPublisher, clock)
     }
 
 }

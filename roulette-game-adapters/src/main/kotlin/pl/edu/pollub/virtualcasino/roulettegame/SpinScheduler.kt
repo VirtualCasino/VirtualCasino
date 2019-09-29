@@ -3,50 +3,45 @@ package pl.edu.pollub.virtualcasino.roulettegame
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
-import org.springframework.transaction.support.TransactionSynchronizationAdapter
-import org.springframework.transaction.support.TransactionSynchronizationManager.*
 import pl.edu.pollub.virtualcasino.roulettegame.commands.FinishSpin
 import pl.edu.pollub.virtualcasino.roulettegame.commands.StartSpin
 import java.time.Clock
 import java.time.Clock.systemDefaultZone
 
 @Component
-class RouletteCroupier(private val rouletteWheel: RouletteWheel,
-                       private val spinConfig: SpinConfig,
-                       private val clock: Clock,
-                       private val taskScheduler: TaskScheduler,
-                       private val commandHandler: RouletteGameCommandHandler) {
+class SpinScheduler(private val rouletteWheel: RouletteWheel,
+                    private val spinConfig: SpinConfig,
+                    private val clock: Clock,
+                    private val taskScheduler: TaskScheduler,
+                    private val commandHandler: RouletteGameCommandHandler): RouletteCroupier {
 
-    fun planTheStartOfFirstSpinForGame(gameId: RouletteGameId) {
-        planStartSpin(gameId, spinConfig.startSpinDelayAfterTableReservationInMilliseconds)
+    override fun scheduleTheStartOfFirstSpinForGame(gameId: RouletteGameId) {
+        scheduleTheStartOfSpin(gameId, spinConfig.startSpinDelayAfterTableReservationInMilliseconds)
     }
 
-    private fun planTheStartOfEveryNextSpinForGame(gameId: RouletteGameId) {
-        planStartSpin(gameId, spinConfig.breakTimeBetweenSpinsInMilliseconds)
+    override fun scheduleTheStartOfSpinForGame(gameId: RouletteGameId) {
+        scheduleTheStartOfSpin(gameId, spinConfig.breakTimeBetweenSpinsInMilliseconds)
     }
 
-    private fun planStartSpin(gameId: RouletteGameId, delay: Long) {
+    private fun scheduleTheStartOfSpin(gameId: RouletteGameId, delay: Long) {
         val currentPointInTime = clock.instant()
         val endBettingPointInTime = currentPointInTime.plusMillis(spinConfig.bettingTimeInMilliseconds)
         val command = StartSpin(gameId, endBettingPointInTime)
         val startSpinTimeAfterTableReservationPointInTime = currentPointInTime.plusMillis(delay)
-        taskScheduler.schedule({
-            commandHandler.handle(command)
-            planTheFinishOfSpinForGame(gameId)
-        }, startSpinTimeAfterTableReservationPointInTime)
+        taskScheduler.schedule({ commandHandler.handle(command) }, startSpinTimeAfterTableReservationPointInTime)
     }
 
-    private fun planTheFinishOfSpinForGame(gameId: RouletteGameId) {
+    override fun scheduleTheFinishOfSpinForGame(gameId: RouletteGameId) {
         val currentPointInTime = clock.instant()
         val finishSpinPointInTime = currentPointInTime.plusMillis(spinConfig.spinTimeDurationInMilliseconds)
-        val drawnField = rouletteWheel.drawnField()
-        val command = FinishSpin(gameId, drawnField)
         taskScheduler.schedule({
+            val drawnField = rouletteWheel.drawnField()
+            val command = FinishSpin(gameId, drawnField)
             commandHandler.handle(command)
-            planTheStartOfEveryNextSpinForGame(gameId)
         }, finishSpinPointInTime)
     }
 }
@@ -70,6 +65,7 @@ class SpinConfig {
 class RouletteTimeConfig {
 
     @Bean
+    @Primary
     fun clock(): Clock = systemDefaultZone()
 
 }

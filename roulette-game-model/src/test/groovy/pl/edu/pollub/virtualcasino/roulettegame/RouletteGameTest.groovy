@@ -42,6 +42,7 @@ import static pl.edu.pollub.virtualcasino.roulettegame.samples.SampleRoulettePla
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.comands.SamplePlaceRouletteBet.samplePlaceRouletteBet
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.comands.SampleStartSpin.sampleStartSpin
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleRouletteBetPlaced.sampleRouletteBetPlaced
+import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleRouletteGameLeft.sampleRouletteGameLeft
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleSpinFinished.sampleSpinFinished
 import static pl.edu.pollub.virtualcasino.roulettegame.samples.events.SampleSpinStarted.sampleSpinStarted
 
@@ -99,6 +100,7 @@ class RouletteGameTest extends Specification {
             rouletteGame.handle(placeBet)
         then:
             def playerThatPlacedBet = rouletteGame.players().first()
+            playerThatPlacedBet.tokens() == sampleTokens(count: 60)
             playerThatPlacedBet.freeTokens$roulette_game_model() == sampleTokens(count: 60 - 5)
             def playerPlacedBets = playerThatPlacedBet.placedBets$roulette_game_model()
             playerPlacedBets.size() == 1
@@ -181,6 +183,7 @@ class RouletteGameTest extends Specification {
             rouletteGame.handle(placeNextBetForSameField)
         then:
             def playerThatPlacedBet = rouletteGame.players().first()
+            playerThatPlacedBet.tokens() == sampleTokens(count: 60)
             playerThatPlacedBet.freeTokens$roulette_game_model() == sampleTokens(count: 60 - 3)
             def playerPlacedBets = playerThatPlacedBet.placedBets$roulette_game_model()
             playerPlacedBets.size() == 1
@@ -205,6 +208,7 @@ class RouletteGameTest extends Specification {
             rouletteGame.handle(cancelBet)
         then:
             def playerThatPlacedBet = rouletteGame.players().first()
+            playerThatPlacedBet.tokens() == sampleTokens(count: 60)
             playerThatPlacedBet.freeTokens$roulette_game_model() == sampleTokens(count: 60)
             def playerPlacedBets = playerThatPlacedBet.placedBets$roulette_game_model()
             playerPlacedBets.size() == 0
@@ -337,6 +341,7 @@ class RouletteGameTest extends Specification {
             rouletteGame.handle(finishSpin)
         then:
             def playerThatPlacedBet = rouletteGame.players().first()
+            playerThatPlacedBet.tokens() == sampleTokens(count: 60 + charge)
             playerThatPlacedBet.freeTokens$roulette_game_model() == sampleTokens(count: 60 + charge)
             def playerPlacedBets = playerThatPlacedBet.placedBets$roulette_game_model()
             playerPlacedBets.size() == 0
@@ -457,6 +462,68 @@ class RouletteGameTest extends Specification {
             }
     }
 
+    def "should published tokens of player that left game be equal to all player tokens when spin is started and betting time is not exceeded"() {
+        given:
+            def eventPublisher = new FakedRouletteGamePublisher()
+            def rouletteGameLeftListener = new FakedRouletteGameLeftListener()
+            eventPublisher.subscribe(rouletteGameLeftListener)
+        and:
+            def clientThatLeavingTableId = sampleClientId()
+            def clientThatLeavingTableTokens = sampleTokens(count: 60)
+            def clientThatLeavingJoinedTable = sampleJoinedTable(clientId: clientThatLeavingTableId, clientTokens: clientThatLeavingTableTokens)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
+            def playerThatLeavingTableId = sampleRoulettePlayerId(value: clientThatLeavingTableId.value)
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatLeavingTableId, value: sampleTokens(count: 5))
+            def clock = new FakedClock(samplePointInTime())
+            rouletteGame = sampleRouletteGame(changes: [clientThatLeavingJoinedTable, spinStarted, betPlaced], clock: clock, eventPublisher: eventPublisher)
+        and:
+            def playerThatLeavingGameId = sampleRoulettePlayerId(value: clientThatLeavingTableId.value)
+            def leaveGame = sampleLeaveRouletteGame(playerId: playerThatLeavingGameId)
+        and:
+            def expectedPlayerTokens = rouletteGame.players().first().tokens()
+        when:
+            rouletteGame.handle(leaveGame)
+        then:
+            def listenedEvent = rouletteGameLeftListener.listenedEvents.first()
+            with(listenedEvent) {
+                gameId == rouletteGame.id()
+                playerId == playerId
+                playerTokens == expectedPlayerTokens
+            }
+    }
+
+    def "should published tokens of player that left game be equal to all player free tokens when spin is started and betting time is exceeded"() {
+        given:
+            def eventPublisher = new FakedRouletteGamePublisher()
+            def rouletteGameLeftListener = new FakedRouletteGameLeftListener()
+            eventPublisher.subscribe(rouletteGameLeftListener)
+        and:
+            def clientThatLeavingTableId = sampleClientId()
+            def clientThatLeavingTableTokens = sampleTokens(count: 60)
+            def clientThatLeavingJoinedTable = sampleJoinedTable(clientId: clientThatLeavingTableId, clientTokens: clientThatLeavingTableTokens)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
+            def playerThatLeavingTableId = sampleRoulettePlayerId(value: clientThatLeavingTableId.value)
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatLeavingTableId, value: sampleTokens(count: 5))
+            def clock = new FakedClock(samplePointInTime())
+            rouletteGame = sampleRouletteGame(changes: [clientThatLeavingJoinedTable, spinStarted, betPlaced], clock: clock, eventPublisher: eventPublisher)
+        and:
+            clock.moveTo(samplePointInTime(minute: 1, second: 1))
+        and:
+            def playerThatLeavingGameId = sampleRoulettePlayerId(value: clientThatLeavingTableId.value)
+            def leaveGame = sampleLeaveRouletteGame(playerId: playerThatLeavingGameId)
+        and:
+            def expectedPlayerTokens = rouletteGame.players().first().freeTokens$roulette_game_model()
+        when:
+            rouletteGame.handle(leaveGame)
+        then:
+            def listenedEvent = rouletteGameLeftListener.listenedEvents.first()
+            with(listenedEvent) {
+                gameId == rouletteGame.id()
+                playerId == playerId
+                playerTokens == expectedPlayerTokens
+            }
+    }
+
     def "should throw RoulettePlayerNotExist when player that not exists in game try to leave game"() {
         given:
             def gameId = sampleRouletteGameId()
@@ -470,6 +537,54 @@ class RouletteGameTest extends Specification {
             def e = thrown(RoulettePlayerNotExist)
             e.playerId == playerThatTryingLeaveGameId
             e.gameId == gameId
+    }
+
+    def "should schedule finish of spin when spin is started"() {
+        given:
+            def croupier = Mock(RouletteCroupier)
+            rouletteGame = sampleRouletteGame(croupier: croupier)
+        and:
+            def startSpin = sampleStartSpin()
+        when:
+            rouletteGame.handle(startSpin)
+        then:
+            1 * croupier.scheduleTheFinishOfSpinForGame(rouletteGame.id())
+    }
+
+    def "should schedule start of new spin when spin is finished and game has any player"() {
+        given:
+            def croupier = Mock(RouletteCroupier)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime())
+            def joinedTable = sampleJoinedTable()
+            def clock = new FakedClock(samplePointInTime())
+            rouletteGame = sampleRouletteGame(croupier: croupier, changes: [spinStarted, joinedTable], clock: clock)
+        and:
+            clock.moveTo(samplePointInTime(minute: 1))
+        and:
+            def finishSpin = sampleFinishSpin()
+        when:
+            rouletteGame.handle(finishSpin)
+        then:
+            1 * croupier.scheduleTheStartOfSpinForGame(rouletteGame.id())
+    }
+
+    def "should not schedule start of new spin when spin is finished and game hasn't any player"() {
+        given:
+            def croupier = Mock(RouletteCroupier)
+            def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime())
+            def playerId = sampleRoulettePlayerId()
+            def joinedTable = sampleJoinedTable(clientId: sampleClientId(value: playerId.value))
+            def leftTable = sampleRouletteGameLeft(playerId: playerId)
+            def clock = new FakedClock(samplePointInTime())
+            rouletteGame = sampleRouletteGame(croupier: croupier, changes: [spinStarted, joinedTable, leftTable], clock: clock)
+        and:
+            clock.moveTo(samplePointInTime(minute: 1))
+        and:
+            def finishSpin = sampleFinishSpin()
+        when:
+            rouletteGame.handle(finishSpin)
+        then:
+            0 * croupier.scheduleTheStartOfSpinForGame(rouletteGame.id())
     }
 
 }

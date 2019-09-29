@@ -5,6 +5,7 @@ compileTestJava.dependsOn tasks.getByPath(':shared-kernel-model:testClasses')
 dependencies {
     compile (
             project(':shared-kernel-model'),
+            'com.fasterxml.jackson.core:jackson-databind:2.0.1'
     )
     testCompile(
             files(project(':shared-kernel-model').sourceSets.test.output.classesDirs),

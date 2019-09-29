@@ -35,6 +35,10 @@ enum class NumberField(private val number: Int, val color: ColorField?): Roulett
     fun isOdd(): Boolean = number % 2 != 0
 
     fun isEven(): Boolean = number % 2 == 0
+
+    companion object {
+        const val TYPE = "NUMBER"
+    }
 }
 
 enum class PairField(private vararg val numbersInPair: NumberField): RouletteField {
@@ -66,6 +70,10 @@ enum class PairField(private vararg val numbersInPair: NumberField): RouletteFie
     override fun valueMultiplier(): Int = 17
 
     override fun isDrawn(drawnField: NumberField): Boolean = numbersInPair.any { it.isDrawn(drawnField) }
+
+    companion object {
+        const val TYPE = "PAIR"
+    }
 }
 
 enum class TripleFiled(private vararg val numbersInPair: NumberField): RouletteField {
@@ -87,6 +95,10 @@ enum class TripleFiled(private vararg val numbersInPair: NumberField): RouletteF
     override fun valueMultiplier(): Int = 11
 
     override fun isDrawn(drawnField: NumberField): Boolean = numbersInPair.any { it.isDrawn(drawnField) }
+
+    companion object {
+        const val TYPE = "TRIPLE"
+    }
 }
 
 enum class QuarterFiled(private vararg val pairsInQuarter: PairField): RouletteField {
@@ -105,6 +117,10 @@ enum class QuarterFiled(private vararg val pairsInQuarter: PairField): RouletteF
     override fun valueMultiplier(): Int = 8
 
     override fun isDrawn(drawnField: NumberField): Boolean = pairsInQuarter.any { it.isDrawn(drawnField) }
+
+    companion object {
+        const val TYPE = "QUARTER"
+    }
 }
 
 enum class HalfDozenFiled(private vararg val pairsInHalfDozen: PairField): RouletteField {
@@ -123,6 +139,10 @@ enum class HalfDozenFiled(private vararg val pairsInHalfDozen: PairField): Roule
     override fun valueMultiplier(): Int = 5
 
     override fun isDrawn(drawnField: NumberField): Boolean = pairsInHalfDozen.any { it.isDrawn(drawnField) }
+
+    companion object {
+        const val TYPE = "HALF_DOZEN"
+    }
 }
 
 enum class DozenFiled(private vararg val halfOdDozensInDozen: HalfDozenFiled): RouletteField {
@@ -133,6 +153,10 @@ enum class DozenFiled(private vararg val halfOdDozensInDozen: HalfDozenFiled): R
     override fun valueMultiplier(): Int = 2
 
     override fun isDrawn(drawnField: NumberField): Boolean = halfOdDozensInDozen.any { it.isDrawn(drawnField) }
+
+    companion object {
+        const val TYPE = "DOZEN"
+    }
 }
 
 enum class ColumnField(private vararg val pairsInColumn: PairField): RouletteField {
@@ -143,6 +167,10 @@ enum class ColumnField(private vararg val pairsInColumn: PairField): RouletteFie
     override fun valueMultiplier(): Int = 2
 
     override fun isDrawn(drawnField: NumberField): Boolean = pairsInColumn.any { it.isDrawn(drawnField) }
+
+    companion object {
+        const val TYPE = "COLUMN"
+    }
 }
 
 enum class HalfBoardField(private vararg val halfDozensInHalfBoard: HalfDozenFiled): RouletteField {
@@ -152,6 +180,10 @@ enum class HalfBoardField(private vararg val halfDozensInHalfBoard: HalfDozenFil
     override fun valueMultiplier(): Int = 1
 
     override fun isDrawn(drawnField: NumberField): Boolean = halfDozensInHalfBoard.any { it.isDrawn(drawnField) }
+
+    companion object {
+        const val TYPE = "HALF_BOARD"
+    }
 }
 
 enum class ColorField: RouletteField {
@@ -160,6 +192,10 @@ enum class ColorField: RouletteField {
 
     override fun isDrawn(drawnField: NumberField): Boolean = drawnField.color == this
     override fun valueMultiplier(): Int = 1
+
+    companion object {
+        const val TYPE = "COLOR"
+    }
 }
 
 enum class EvenField: RouletteField {
@@ -168,6 +204,10 @@ enum class EvenField: RouletteField {
     override fun valueMultiplier(): Int = 1
 
     override fun isDrawn(drawnField: NumberField): Boolean = drawnField.isEven()
+
+    companion object {
+        const val TYPE = "EVEN"
+    }
 }
 
 enum class OddField: RouletteField {
@@ -176,4 +216,8 @@ enum class OddField: RouletteField {
     override fun valueMultiplier(): Int = 1
 
     override fun isDrawn(drawnField: NumberField): Boolean = drawnField.isOdd()
+
+    companion object {
+        const val TYPE = "ODD"
+    }
 }

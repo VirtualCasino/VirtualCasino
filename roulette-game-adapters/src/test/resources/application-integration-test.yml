@@ -8,7 +8,7 @@ spring:
 mongodb:
   roulette-game-db:
     host: 127.0.0.1
-    port: 27021
+    port: 27019
     database: roulette-game-test-db
 
 #Businness config

@@ -16,7 +16,7 @@ class RoulettePlayer(clientId: ClientId, private var tokens: Tokens = Tokens()) 
     internal fun freeTokens(): Tokens = tokens() - placedBetsValue()
 
     internal fun placeBet(field: RouletteField, value: Tokens) {
-        placedBets.put(field, Bet(field, id, value))
+        placedBets[field] = Bet(field, id, value)
     }
 
     internal fun cancelBet(field: RouletteField) {
