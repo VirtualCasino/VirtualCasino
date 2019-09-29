@@ -1,23 +1,9 @@
 package pl.edu.pollub.virtualcasino.eventstore
 
 import com.fasterxml.jackson.databind.ObjectMapper
-
-import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
-import com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import pl.edu.pollub.virtualcasino.DomainEvent
 
-class EventSerializer {
-
-    private val objectMapper: ObjectMapper = ObjectMapper()
-
-    init {
-        objectMapper.registerModule(KotlinModule())
-        objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-        objectMapper.registerModule(JavaTimeModule())
-        objectMapper.disable(WRITE_DATES_AS_TIMESTAMPS)
-    }
+class EventSerializer(private val objectMapper: ObjectMapper) {
 
     fun serialize(event: DomainEvent): EventDescriptor = runCatching {
         val eventBody = objectMapper.writeValueAsString(event)

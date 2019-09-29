@@ -17,6 +17,7 @@ import java.time.Clock
 
 class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
                    changes: MutableList<DomainEvent> = mutableListOf(),
+                   private val croupier: RouletteCroupier,
                    private val eventPublisher: RouletteGameEventPublisher,
                    private val clock: Clock
 ): EventSourcedAggregateRoot() {
@@ -33,6 +34,7 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
         val currentTime = clock.instant()
         if(command.bettingTimeEnd < currentTime) throw BettingTimeEndMustBeFuture(id, command.bettingTimeEnd, currentTime)
         `when`(SpinStarted(gameId = id, bettingTimeEnd = command.bettingTimeEnd))
+        croupier.scheduleTheFinishOfSpinForGame(id)
     }
 
     fun handle(command: PlaceRouletteBet) {
@@ -60,12 +62,17 @@ class RouletteGame(private val id: RouletteGameId = RouletteGameId(),
         if(state.isSpinFinished()) throw SpinAlreadyFinished(id)
         if(!state.isBettingTimeEnded()) throw BettingTimeNotEndedYet(id)
         `when`(SpinFinished(gameId = id, fieldDrawn = command.fieldDrawn))
+        if(players.isNotEmpty()) croupier.scheduleTheStartOfSpinForGame(id)
     }
 
     fun handle(command: LeaveRouletteGame) {
         val playerId = command.playerId
         val player = players.find { it.id() == playerId } ?: throw RoulettePlayerNotExist(id(), playerId)
-        val event = RouletteGameLeft(gameId = id(), playerId = player.id(), playerTokens = player.tokens())
+        val playerTokensAfterLeftGame = when(state.isBettingTimeEnded()) {
+            true -> player.freeTokens()
+            else -> player.tokens()
+        }
+        val event = RouletteGameLeft(gameId = id(), playerId = player.id(), playerTokens = playerTokensAfterLeftGame)
         `when`(event)
         eventPublisher.publish(event)
     }

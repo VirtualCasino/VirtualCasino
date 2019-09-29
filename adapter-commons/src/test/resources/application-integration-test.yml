@@ -9,5 +9,5 @@ spring:
 mongodb:
   test-db:
     host: 127.0.0.1
-    port: 27021
+    port: 27018
     database: casino-services-test-db

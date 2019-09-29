@@ -5,7 +5,7 @@ class FakedRandom extends Random {
     private int randomValue = 0
 
     void setRandomIntValue(int value) {
-        randomValue = value
+        this.randomValue = value
     }
 
     @Override

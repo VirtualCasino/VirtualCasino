@@ -11,7 +11,7 @@ import pl.edu.pollub.virtualcasino.roulettegame.commands.PlaceRouletteBet
 class RouletteGameApi(private val commandHandler: RouletteGameCommandHandler) {
 
     @PostMapping("/bets")
-    @ResponseStatus(value = OK) //this status should be replaced with URI to bet from view module
+    @ResponseStatus(value = OK) //TODO this status should be replaced with URI to bet from view module
     fun handle(@RequestBody command: PlaceRouletteBet) {
         commandHandler.handle(command)
     }

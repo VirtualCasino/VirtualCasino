@@ -16,7 +16,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.data.mongodb.MongoTransactionManager
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.TaskScheduler
 import org.springframework.transaction.annotation.EnableTransactionManagement
 import pl.edu.pollub.virtualcasino.roulettegame.config.mongo.RouletteGameBoundedContextMongoConfigurationProperties
 
@@ -26,7 +26,6 @@ import static pl.edu.pollub.virtualcasino.SamplePointInTime.samplePointInTime
 
 @SpringBootApplication
 @EnableTransactionManagement(proxyTargetClass = true)
-@EnableScheduling
 @EntityScan(basePackageClasses = [RouletteGameBoundedContext.class])
 class RouletteGameBoundedContext {
 
@@ -34,14 +33,21 @@ class RouletteGameBoundedContext {
     private static final String REPLICA_SET_NAME = "rs0"
     private static final String STORAGE_ENGINE_NAME = "wiredTiger"
 
+    private final taskExecutor = new FakedTaskExecutor()
+
     @Bean
     FakedClock clock() {
-        return new FakedClock(samplePointInTime())
+        return new FakedClock(samplePointInTime(), taskExecutor)
     }
 
     @Bean
     FakedRandom random() {
         return new FakedRandom()
+    }
+
+    @Bean
+    TaskScheduler taskScheduler() {
+        return new FakedTaskScheduler(taskExecutor)
     }
 
     @Bean

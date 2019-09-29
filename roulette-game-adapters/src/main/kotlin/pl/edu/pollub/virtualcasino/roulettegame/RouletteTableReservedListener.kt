@@ -3,7 +3,6 @@ package pl.edu.pollub.virtualcasino.roulettegame
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionSynchronizationAdapter
-import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.transaction.support.TransactionSynchronizationManager.*
 import pl.edu.pollub.virtualcasino.DomainEvent
 import pl.edu.pollub.virtualcasino.DomainEventListener
@@ -14,7 +13,7 @@ import pl.edu.pollub.virtualcasino.clientservices.table.events.RouletteTableRese
 @Transactional(rollbackFor = [DomainException::class])
 class RouletteTableReservedListener(private val factory: RouletteGameFactory,
                                     private val repository: RouletteGameRepository,
-                                    private val rouletteCroupier: RouletteCroupier
+                                    private val spinScheduler: SpinScheduler
 ): DomainEventListener<RouletteTableReserved> {
 
     override fun reactTo(event: DomainEvent) {
@@ -25,15 +24,15 @@ class RouletteTableReservedListener(private val factory: RouletteGameFactory,
         val rouletteGame = factory.create(RouletteGameId(event.tableId))
         rouletteGame.`when`(event)
         repository.add(rouletteGame)
-        /*registerSynchronization(
+        registerSynchronization(
                 object : TransactionSynchronizationAdapter() {
 
                     override fun afterCommit() {
-                        rouletteCroupier.planTheStartOfFirstSpinForGame(rouletteGame.id())
+                        spinScheduler.scheduleTheStartOfFirstSpinForGame(rouletteGame.id())
                     }
 
                 }
-        )*/
+        )
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is RouletteTableReserved

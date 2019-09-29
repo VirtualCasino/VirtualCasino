@@ -10,10 +10,18 @@ class FakedClock extends Clock {
 
     private Instant currentTime
     private ZoneId zoneId
+    private FakedTaskExecutor taskExecutor
 
     FakedClock(Instant currentTime) {
         this.currentTime = currentTime
         this.zoneId = ZoneId.systemDefault()
+        taskExecutor = new FakedTaskExecutor()
+    }
+
+    FakedClock(Instant currentTime, FakedTaskExecutor taskExecutor) {
+        this.currentTime = currentTime
+        this.zoneId = ZoneId.systemDefault()
+        this.taskExecutor = taskExecutor
     }
 
     @Override
@@ -23,7 +31,7 @@ class FakedClock extends Clock {
 
     @Override
     Clock withZone(ZoneId zoneId) {
-        return new FakedClock(samplePointInTime(), zoneId)
+        return new FakedClock(samplePointInTime())
     }
 
     @Override
@@ -33,5 +41,6 @@ class FakedClock extends Clock {
 
     void moveTo(Instant pointInTime) {
         currentTime = pointInTime
+        taskExecutor.executeTasksForTimePoint(pointInTime)
     }
 }
