@@ -7,7 +7,7 @@ import java.util.*
 import java.util.UUID.randomUUID
 
 @Document("event_stream")
-data class EventStream(
+internal data class EventStream(
         @Id val id: UUID = randomUUID(),
         val aggregateId: UUID,
         @DBRef val events: MutableList<EventDescriptor> = mutableListOf()

@@ -7,7 +7,7 @@ import java.util.*
 import java.util.UUID.randomUUID
 
 @Document("event_descriptor")
-data class EventDescriptor(
+internal data class EventDescriptor(
         @Id val id: UUID = randomUUID(),
         val body: String,
         val occurredAt: Instant = Instant.now(),

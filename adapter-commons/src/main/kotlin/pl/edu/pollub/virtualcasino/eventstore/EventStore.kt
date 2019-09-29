@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 import java.util.*
 
-class EventStore(val mongo: MongoTemplate) {
+internal class EventStore(val mongo: MongoTemplate) {
 
     fun saveEvents(aggregateId: UUID, events: List<EventDescriptor>) {
         val eventStream = getEventsOfAggregate(aggregateId) ?: EventStream(aggregateId = aggregateId)

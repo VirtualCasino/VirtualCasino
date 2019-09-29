@@ -11,10 +11,10 @@ import pl.edu.pollub.virtualcasino.clientservices.table.TableRepository
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
 import java.lang.RuntimeException
 
-class Client(private val id: ClientId = ClientId(),
+class Client(override val id: ClientId = ClientId(),
              changes: MutableList<DomainEvent> = mutableListOf(),
              private val tableRepository: TableRepository
-): EventSourcedAggregateRoot() {
+): EventSourcedAggregateRoot<ClientId>(id) {
 
     private var tokens = Tokens()
 
@@ -28,11 +28,11 @@ class Client(private val id: ClientId = ClientId(),
         `when`(TokensBought(clientId = id, tokens = command.tokens))
     }
 
-    fun id(): ClientId = id
+    override fun id(): ClientId = id
 
     fun `when`(event: RouletteGameLeft): Client {
         tokens = Tokens(event.playerTokens.count)
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
@@ -48,7 +48,7 @@ class Client(private val id: ClientId = ClientId(),
 
     private fun `when`(event: TokensBought): Client {
         tokens += event.tokens
-        changes.add(event)
+        applyChange(event)
         return this
     }
 
