@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import pl.edu.pollub.virtualcasino.eventstore.ObjectMapperFactory
 import pl.edu.pollub.virtualcasino.roulettegame.*
 
@@ -13,8 +12,7 @@ import pl.edu.pollub.virtualcasino.roulettegame.*
 class RouletteGameBoundedContextObjectMapperConfig {
 
     @Bean
-    @Primary
-    fun objectMapper(): ObjectMapper {
+    fun rouletteObjectMapper(): ObjectMapper {
         val objectMapper = ObjectMapperFactory().create()
         objectMapper.addMixIn(RouletteField::class.java, RouletteFieldInheritanceHierarchy::class.java)
         return objectMapper
