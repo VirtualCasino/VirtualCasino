@@ -10,7 +10,8 @@ class SpringContextBasedClientFactory(private val context: ApplicationContext): 
 
     override fun create(aggregateId: ClientId, events: List<DomainEvent>): Client {
         val tableRepository = context.getBean(TableRepository::class.java)
-        return Client(aggregateId, events.toMutableList(), tableRepository)
+        val eventPublisher = context.getBean(ClientEventPublisher::class.java)
+        return Client(aggregateId, events.toMutableList(), tableRepository, eventPublisher)
     }
 
 }

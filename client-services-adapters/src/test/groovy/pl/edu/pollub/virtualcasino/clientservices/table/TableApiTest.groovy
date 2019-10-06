@@ -38,6 +38,7 @@ class TableApiTest extends ClientServicesApiTest {
                 event.clientId == client.id()
                 event.tableId == tableId
                 event.clientTokens == client.tokens()
+                event.firstPlayerNick == client.nick()
             }
         cleanup:
             eventPublisher.unsubscribe(tableReservedListener)

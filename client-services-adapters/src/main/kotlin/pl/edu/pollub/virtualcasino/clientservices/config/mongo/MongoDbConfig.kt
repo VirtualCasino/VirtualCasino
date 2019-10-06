@@ -40,7 +40,6 @@ class ClientServicesBoundedContextMongoDbConfig {
         return MongoTransactionManager(clientServicesBoundedContextMongoTemplateFactory)
     }
 
-
 }
 
 @Configuration

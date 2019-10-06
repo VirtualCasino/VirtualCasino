@@ -81,6 +81,7 @@ internal class BasicJoiningRules(private val maxParticipantCount: Int) {
         if (!table.isReserved()) throw TableNotReserved(client.id(), table.id())
         if (table.isClosed()) throw TableClosed(clientId, table.id())
         if (table.hasParticipation(Participation(clientId))) throw ClientAlreadyParticipated(clientId, table.id())
+        client.canJoinTable()
         if (client.doesParticipateToAnyTable()) throw ClientBusy(clientId)
         if(table.participation().count() >= maxParticipantCount) throw TableFull(client.id(), table.id(), maxParticipantCount)
         return true

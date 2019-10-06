@@ -11,6 +11,7 @@ internal class BasicReservationRules {
         val clientId = client.id()
         if (table.isReserved()) throw TableAlreadyReserved(clientId, table.id())
         if (table.isClosed()) throw TableClosed(clientId, table.id())
+        client.canReserveTable()
         if (client.doesParticipateToAnyTable()) throw ClientBusy(clientId)
     }
 

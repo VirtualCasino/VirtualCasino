@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import pl.edu.pollub.virtualcasino.DomainEvent
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import pl.edu.pollub.virtualcasino.clientservices.client.events.ClientRegistered
 import pl.edu.pollub.virtualcasino.clientservices.client.events.TokensBought
 import pl.edu.pollub.virtualcasino.clientservices.table.events.JoinedTable
 import pl.edu.pollub.virtualcasino.clientservices.table.events.PokerTableReserved
@@ -32,6 +33,7 @@ class ObjectMapperFactory {
         JsonSubTypes.Type(name = PokerTableReserved.TYPE, value = PokerTableReserved::class),
         JsonSubTypes.Type(name = RouletteTableReserved.TYPE, value = RouletteTableReserved::class),
         JsonSubTypes.Type(name = JoinedTable.TYPE, value = JoinedTable::class),
+        JsonSubTypes.Type(name = ClientRegistered.TYPE, value = ClientRegistered::class),
         JsonSubTypes.Type(name = TokensBought.TYPE, value = TokensBought::class),
         JsonSubTypes.Type(name = RouletteGameLeft.TYPE, value = RouletteGameLeft::class),
         JsonSubTypes.Type(name = RouletteBetPlaced.TYPE, value = RouletteBetPlaced::class),

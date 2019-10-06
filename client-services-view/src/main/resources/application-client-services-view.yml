@@ -6,7 +6,7 @@ spring:
       - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
 
 mongodb:
-  casino-services-db:
+  casino-services-view-db:
     host: 127.0.0.1
     port: 27017
-    database: casino-services-db
+    database: casino-services-view-db

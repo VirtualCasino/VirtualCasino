@@ -1,0 +1,23 @@
+evaluationDependsOn(':shared-kernel-model')
+
+compileTestJava.dependsOn tasks.getByPath(':shared-kernel-model:testClasses')
+
+dependencies {
+    compile (
+            project(':shared-kernel-model'),
+            'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.50',
+            'org.jetbrains.kotlin:kotlin-reflect:1.3.50',
+            'org.springframework.boot:spring-boot-starter-web',
+            'org.springframework.boot:spring-boot-starter-data-mongodb',
+            'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7',
+            'org.javassist:javassist:3.18.2-GA',
+            'com.github.mongobee:mongobee:0.13'
+    )
+    testCompile(
+            'org.springframework.boot:spring-boot-starter-test',
+            'org.spockframework:spock-spring:1.1-groovy-2.4',
+            'org.spockframework:spock-core:1.1-groovy-2.4',
+            'de.flapdoodle.embed:de.flapdoodle.embed.mongo',
+            'info.solidsoft.spock:spock-global-unroll:0.5.1'
+    )
+}

@@ -3,17 +3,18 @@ package pl.edu.pollub.virtualcasino.clientservices.client
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pl.edu.pollub.virtualcasino.clientservices.client.commands.BuyTokens
-import java.util.*
+import pl.edu.pollub.virtualcasino.clientservices.client.commands.RegisterClient
+import java.net.URI
 
 @RestController
 @RequestMapping("/virtual-casino/casino-services/clients")
-class ClientApi(private val commandHandler: ClientCommandHandler, private val repository: ClientRepository, private val factory: ClientFactory) {
+class ClientApi(private val commandHandler: ClientCommandHandler) {
 
 
     @PostMapping
-    fun createClient(@RequestBody request: CreateClientRequest): ResponseEntity<Any> {
-        repository.add(factory.create(ClientId(request.clientId)))
-        return ResponseEntity.noContent().build()
+    fun handle(@RequestBody command: RegisterClient): ResponseEntity<Any> {
+        val registeredClientId = commandHandler.handle(command)
+        return ResponseEntity.created(URI.create("/virtual-casino/casino-services/clients/${registeredClientId.value}")).build()
     }
 
     @PutMapping("/tokens")
@@ -23,5 +24,3 @@ class ClientApi(private val commandHandler: ClientCommandHandler, private val re
     }
 
 }
-
-class CreateClientRequest(val clientId: UUID)

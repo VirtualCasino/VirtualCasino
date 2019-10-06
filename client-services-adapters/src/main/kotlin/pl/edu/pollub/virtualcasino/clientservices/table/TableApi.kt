@@ -17,19 +17,19 @@ class TableApi(private val commandHandler: TableCommandHandler) {
     @PostMapping("/poker")
     fun handle(@RequestBody command: ReservePokerTable): ResponseEntity<URI> {
         val reservedTableId = commandHandler.handle(command)
-        return ResponseEntity.created(URI.create("/tables/${reservedTableId.value}")).build()
+        return ResponseEntity.created(URI.create("/virtual-casino/casino-services/tables/${reservedTableId.value}")).build()
     }
 
     @PostMapping("/roulette")
     fun handle(@RequestBody command: ReserveRouletteTable): ResponseEntity<URI> {
         val reservedTableId = commandHandler.handle(command)
-        return ResponseEntity.created(URI.create("/tables/${reservedTableId.value}")).build()
+        return ResponseEntity.created(URI.create("/virtual-casino/casino-services/tables/${reservedTableId.value}")).build()
     }
 
     @PostMapping("/participation")
     fun handle(@RequestBody command: JoinTable): ResponseEntity<URI> {
         val joinedTableId = commandHandler.handle(command)
-        return ResponseEntity.created(URI.create("/tables/${joinedTableId.value}")).build()
+        return ResponseEntity.created(URI.create("/virtual-casino/casino-services/tables/${joinedTableId.value}")).build()
     }
 
 }
