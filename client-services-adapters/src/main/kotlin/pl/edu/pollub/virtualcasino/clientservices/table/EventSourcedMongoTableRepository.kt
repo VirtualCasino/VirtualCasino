@@ -1,6 +1,7 @@
 package pl.edu.pollub.virtualcasino.clientservices.table
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -13,7 +14,7 @@ import pl.edu.pollub.virtualcasino.eventstore.EventSourcedMongoRepository
 @Component
 class EventSourcedMongoTableRepository(val factory: TableFactory,
                                        val clientServicesBoundedContextMongoTemplate: MongoTemplate,
-                                       objectMapper: ObjectMapper
+                                       @Qualifier("clientObjectMapper") objectMapper: ObjectMapper
 ): EventSourcedMongoRepository<Table, TableId>(clientServicesBoundedContextMongoTemplate, objectMapper),  TableRepository {
 
     override fun createAggregate(id: TableId, events: List<DomainEvent>): Table = factory.create(id, events)

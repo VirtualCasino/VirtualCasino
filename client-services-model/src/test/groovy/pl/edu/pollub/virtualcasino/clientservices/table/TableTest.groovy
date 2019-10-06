@@ -3,6 +3,7 @@ package pl.edu.pollub.virtualcasino.clientservices.table
 import pl.edu.pollub.virtualcasino.DomainEvent
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientBusy
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNotExist
+import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNotRegistered
 import pl.edu.pollub.virtualcasino.clientservices.table.exceptions.*
 import pl.edu.pollub.virtualcasino.clientservices.table.fakes.FakedJoinedTableListener
 import pl.edu.pollub.virtualcasino.clientservices.table.fakes.FakedPokerTableReservedListener
@@ -17,6 +18,7 @@ import spock.lang.Unroll
 import static pl.edu.pollub.virtualcasino.clientservices.client.samples.SampleClient.*
 import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleClientId.sampleClientId
 import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.SampleTokens.sampleTokens
+import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.events.SampleClientRegistered.sampleClientRegistered
 import static pl.edu.pollub.virtualcasino.clientservices.samples.client.samples.events.SampleTokensBought.sampleTokensBought
 import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleJoinedTable.sampleJoinedTable
 import static pl.edu.pollub.virtualcasino.clientservices.samples.table.samples.events.SampleTableReserved.samplePokerTableReserved
@@ -36,12 +38,12 @@ class TableTest extends Specification {
     @Subject
     def table
 
-    def "should has participation of client that reserved table"() {
+    def "should has participation of registered client that reserved table"() {
         given:
             table = sampleTable(clientRepository: clientRepository)
         and:
             def clientId = sampleClientId()
-            clientRepository.add(sampleClient(id: clientId))
+            clientRepository.add(sampleClient(id: clientId, changes: [sampleClientRegistered()]))
             def reserveTable = sampleReserveRouletteTable(clientId: clientId)
         and:
             def expectedParticipation = sampleParticipation(clientId: clientId)
@@ -59,7 +61,7 @@ class TableTest extends Specification {
             table = sampleTable(clientRepository: clientRepository, eventPublisher: eventPublisher)
         and:
             def clientId = sampleClientId()
-            def client = sampleClient(id: clientId)
+            def client = sampleClient(id: clientId, changes: [sampleClientRegistered()])
             clientRepository.add(client)
             def reserveTable = sampleReserveRouletteTable(clientId: clientId)
         when:
@@ -70,6 +72,7 @@ class TableTest extends Specification {
                 tableId == table.id()
                 clientId == clientId
                 clientTokens == client.tokens()
+                firstPlayerNick == client.nick()
             }
     }
 
@@ -82,7 +85,7 @@ class TableTest extends Specification {
         and:
             def clientId = sampleClientId()
             def tokensBought = sampleTokensBought(tokens: sampleTokens(count: 100))
-            def client = sampleClient(id: clientId, changes: [tokensBought])
+            def client = sampleClient(id: clientId, changes: [tokensBought, sampleClientRegistered()])
             clientRepository.add(client)
             def initialBidingRate = sampleTokens(count: 50)
             def reserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: initialBidingRate)
@@ -96,6 +99,20 @@ class TableTest extends Specification {
                 clientTokens == client.tokens()
                 initialBidingRate == initialBidingRate
             }
+    }
+
+    def "should throw ClientNotRegistered when client that is not registered try to reserve table"() {
+        given:
+            table = sampleTable(clientRepository: clientRepository)
+        and:
+            def clientId = sampleClientId()
+            clientRepository.add(sampleClient(id: clientId))
+            def tryReserveTable = sampleReserveRouletteTable(clientId: clientId)
+        when:
+            table.handle(tryReserveTable)
+        then:
+            def e = thrown(ClientNotRegistered)
+            e.clientId == clientId
     }
 
     def "should throw TableAlreadyReserved when client try reserve table two times"() {
@@ -128,11 +145,11 @@ class TableTest extends Specification {
             e.clientId == notExistingClientId
     }
 
-    def "should throw ClientBusy when client which reserved other table try to reserve table"() {
+    def "should throw ClientBusy when registered client which reserved other table try to reserve table"() {
         given:
             def clientId = sampleClientId()
             def tableRepository = new FakedTableRepository()
-            def client = sampleClient(id: clientId, tableRepository: tableRepository)
+            def client = sampleClient(id: clientId, tableRepository: tableRepository, changes: [sampleClientRegistered()])
             clientRepository.add(client)
         and:
             def otherTableReserved = sampleRouletteTableReserved(clientId: clientId)
@@ -149,11 +166,11 @@ class TableTest extends Specification {
             e.clientId == clientId
     }
 
-    def "should throw ClientBusy when client which joined to other table try to reserve table"() {
+    def "should throw ClientBusy when registered client which joined to other table try to reserve table"() {
         given:
             def clientId = sampleClientId()
             def tableRepository = new FakedTableRepository()
-            def client = sampleClient(id: clientId, tableRepository: tableRepository)
+            def client = sampleClient(id: clientId, tableRepository: tableRepository, changes: [sampleClientRegistered()])
             clientRepository.add(client)
         and:
             def joinedToOtherTable = sampleJoinedTable(clientId: clientId)
@@ -170,13 +187,13 @@ class TableTest extends Specification {
     }
 
     @Unroll
-    def "should throw InitialBidingRateMustBePositive when client try to reserve poker table with initial biding rate equal to #invalidBidingRateValue"() {
+    def "should throw InitialBidingRateMustBePositive when registered client try to reserve poker table with initial biding rate equal to #invalidBidingRateValue"() {
         given:
             def tableId = sampleTableId()
             table = sampleTable(id: tableId, clientRepository: clientRepository)
         and:
             def clientId = sampleClientId()
-            clientRepository.add(sampleClient(id: clientId))
+            clientRepository.add(sampleClient(id: clientId, changes: [sampleClientRegistered()]))
         and:
             def initialBidingRate = sampleTokens(count: invalidBidingRateValue)
             def tryReserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: initialBidingRate)
@@ -190,13 +207,13 @@ class TableTest extends Specification {
             invalidBidingRateValue << [0, -50]
     }
 
-    def "should has participation of client that joined to reserved table"() {
+    def "should has participation of registered client that joined to reserved table"() {
         given:
             def tableReserved = sampleRouletteTableReserved()
             table = sampleTable(changes: [tableReserved], clientRepository: clientRepository)
         and:
             def clientId = sampleClientId()
-            clientRepository.add(sampleClient(id: clientId))
+            clientRepository.add(sampleClient(id: clientId, changes: [sampleClientRegistered()]))
             def joinToTable = sampleJoinTable(clientId: clientId)
         and:
             def expectedParticipation = sampleParticipation(clientId: clientId)
@@ -206,7 +223,7 @@ class TableTest extends Specification {
             table.hasParticipation$client_services_model(expectedParticipation)
     }
 
-    def "should publish that client joined table"() {
+    def "should publish that registered client joined table"() {
         given:
             def eventPublisher = new FakedTableEventPublisher()
             def joinedTableListener = new FakedJoinedTableListener()
@@ -215,7 +232,7 @@ class TableTest extends Specification {
             table = sampleTable(changes: [tableReserved], clientRepository: clientRepository, eventPublisher: eventPublisher)
         and:
             def clientId = sampleClientId()
-            def client = sampleClient(id: clientId)
+            def client = sampleClient(id: clientId, changes: [sampleClientRegistered()])
             clientRepository.add(client)
             def joinToTable = sampleJoinTable(clientId: clientId)
         when:
@@ -227,6 +244,21 @@ class TableTest extends Specification {
                 clientId == clientId
                 clientTokens == client.tokens()
             }
+    }
+
+    def "should throw ClientNotRegistered when client that is not registered try to join table"() {
+        given:
+            def tableReserved = sampleRouletteTableReserved()
+            table = sampleTable(changes: [tableReserved], clientRepository: clientRepository)
+        and:
+            def clientId = sampleClientId()
+            clientRepository.add(sampleClient(id: clientId))
+            def tryJoinTable = sampleJoinTable(clientId: clientId)
+        when:
+            table.handle(tryJoinTable)
+        then:
+            def e = thrown(ClientNotRegistered)
+            e.clientId == clientId
     }
 
     def "should throw ClientAlreadyParticipated when client which reserved table try to join this table"() {
@@ -276,11 +308,11 @@ class TableTest extends Specification {
             e.clientId == notExistingClientId
     }
 
-    def "should throw ClientBusy when client which already reserved other table try join this table"() {
+    def "should throw ClientBusy when registered client which already reserved other table try join this table"() {
         given:
             def clientId = sampleClientId()
             def tableRepository = new FakedTableRepository()
-            def client = sampleClient(id: clientId, tableRepository: tableRepository)
+            def client = sampleClient(id: clientId, tableRepository: tableRepository, changes: [sampleClientRegistered()])
             clientRepository.add(client)
         and:
             def otherTableReserved = sampleRouletteTableReserved(clientId: clientId)
@@ -296,11 +328,11 @@ class TableTest extends Specification {
             e.clientId == clientId
     }
 
-    def "should throw ClientBusy when client which already joined to other table try join this table"() {
+    def "should throw ClientBusy when registered client which already joined to other table try join this table"() {
         given:
             def clientId = sampleClientId()
             def tableRepository = new FakedTableRepository()
-            def client = sampleClient(id: clientId, tableRepository: tableRepository)
+            def client = sampleClient(id: clientId, tableRepository: tableRepository, changes: [sampleClientRegistered()])
             clientRepository.add(client)
         and:
             def otherTableReserved = sampleRouletteTableReserved()
@@ -333,7 +365,7 @@ class TableTest extends Specification {
     }
 
     @Unroll
-    def "should throw TableFull when client try join table with game type: #gameType and max participants count: #maxParticipantCount"() {
+    def "should throw TableFull when registered client try join table with game type: #gameType and max participants count: #maxParticipantCount"() {
         given:
             def tableId = sampleTableId()
             List<DomainEvent> changes = [sampleRouletteTableReserved(tableId: tableId)]
@@ -341,7 +373,7 @@ class TableTest extends Specification {
             table = sampleTable(id: tableId, changes: changes, clientRepository: clientRepository)
         and:
             def clientId = sampleClientId()
-            clientRepository.add(sampleClient(id: clientId))
+            clientRepository.add(sampleClient(id: clientId, changes: [sampleClientRegistered()]))
             def tryJoinToTable = sampleJoinTable(clientId: clientId)
         when:
             table.handle(tryJoinToTable)
@@ -356,11 +388,11 @@ class TableTest extends Specification {
             "Poker"    | 10
     }
 
-    def "should throw InitialBidingRateTooHigh when client try reserve poker table with initial biding rate higher then their tokens count"() {
+    def "should throw InitialBidingRateTooHigh when registered client try reserve poker table with initial biding rate higher then their tokens count"() {
         given:
             def clientId = sampleClientId()
             def tokensBought = sampleTokensBought(tokens: sampleTokens(count: 50))
-            def client = sampleClient(id: clientId, changes: [tokensBought])
+            def client = sampleClient(id: clientId, changes: [tokensBought, sampleClientRegistered()])
             clientRepository.add(client)
         and:
             table = sampleTable(clientRepository: clientRepository)
@@ -374,11 +406,11 @@ class TableTest extends Specification {
             e.initialBidingRate == tryReserveTable.initialBidingRate
     }
 
-    def "should throw InitialBidingRateTooHigh when client try join poker table with initial biding rate higher then their tokens count"() {
+    def "should throw InitialBidingRateTooHigh when registered client try join poker table with initial biding rate higher then their tokens count"() {
         given:
             def clientId = sampleClientId()
             def tokensBought = sampleTokensBought(tokens: sampleTokens(count: 50))
-            def client = sampleClient(id: clientId, changes: [tokensBought])
+            def client = sampleClient(id: clientId, changes: [tokensBought, sampleClientRegistered()])
             clientRepository.add(client)
         and:
             def tableId = sampleTableId()

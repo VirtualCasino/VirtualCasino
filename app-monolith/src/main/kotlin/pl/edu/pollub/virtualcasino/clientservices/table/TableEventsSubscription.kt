@@ -9,13 +9,17 @@ import javax.annotation.PostConstruct
 class TableEventsSubscription(
         private val publisher: TableEventPublisher,
         private val joinedTableListener: JoinedTableListener,
-        private val rouletteTableReservedListener: RouletteTableReservedListener
+        private val viewTableJoinedListener: ViewTableJoinedListener,
+        private val rouletteTableReservedListener: RouletteTableReservedListener,
+        private val tableReservedListener: ViewRouletteTableReservedListener
 ) {
 
     @PostConstruct
     fun subscribeListeners() {
         publisher.subscribe(joinedTableListener)
+        publisher.subscribe(viewTableJoinedListener)
         publisher.subscribe(rouletteTableReservedListener)
+        publisher.subscribe(tableReservedListener)
     }
 
 }

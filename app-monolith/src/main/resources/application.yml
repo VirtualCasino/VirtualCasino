@@ -1,1 +1,1 @@
-spring.profiles.include: client-services,roulette-game
+spring.profiles.include: client-services,client-services-view,roulette-game

@@ -34,7 +34,7 @@ class Table(override val id: TableId = TableId(),
         val clientId = command.clientId()
         val client = clientRepository.find(clientId) ?: throw ClientNotExist(clientId)
         reservationRules.canReserve(this, client)
-        val event = RouletteTableReserved(tableId = id, clientId = clientId, clientTokens = client.tokens())
+        val event = RouletteTableReserved(tableId = id, clientId = clientId, clientTokens = client.tokens(), firstPlayerNick = client.nick())
         `when`(event)
         eventPublisher.publish(event)
     }
