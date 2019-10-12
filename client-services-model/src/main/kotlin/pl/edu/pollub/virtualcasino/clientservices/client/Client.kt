@@ -28,7 +28,7 @@ class Client(override val id: ClientId = ClientId(),
     }
 
     fun handle(command: RegisterClient) {
-        val event = ClientRegistered(clientId = id, nick = command.nick)
+        val event = ClientRegistered(clientId = id, nick = command.nick, initialTokens = tokens)
         `when`(event)
         eventPublisher.publish(event)
     }

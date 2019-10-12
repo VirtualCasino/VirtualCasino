@@ -3,6 +3,7 @@ package pl.edu.pollub.virtualcasino.clientservices.client.events
 import pl.edu.pollub.virtualcasino.DomainEvent
 import pl.edu.pollub.virtualcasino.clientservices.client.ClientId
 import pl.edu.pollub.virtualcasino.clientservices.client.Nick
+import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 import java.time.Instant
 import java.util.*
 import java.util.UUID.*
@@ -11,6 +12,7 @@ data class ClientRegistered(
         val id: ClientRegisteredId = ClientRegisteredId(),
         val clientId: ClientId,
         val nick: Nick,
+        val initialTokens: Tokens,
         val occurredAt: Instant = Instant.now()
 ): DomainEvent {
 

@@ -11,7 +11,9 @@ class TableEventsSubscription(
         private val joinedTableListener: JoinedTableListener,
         private val viewTableJoinedListener: ViewTableJoinedListener,
         private val rouletteTableReservedListener: RouletteTableReservedListener,
-        private val tableReservedListener: ViewRouletteTableReservedListener
+        private val tableReservedListener: ViewRouletteTableReservedListener,
+        private val rouletteGameLeftListener: ViewRouletteTableLeftListener,
+        private val clientLeftGameLeftListener: RouletteGameLeftListener
 ) {
 
     @PostConstruct
@@ -20,6 +22,8 @@ class TableEventsSubscription(
         publisher.subscribe(viewTableJoinedListener)
         publisher.subscribe(rouletteTableReservedListener)
         publisher.subscribe(tableReservedListener)
+        publisher.subscribe(rouletteGameLeftListener)
+        publisher.subscribe(clientLeftGameLeftListener)
     }
 
 }
