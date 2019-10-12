@@ -13,4 +13,9 @@ class ClientServicesViewDatabaseChangelog {
         db.createCollection("table_view", BasicDBObject())
     }
 
+    @ChangeSet(order = "12-11-2019.20:49", id = "createClientViewDocument", author = "Jarek0")
+    fun createClientViewDocument(db: DB) {
+        db.createCollection("client_view", BasicDBObject())
+    }
+
 }

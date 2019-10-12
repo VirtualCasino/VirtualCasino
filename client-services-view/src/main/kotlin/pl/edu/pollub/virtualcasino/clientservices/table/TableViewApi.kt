@@ -1,16 +1,19 @@
 package pl.edu.pollub.virtualcasino.clientservices.table
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import pl.edu.pollub.virtualcasino.clientservices.table.exceptions.TableNotExist
+import java.util.*
 
 @RestController
 @RequestMapping("/virtual-casino/casino-services/tables")
 class TableViewApi(private val repository: TableViewRepository) {
 
+    @GetMapping("/{tableId}")
+    fun getTableById(@PathVariable tableId: UUID): TableView = repository.find(tableId) ?: throw TableNotExist(TableId(tableId))
+
     @GetMapping("/roulette")
-    fun getAllTableViews(): List<TableView> {
-        return repository.findAll()
+    fun getAllTableViews(@RequestParam searchedPlayerNick: String?): List<TableView> {
+        return repository.findAllOpenRouletteTables(searchedPlayerNick ?: "")
     }
 
 }
