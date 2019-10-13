@@ -6,7 +6,7 @@ import pl.edu.pollub.virtualcasino.DomainEventListener
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteGameLeft
 
 @Component
-class ViewRouletteTableLeftListener(private val repository: ClientViewRepository) : DomainEventListener<RouletteGameLeft> {
+class ViewClientLeftRouletteGameListener(private val repository: ClientViewRepository) : DomainEventListener<RouletteGameLeft> {
 
     override fun reactTo(event: DomainEvent) {
         reactTo(event as RouletteGameLeft)

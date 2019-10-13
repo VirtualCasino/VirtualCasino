@@ -1,6 +1,7 @@
 package pl.edu.pollub.virtualcasino.clientservices.table
 
 import org.springframework.context.annotation.Configuration
+import pl.edu.pollub.virtualcasino.clientservices.client.ViewClientLeftRouletteGameListener
 import pl.edu.pollub.virtualcasino.roulettegame.JoinedTableListener
 import pl.edu.pollub.virtualcasino.roulettegame.RouletteTableReservedListener
 import javax.annotation.PostConstruct
@@ -12,7 +13,8 @@ class TableEventsSubscription(
         private val viewTableJoinedListener: ViewTableJoinedListener,
         private val rouletteTableReservedListener: RouletteTableReservedListener,
         private val tableReservedListener: ViewRouletteTableReservedListener,
-        private val rouletteGameLeftListener: ViewRouletteTableLeftListener,
+        private val viewRouletteGameLeftListener: ViewRouletteTableLeftListener,
+        private val viewClientLeftRouletteGameListener: ViewClientLeftRouletteGameListener,
         private val clientLeftGameLeftListener: RouletteGameLeftListener
 ) {
 
@@ -22,8 +24,9 @@ class TableEventsSubscription(
         publisher.subscribe(viewTableJoinedListener)
         publisher.subscribe(rouletteTableReservedListener)
         publisher.subscribe(tableReservedListener)
-        publisher.subscribe(rouletteGameLeftListener)
+        publisher.subscribe(viewRouletteGameLeftListener)
         publisher.subscribe(clientLeftGameLeftListener)
+        publisher.subscribe(viewClientLeftRouletteGameListener)
     }
 
 }
