@@ -79,7 +79,7 @@ class ClientApiTest extends ClientServicesApiTest {
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatReservedTable.id().value.toString()]
+            exceptionView.param == ["clientId": clientThatReservedTable.id().value.toString()]
     }
 
     def "should not buy tokens when client joined to reserved table"() {
@@ -99,6 +99,6 @@ class ClientApiTest extends ClientServicesApiTest {
             response.statusCode == BAD_REQUEST
             def exceptionView = response.body
             exceptionView.code == ClientBusy.CODE
-            exceptionView.params == ["clientId": clientThatJoinedTable.id().value.toString()]
+            exceptionView.param == ["clientId": clientThatJoinedTable.id().value.toString()]
     }
 }

@@ -12,8 +12,8 @@ class TableViewApi(private val repository: TableViewRepository) {
     fun getTableById(@PathVariable tableId: UUID): TableView = repository.find(tableId) ?: throw TableNotExist(TableId(tableId))
 
     @GetMapping("/roulette")
-    fun getAllTableViews(@RequestParam searchedPlayerNick: String?): List<TableView> {
-        return repository.findAllOpenRouletteTables(searchedPlayerNick ?: "")
+    fun getAllTableViews(@RequestParam searchedPlayerNick: String?, @RequestParam pageNumber: Int?): TablePageView {
+        return repository.findAllOpenRouletteTables(searchedPlayerNick ?: "", pageNumber ?: 0)
     }
 
 }

@@ -7,4 +7,5 @@ import java.util.*
 @Document("client_view")
 class ClientView(@Id val id: UUID = UUID.randomUUID(),
                  val clientViewId: UUID,
+                 val nick: String,
                  var tokensCount: Int)

@@ -15,6 +15,7 @@ class ViewClientRegisteredListener(private val repository: ClientViewRepository)
     private fun reactTo(event: ClientRegistered) {
         repository.save(ClientView(
                 clientViewId = event.aggregateId(),
+                nick = event.nick.value,
                 tokensCount = event.initialTokens.count
         ))
     }

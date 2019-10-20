@@ -7,6 +7,7 @@ import pl.edu.pollub.virtualcasino.clientservices.client.commands.RegisterClient
 import pl.edu.pollub.virtualcasino.clientservices.client.events.ClientRegistered
 import pl.edu.pollub.virtualcasino.clientservices.client.events.TokensBought
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientBusy
+import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNickNotValid
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.ClientNotRegistered
 import pl.edu.pollub.virtualcasino.clientservices.client.exceptions.TokensCountMustBePositive
 import pl.edu.pollub.virtualcasino.clientservices.table.Participation
@@ -28,7 +29,8 @@ class Client(override val id: ClientId = ClientId(),
     }
 
     fun handle(command: RegisterClient) {
-        val event = ClientRegistered(clientId = id, nick = command.nick, initialTokens = tokens)
+        if(!NickValidator().isNickValid(command.nick)) throw ClientNickNotValid(command.nick)
+        val event = ClientRegistered(clientId = id, nick = command.nick, initialTokens = Tokens(100))
         `when`(event)
         eventPublisher.publish(event)
     }
@@ -74,9 +76,19 @@ class Client(override val id: ClientId = ClientId(),
     }
 
     private fun `when`(event: ClientRegistered): Client {
+        tokens = event.initialTokens
         state = Registered(event.nick)
         applyChange(event)
         return this
     }
 
+}
+
+class NickValidator {
+
+    fun isNickValid(nick: Nick): Boolean = Regex(nickRegex).matches(nick.value)
+
+    companion object {
+        const val nickRegex = "^[a-zA-Z0-9]{3,10}$"
+    }
 }

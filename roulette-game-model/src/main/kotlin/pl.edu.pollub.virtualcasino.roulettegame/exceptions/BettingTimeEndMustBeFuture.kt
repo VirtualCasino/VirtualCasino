@@ -13,7 +13,7 @@ class BettingTimeEndMustBeFuture(private val gameId: RouletteGameId,
                 Pair("bettingTimeEnd", bettingTimeEnd.toString()),
                 Pair("currentTime", currentTime.toString())
         ),
-        "Cannot end start new spin in game with id: ${gameId.value} because previous spin is not finished yet") {
+        "Chosen betting time in game with id: ${gameId.value} must be in future") {
 
     companion object {
         const val CODE = "rouletteGame.rouletteGame.bettingTimeEndMustBeFuture"

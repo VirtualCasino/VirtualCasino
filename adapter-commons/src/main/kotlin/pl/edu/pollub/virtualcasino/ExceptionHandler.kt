@@ -23,4 +23,4 @@ open class ExceptionHandler {
 
 }
 
-data class ExceptionView(val code: String, val params: Map<String, String>)
+data class ExceptionView(val code: String, val param: Map<String, String>)
