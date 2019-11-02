@@ -13,6 +13,8 @@ data class SpinFinished (
         val occurredAt: Instant = Instant.now()
 ): DomainEvent {
 
+    var results: MutableMap<UUID, Int> = mutableMapOf()
+
     override fun type(): String = TYPE
 
     override fun occurredAt(): Instant = occurredAt

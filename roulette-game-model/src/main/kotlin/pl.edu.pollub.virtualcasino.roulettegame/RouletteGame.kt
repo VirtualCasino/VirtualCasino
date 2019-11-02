@@ -130,6 +130,7 @@ class RouletteGame(override val id: RouletteGameId = RouletteGameId(),
         players.forEach { it.chargeForBets(event.fieldDrawn) }
         state = SpinFinished()
         applyChange(event)
+        event.results = players.map { Pair(it.id().value, it.tokens().count) }.toMap().toMutableMap() // temporary issue
         return this
     }
 

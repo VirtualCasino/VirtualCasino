@@ -6,7 +6,10 @@ import pl.edu.pollub.virtualcasino.DomainEventListener
 import pl.edu.pollub.virtualcasino.roulettegame.events.RouletteBetPlaced
 
 @Component
-class ViewRouletteGameBetPlacedListener(private val repository: RouletteGameViewRepository): DomainEventListener<RouletteBetPlaced> {
+class ViewRouletteGameBetPlacedListener(
+        private val repository: RouletteGameViewRepository,
+        private val notifier: RouletteGameNotifier
+): DomainEventListener<RouletteBetPlaced> {
 
     override fun reactTo(event: DomainEvent) {
         reactTo(event as RouletteBetPlaced)
@@ -23,6 +26,7 @@ class ViewRouletteGameBetPlacedListener(private val repository: RouletteGameView
         }
         betView.value = event.betValue.count
         repository.save(gameView)
+        notifier.notifyThat(event)
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is RouletteBetPlaced

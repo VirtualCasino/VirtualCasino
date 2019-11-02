@@ -7,7 +7,10 @@ import pl.edu.pollub.virtualcasino.roulettegame.SpinState.IN_PROGRESS
 import pl.edu.pollub.virtualcasino.roulettegame.events.SpinStarted
 
 @Component
-class ViewRouletteGameSpinStartedListener(private val repository: RouletteGameViewRepository): DomainEventListener<SpinStarted> {
+class ViewRouletteGameSpinStartedListener(
+        private val repository: RouletteGameViewRepository,
+        private val notifier: RouletteGameNotifier
+): DomainEventListener<SpinStarted> {
 
     override fun reactTo(event: DomainEvent) {
         reactTo(event as SpinStarted)
@@ -17,6 +20,7 @@ class ViewRouletteGameSpinStartedListener(private val repository: RouletteGameVi
         val gameView = repository.find(event.aggregateId()) ?: return
         gameView.spinState = IN_PROGRESS
         repository.save(gameView)
+        notifier.notifyThat(event)
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is SpinStarted

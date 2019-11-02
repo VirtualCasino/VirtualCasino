@@ -6,7 +6,10 @@ import pl.edu.pollub.virtualcasino.DomainEventListener
 import pl.edu.pollub.virtualcasino.clientservices.table.events.RouletteTableReserved
 
 @Component
-class ViewRouletteGameTableReservedListener(private val repository: RouletteGameViewRepository): DomainEventListener<RouletteTableReserved> {
+class ViewRouletteGameTableReservedListener(
+        private val repository: RouletteGameViewRepository,
+        private val notifier: RouletteGameNotifier
+): DomainEventListener<RouletteTableReserved> {
 
 
     override fun reactTo(event: DomainEvent) {
@@ -24,6 +27,7 @@ class ViewRouletteGameTableReservedListener(private val repository: RouletteGame
                 )
         )
         repository.save(rouletteGameView)
+        notifier.notifyThat(event)
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is RouletteTableReserved

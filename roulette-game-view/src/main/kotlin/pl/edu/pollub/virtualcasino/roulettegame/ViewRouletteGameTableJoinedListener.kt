@@ -6,7 +6,10 @@ import pl.edu.pollub.virtualcasino.DomainEventListener
 import pl.edu.pollub.virtualcasino.clientservices.table.events.JoinedTable
 
 @Component
-class ViewRouletteGameTableJoinedListener(private val repository: RouletteGameViewRepository): DomainEventListener<JoinedTable> {
+class ViewRouletteGameTableJoinedListener(
+        private val repository: RouletteGameViewRepository,
+        private val notifier: RouletteGameNotifier
+): DomainEventListener<JoinedTable> {
 
     override fun reactTo(event: DomainEvent) {
         reactTo(event as JoinedTable)
@@ -21,6 +24,7 @@ class ViewRouletteGameTableJoinedListener(private val repository: RouletteGameVi
                 )
         )
         repository.save(gameView)
+        notifier.notifyThat(event)
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is JoinedTable
