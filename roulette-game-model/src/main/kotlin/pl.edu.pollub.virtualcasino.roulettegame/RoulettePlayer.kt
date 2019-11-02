@@ -38,6 +38,8 @@ class RoulettePlayer(clientId: ClientId, private var tokens: Tokens = Tokens()) 
 
     internal fun placedBetsFields(): Set<RouletteField> = placedBets.keys
 
+    internal fun placedBetForFieldValue(field: RouletteField) = placedBets[field]?.value() ?: Tokens(0)
+
     private fun placedBetsValue(): Tokens = placedBets.values.fold(Tokens()) { placedTokens, betValue -> placedTokens + betValue.value() }
 
     override fun equals(other: Any?): Boolean {

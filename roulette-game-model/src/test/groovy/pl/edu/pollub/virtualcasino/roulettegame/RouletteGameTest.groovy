@@ -174,7 +174,7 @@ class RouletteGameTest extends Specification {
             def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatPlacedBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def previousBetValue = sampleTokens(count: 5)
-            def previousBetPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: previousBetValue, field: NUMBER_1)
+            def previousBetPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, betValue: previousBetValue, field: NUMBER_1)
             rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, previousBetPlaced], clock: new FakedClock(samplePointInTime()))
         and:
             def nextBetValue = sampleTokens(count: 3)
@@ -200,7 +200,7 @@ class RouletteGameTest extends Specification {
             def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatPlacedBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def betValue = sampleTokens(count: 5)
-            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: betValue, field: NUMBER_1)
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, betValue: betValue, field: NUMBER_1)
             rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, betPlaced], clock: new FakedClock(samplePointInTime()))
         and:
             def cancelBet = sampleCancelRouletteBet(playerId: playerThatPlacedBetId, field: NUMBER_1)
@@ -277,7 +277,7 @@ class RouletteGameTest extends Specification {
             def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatPlacedBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
             def previousBetValue = sampleTokens(count: 5)
-            def previousBetPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: previousBetValue)
+            def previousBetPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, betValue: previousBetValue)
             rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, previousBetPlaced], clock: new FakedClock(samplePointInTime()))
         and:
             def betThatExceedsPlayerTokens = sampleTokens(count: 6)
@@ -330,7 +330,7 @@ class RouletteGameTest extends Specification {
             def joinedTable = sampleJoinedTable(clientId: clientThatJoinedTableId, clientTokens: clientTokens)
             def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatPlacedBetId = sampleRoulettePlayerId(value: clientThatJoinedTableId.value)
-            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, value: sampleTokens(count: betValue), field: betField)
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatPlacedBetId, betValue: sampleTokens(count: betValue), field: betField)
             def clock = new FakedClock(samplePointInTime())
             rouletteGame = sampleRouletteGame(changes: [joinedTable, spinStarted, betPlaced], clock: clock)
         and:
@@ -473,7 +473,7 @@ class RouletteGameTest extends Specification {
             def clientThatLeavingJoinedTable = sampleJoinedTable(clientId: clientThatLeavingTableId, clientTokens: clientThatLeavingTableTokens)
             def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatLeavingTableId = sampleRoulettePlayerId(value: clientThatLeavingTableId.value)
-            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatLeavingTableId, value: sampleTokens(count: 5))
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatLeavingTableId, betValue: sampleTokens(count: 5))
             def clock = new FakedClock(samplePointInTime())
             rouletteGame = sampleRouletteGame(changes: [clientThatLeavingJoinedTable, spinStarted, betPlaced], clock: clock, eventPublisher: eventPublisher)
         and:
@@ -503,7 +503,7 @@ class RouletteGameTest extends Specification {
             def clientThatLeavingJoinedTable = sampleJoinedTable(clientId: clientThatLeavingTableId, clientTokens: clientThatLeavingTableTokens)
             def spinStarted = sampleSpinStarted(bettingTimeEnd: samplePointInTime(minute: 1))
             def playerThatLeavingTableId = sampleRoulettePlayerId(value: clientThatLeavingTableId.value)
-            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatLeavingTableId, value: sampleTokens(count: 5))
+            def betPlaced = sampleRouletteBetPlaced(playerId: playerThatLeavingTableId, betValue: sampleTokens(count: 5))
             def clock = new FakedClock(samplePointInTime())
             rouletteGame = sampleRouletteGame(changes: [clientThatLeavingJoinedTable, spinStarted, betPlaced], clock: clock, eventPublisher: eventPublisher)
         and:

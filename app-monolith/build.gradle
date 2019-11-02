@@ -3,6 +3,7 @@ dependencies {
             project(':client-services-adapters'),
             project(':client-services-view'),
             project(':roulette-game-adapters'),
+            project(':roulette-game-view'),
             project(':adapter-commons'),
             'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.50',
             'org.jetbrains.kotlin:kotlin-reflect:1.3.50',

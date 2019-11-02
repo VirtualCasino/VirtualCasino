@@ -14,9 +14,9 @@ import kotlin.text.Typography.dollar
 @Component
 class TableViewRepository(private val clientServicesViewMongoTemplate: MongoTemplate) {
 
-    fun find(aggregateId: UUID): TableView? {
+    fun find(viewId: UUID): TableView? {
         val query = Query()
-        query.addCriteria(where("tableViewId").isEqualTo(aggregateId))
+        query.addCriteria(where("tableViewId").isEqualTo(viewId))
         return clientServicesViewMongoTemplate.findOne(query, TableView::class.java)
     }
 

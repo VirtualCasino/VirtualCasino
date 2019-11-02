@@ -33,8 +33,10 @@ class RouletteGame(override val id: RouletteGameId = RouletteGameId(),
         if(!state.isSpinFinished()) throw CurrentSpinNotFinished(id)
         val currentTime = clock.instant()
         if(command.bettingTimeEnd < currentTime) throw BettingTimeEndMustBeFuture(id, command.bettingTimeEnd, currentTime)
-        `when`(SpinStarted(gameId = id, bettingTimeEnd = command.bettingTimeEnd))
+        val event = SpinStarted(gameId = id, bettingTimeEnd = command.bettingTimeEnd)
+        `when`(event)
         croupier.scheduleTheFinishOfSpinForGame(id)
+        eventPublisher.publish(event)
     }
 
     fun handle(command: PlaceRouletteBet) {
@@ -45,7 +47,9 @@ class RouletteGame(override val id: RouletteGameId = RouletteGameId(),
         if(betValue <= Tokens()) throw BetValueMustBePositive(id, player.id(), betValue)
         val playerFreeTokens = player.freeTokens()
         if(betValue > playerFreeTokens) throw PlacedBetsExceedPlayerFreeTokens(id, player.id(), betValue, playerFreeTokens)
-        `when`(RouletteBetPlaced(gameId = id, playerId = player.id(), field = command.field, value = command.value))
+        val event = RouletteBetPlaced(gameId = id, playerId = player.id(), field = command.field, betValue = command.value)
+        `when`(event)
+        eventPublisher.publish(event)
     }
 
     fun handle(command: CancelRouletteBet) {
@@ -54,15 +58,19 @@ class RouletteGame(override val id: RouletteGameId = RouletteGameId(),
         validateBettingTime(player)
         val canceledBetField = command.field
         if(!player.placedBetsFields().contains(canceledBetField)) throw BetNotExist(id, playerId, canceledBetField)
-        `when`(RouletteBetCanceled(gameId = id, playerId = playerId, field = canceledBetField))
+        val event = RouletteBetCanceled(gameId = id, playerId = playerId, field = canceledBetField, betValue = player.placedBetForFieldValue(command.field))
+        `when`(event)
+        eventPublisher.publish(event)
     }
 
     fun handle(command: FinishSpin) {
         if(!state.isSpinStarted()) throw SpinNotStartedYet(id)
         if(state.isSpinFinished()) throw SpinAlreadyFinished(id)
         if(!state.isBettingTimeEnded()) throw BettingTimeNotEndedYet(id)
-        `when`(SpinFinished(gameId = id, fieldDrawn = command.fieldDrawn))
+        val event = SpinFinished(gameId = id, fieldDrawn = command.fieldDrawn)
+        `when`(event)
         if(players.isNotEmpty()) croupier.scheduleTheStartOfSpinForGame(id)
+        eventPublisher.publish(event)
     }
 
     fun handle(command: LeaveRouletteGame) {
@@ -106,7 +114,7 @@ class RouletteGame(override val id: RouletteGameId = RouletteGameId(),
 
     private fun `when`(event: RouletteBetPlaced): RouletteGame {
         val playerThatPlacedBet = players.find { it.id() == event.playerId }!!
-        playerThatPlacedBet.placeBet(event.field, event.value)
+        playerThatPlacedBet.placeBet(event.field, event.betValue)
         applyChange(event)
         return this
     }

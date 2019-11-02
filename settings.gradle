@@ -7,4 +7,5 @@ include 'app-monolith'
 include 'adapter-commons'
 include 'roulette-game-adapters'
 include 'roulette-game-model'
+include 'roulette-game-view'
 

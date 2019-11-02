@@ -1,6 +1,7 @@
 package pl.edu.pollub.virtualcasino.roulettegame.events
 
 import pl.edu.pollub.virtualcasino.DomainEvent
+import pl.edu.pollub.virtualcasino.clientservices.client.Tokens
 import pl.edu.pollub.virtualcasino.roulettegame.RouletteField
 import pl.edu.pollub.virtualcasino.roulettegame.RouletteGameId
 import pl.edu.pollub.virtualcasino.roulettegame.RoulettePlayerId
@@ -13,6 +14,7 @@ data class RouletteBetCanceled(
         val gameId: RouletteGameId,
         val playerId: RoulettePlayerId,
         val field: RouletteField,
+        val betValue: Tokens,
         val occurredAt: Instant = Instant.now()
 ): DomainEvent {
 

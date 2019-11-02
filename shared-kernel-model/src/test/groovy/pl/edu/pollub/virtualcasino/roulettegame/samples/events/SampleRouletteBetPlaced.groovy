@@ -24,7 +24,7 @@ class SampleRouletteBetPlaced {
                 gameId: sampleRouletteGameId(),
                 playerId: sampleRoulettePlayerId(),
                 field: NUMBER_1,
-                value: sampleTokens(),
+                betValue: sampleTokens(),
                 occurredAt: samplePointInTime()
         ] + customProperties
         return new RouletteBetPlaced(
@@ -32,7 +32,7 @@ class SampleRouletteBetPlaced {
                 properties.gameId as RouletteGameId,
                 properties.playerId as RoulettePlayerId,
                 properties.field as RouletteField,
-                properties.value as Tokens,
+                properties.betValue as Tokens,
                 properties.occurredAt as Instant
         )
     }

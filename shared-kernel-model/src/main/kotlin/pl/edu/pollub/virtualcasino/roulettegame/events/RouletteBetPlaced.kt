@@ -14,7 +14,7 @@ data class RouletteBetPlaced(
         val gameId: RouletteGameId,
         val playerId: RoulettePlayerId,
         val field: RouletteField,
-        val value: Tokens,
+        val betValue: Tokens,
         val occurredAt: Instant = Instant.now()
 ): DomainEvent {
 
