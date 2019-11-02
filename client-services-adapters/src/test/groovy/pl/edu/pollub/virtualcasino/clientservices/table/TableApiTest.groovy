@@ -138,7 +138,7 @@ class TableApiTest extends ClientServicesApiTest {
             def clientThatReservedTableTokens = sampleTokens(count: 100)
             def clientThatReservedTable = setupClientWithTokens(clientThatReservedTableTokens)
         and:
-            def initialBidingRate = sampleTokens(count: 100)
+            def initialBidingRate = sampleTokens(count: 200)
             def tableWithToHighBidingRateId = reservePokerTable(clientThatReservedTable.id(), initialBidingRate)
         and:
             def clientThatWantJoinTableTokens = sampleTokens(count: 50)
@@ -153,7 +153,7 @@ class TableApiTest extends ClientServicesApiTest {
             exceptionView.code == InitialBidingRateTooHigh.CODE
             exceptionView.param == [
                     "clientId": clientThatWantJoinTable.id().value.toString(),
-                    "tokens": clientThatWantJoinTableTokens.count.toString(),
+                    "tokens": clientThatWantJoinTable.tokens().count.toString(),
                     "initialBidingRate": initialBidingRate.count.toString()
             ]
     }

@@ -45,8 +45,8 @@ class ClientApiTest extends ClientServicesApiTest {
     def "should buy tokens"() {
         given:
             def clientThatBuyingTokens = setupClient()
-            def tokens = sampleTokens(count: 100)
-            def buyTokens = sampleBuyTokens(clientId: clientThatBuyingTokens.id(), tokens: tokens)
+            def tokensToBuy = sampleTokens(count: 100)
+            def buyTokens = sampleBuyTokens(clientId: clientThatBuyingTokens.id(), tokens: tokensToBuy)
         and:
             def tokensBoughtListener = new FakedTokensBoughtListener()
             eventPublisher.subscribe(tokensBoughtListener)
@@ -54,12 +54,12 @@ class ClientApiTest extends ClientServicesApiTest {
             http.put(URI.create("/virtual-casino/casino-services/clients/tokens"), buyTokens)
         then:
             def foundClient = clientRepository.find(clientThatBuyingTokens.id())
-            foundClient.tokens() == tokens
+            foundClient.tokens() == clientThatBuyingTokens.tokens() + tokensToBuy
         and:
             conditions.eventually {
                 def event = tokensBoughtListener.listenedEvents.first()
                 event.clientId == clientThatBuyingTokens.id()
-                event.tokens == tokens
+                event.tokens == tokensToBuy
             }
         cleanup:
             eventPublisher.unsubscribe(tokensBoughtListener)

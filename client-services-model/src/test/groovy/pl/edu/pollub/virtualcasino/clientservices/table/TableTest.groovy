@@ -85,7 +85,7 @@ class TableTest extends Specification {
         and:
             def clientId = sampleClientId()
             def tokensBought = sampleTokensBought(tokens: sampleTokens(count: 100))
-            def client = sampleClient(id: clientId, changes: [tokensBought, sampleClientRegistered()])
+            def client = sampleClient(id: clientId, changes: [sampleClientRegistered(), tokensBought])
             clientRepository.add(client)
             def initialBidingRate = sampleTokens(count: 50)
             def reserveTable = sampleReservePokerTable(clientId: clientId, initialBidingRate: initialBidingRate)
@@ -392,7 +392,7 @@ class TableTest extends Specification {
         given:
             def clientId = sampleClientId()
             def tokensBought = sampleTokensBought(tokens: sampleTokens(count: 50))
-            def client = sampleClient(id: clientId, changes: [tokensBought, sampleClientRegistered()])
+            def client = sampleClient(id: clientId, changes: [sampleClientRegistered(), tokensBought])
             clientRepository.add(client)
         and:
             table = sampleTable(clientRepository: clientRepository)
@@ -410,7 +410,7 @@ class TableTest extends Specification {
         given:
             def clientId = sampleClientId()
             def tokensBought = sampleTokensBought(tokens: sampleTokens(count: 50))
-            def client = sampleClient(id: clientId, changes: [tokensBought, sampleClientRegistered()])
+            def client = sampleClient(id: clientId, changes: [sampleClientRegistered(), tokensBought])
             clientRepository.add(client)
         and:
             def tableId = sampleTableId()
