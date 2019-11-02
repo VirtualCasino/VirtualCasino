@@ -11,6 +11,9 @@ import pl.edu.pollub.virtualcasino.roulettegame.commands.FinishSpin
 import pl.edu.pollub.virtualcasino.roulettegame.commands.StartSpin
 import java.time.Clock
 import java.time.Clock.systemDefaultZone
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
+
+
 
 @Component
 class SpinScheduler(private val rouletteWheel: RouletteWheel,
@@ -67,5 +70,18 @@ class RouletteTimeConfig {
     @Bean
     @Primary
     fun clock(): Clock = systemDefaultZone()
+
+}
+
+@Configuration
+class TaskSchedulerConfiguration {
+
+    @Bean
+    fun taskScheduler(): TaskScheduler {
+        val scheduler = ThreadPoolTaskScheduler()
+        scheduler.threadNamePrefix = "poolScheduler"
+        scheduler.poolSize = 10
+        return scheduler
+    }
 
 }

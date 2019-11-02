@@ -1,14 +1,15 @@
 package pl.edu.pollub.virtualcasino.roulettegame
 
-import org.springframework.messaging.simp.SimpMessageSendingOperations
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Component
 import pl.edu.pollub.virtualcasino.DomainEvent
+import pl.edu.pollub.virtualcasino.roulettegame.config.SocketSessions
 
 @Component
-class RouletteGameNotifier(private val sender: SimpMessageSendingOperations) {
+class RouletteGameNotifier(private val socketSessions: SocketSessions, private val clientObjectMapper: ObjectMapper) {
 
     fun notifyThat(event: DomainEvent) {
-        sender.convertAndSend("/game/${event.aggregateId()}", event)
+        socketSessions.sendTextMessage(clientObjectMapper.writeValueAsString(event))
     }
 
 }

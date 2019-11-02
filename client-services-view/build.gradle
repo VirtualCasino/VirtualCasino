@@ -5,6 +5,7 @@ compileTestJava.dependsOn tasks.getByPath(':shared-kernel-model:testClasses')
 dependencies {
     compile (
             project(':shared-kernel-model'),
+            project(':adapter-commons'),
             'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.50',
             'org.jetbrains.kotlin:kotlin-reflect:1.3.50',
             'org.springframework.boot:spring-boot-starter-web',

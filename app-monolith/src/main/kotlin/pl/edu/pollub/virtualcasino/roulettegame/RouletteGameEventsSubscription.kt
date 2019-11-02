@@ -12,9 +12,7 @@ class RouletteGameEventsSubscription(
         private val viewRouletteGameBetPlacedListener: ViewRouletteGameBetPlacedListener,
         private val viewRouletteGameLeftListener: ViewRouletteGameLeftListener,
         private val viewRouletteGameSpinFinishedListener: ViewRouletteGameSpinFinishedListener,
-        private val viewRouletteGameSpinStartedListener: ViewRouletteGameSpinStartedListener,
-        private val viewRouletteGameTableJoinedListener: ViewRouletteGameTableJoinedListener,
-        private val viewRouletteGameTableReservedListener: ViewRouletteGameTableReservedListener
+        private val viewRouletteGameSpinStartedListener: ViewRouletteGameSpinStartedListener
 ) {
 
     @PostConstruct
@@ -25,7 +23,5 @@ class RouletteGameEventsSubscription(
         publisher.subscribe(viewRouletteGameLeftListener)
         publisher.subscribe(viewRouletteGameSpinFinishedListener)
         publisher.subscribe(viewRouletteGameSpinStartedListener)
-        publisher.subscribe(viewRouletteGameTableJoinedListener)
-        publisher.subscribe(viewRouletteGameTableReservedListener)
     }
 }

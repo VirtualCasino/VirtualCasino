@@ -24,15 +24,7 @@ class RouletteTableReservedListener(private val factory: RouletteGameFactory,
         val rouletteGame = factory.create(RouletteGameId(event.tableId))
         rouletteGame.`when`(event)
         repository.add(rouletteGame)
-        registerSynchronization(
-                object : TransactionSynchronizationAdapter() {
-
-                    override fun afterCommit() {
-                        spinScheduler.scheduleTheStartOfFirstSpinForGame(rouletteGame.id())
-                    }
-
-                }
-        )
+        spinScheduler.scheduleTheStartOfFirstSpinForGame(rouletteGame.id())
     }
 
     override fun isListenFor(event: DomainEvent): Boolean = event is RouletteTableReserved

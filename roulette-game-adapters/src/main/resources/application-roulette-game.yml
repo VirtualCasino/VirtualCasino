@@ -16,4 +16,4 @@ spin:
   start-spin-delay-after-table-reservation-in-milliseconds: 10000 # 10 seconds
   betting-time-in-milliseconds: 240000 # 4 minutes
   spin-time-duration-in-milliseconds: 300000 # 5 minutes
-  break-time-between-spins-in-milliseconds: 20000 # 20 seconds
+  break-time-between-spins-in-milliseconds: 30000 # 30 seconds
