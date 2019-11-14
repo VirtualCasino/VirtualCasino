@@ -12,7 +12,7 @@ import java.util.*
 @RequestMapping("/virtual-casino/casino-services/roulette-games")
 class RouletteGameViewApi(private val repository: RouletteGameViewRepository) {
 
-    @GetMapping("/{rouletteGameId}")
+    @GetMapping("/{gameId}")
     fun getRouletteGameById(@PathVariable gameId: UUID): RouletteGameView = repository.find(gameId) ?: throw TableNotExist(TableId(gameId))
 
 }
